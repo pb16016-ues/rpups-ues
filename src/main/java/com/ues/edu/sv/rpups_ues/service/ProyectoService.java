@@ -1,0 +1,35 @@
+package com.ues.edu.sv.rpups_ues.service;
+
+import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ProyectoService {
+
+    List<Proyecto> findAll();
+
+    Optional<Proyecto> findById(Long idProyecto);
+
+    List<Proyecto> findByTitulo(String titulo);
+
+    List<Proyecto> findByEstado(String codigoEstado);
+
+    List<Proyecto> findByEmpresa(Long idEmpresa);
+
+    List<Proyecto> findByCarrera(String codigoCarrera);
+
+    List<Proyecto> findByModalidad(String codigoModalidad);
+
+    List<Proyecto> findByAdministradorAprobador(Long idUsuario);
+
+    List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
+
+    List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
+
+    List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
+
+    Proyecto save(Proyecto proyecto);
+
+    void deleteById(Long idProyecto);
+}
