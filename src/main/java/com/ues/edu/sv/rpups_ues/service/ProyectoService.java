@@ -5,6 +5,9 @@ import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface ProyectoService {
 
     List<Proyecto> findAll();
@@ -28,6 +31,8 @@ public interface ProyectoService {
     List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
 
     List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
+
+    Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable);
 
     Proyecto save(Proyecto proyecto);
 

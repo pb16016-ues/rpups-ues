@@ -3,6 +3,10 @@ package com.ues.edu.sv.rpups_ues.model.repository;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -27,4 +31,14 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
 
     List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
             String codigoEstado);
+
+    @Query("SELECT s FROM SolicitudProyecto s " +
+            "WHERE (:filter IS NULL " +
+            "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(s.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(s.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(s.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
+    Page<SolicitudProyecto> searchByAnyField(
+            @Param("filter") String filter,
+            Pageable pageable);
 }

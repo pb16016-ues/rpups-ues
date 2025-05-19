@@ -2,6 +2,10 @@ package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -88,6 +92,18 @@ public class ProyectoController {
         List<Proyecto> proyectos = proyectoService.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
                 codigoEstado);
         return ResponseEntity.ok(proyectos);
+    }
+
+    @GetMapping("/search-filters")
+    public ResponseEntity<Page<Proyecto>> getProyectosByFiltros(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(pageable));
+        }
+        Page<Proyecto> page = proyectoService.findProyectoByFiltros(filter, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @PostMapping

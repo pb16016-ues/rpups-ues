@@ -8,6 +8,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface UsuarioService {
 
     List<Usuario> findAll();
@@ -23,6 +26,8 @@ public interface UsuarioService {
     Optional<Usuario> findByCorreoInstitucional(String correoInstitucional);
 
     Optional<Usuario> findByCorreoPersonal(String correoPersonal);
+
+    Page<Usuario> findUsuarioByFiltros(String filter, Pageable pageable);
 
     Usuario save(Usuario usuario);
 

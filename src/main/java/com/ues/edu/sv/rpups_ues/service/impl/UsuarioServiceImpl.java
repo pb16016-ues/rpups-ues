@@ -10,6 +10,8 @@ import com.ues.edu.sv.rpups_ues.service.UsuarioService;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +76,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Usuario> findUsuarioByFiltros(String filter, Pageable pageable) {
+        return usuarioRepository.searchByAnyField(filter, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean existsByCorreoInstitucional(String correoInstitucional) {
         return usuarioRepository.existsByCorreoInstitucional(correoInstitucional);
     }
@@ -96,27 +104,33 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.existsByUsername(username);
     }
 
-    @Override
-    @Transactional
-    public Usuario save(Usuario usuario) {
-        if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
-            throw new IllegalArgumentException("El correo institucional ya está registrado.");
-        }
-
-        if (usuario.getCorreoPersonal() != null && existsByCorreoPersonal(usuario.getCorreoPersonal())) {
-            throw new IllegalArgumentException("El correo personal ya está registrado.");
-        }
-
-        if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
-            throw new IllegalArgumentException("El carnet ya está registrado.");
-        }
-
-        if (existsByUsername(usuario.getUsername())) {
-            throw new IllegalArgumentException("El nombre de usuario ya está registrado.");
-        }
-
-        return usuarioRepository.save(usuario);
-    }
+    /*
+     * @Override
+     * 
+     * @Transactional
+     * public Usuario save(Usuario usuario) {
+     * if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
+     * throw new
+     * IllegalArgumentException("El correo institucional ya está registrado.");
+     * }
+     * 
+     * if (usuario.getCorreoPersonal() != null &&
+     * existsByCorreoPersonal(usuario.getCorreoPersonal())) {
+     * throw new IllegalArgumentException("El correo personal ya está registrado.");
+     * }
+     * 
+     * if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
+     * throw new IllegalArgumentException("El carnet ya está registrado.");
+     * }
+     * 
+     * if (existsByUsername(usuario.getUsername())) {
+     * throw new
+     * IllegalArgumentException("El nombre de usuario ya está registrado.");
+     * }
+     * 
+     * return usuarioRepository.save(usuario);
+     * }
+     */
 
     @Override
     @Transactional

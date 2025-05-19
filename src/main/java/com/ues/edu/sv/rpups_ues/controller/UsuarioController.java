@@ -2,6 +2,10 @@ package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 import com.ues.edu.sv.rpups_ues.service.UsuarioService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,10 +59,23 @@ public class UsuarioController {
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/buscar-user/{searchTerm}")
+    @GetMapping("/search-user/{searchTerm}")
     public ResponseEntity<List<Usuario>> getUsuariosByNombresOrApellidos(@PathVariable String searchTerm) {
         List<Usuario> usuarios = usuarioService.findByNombresOrApellidos(searchTerm);
         return ResponseEntity.ok(usuarios);
+    }
+
+    @GetMapping("/search-filters")
+    public ResponseEntity<Page<Usuario>> getUsuariosByFiltros(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(pageable));
+        }
+
+        Page<Usuario> page = usuarioService.findUsuarioByFiltros(filter, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @PostMapping
@@ -71,7 +88,7 @@ public class UsuarioController {
                 usuarioService.existsByUsername(usuario.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        Usuario savedUsuario = usuarioService.save(usuario);
+        Usuario savedUsuario = usuarioService.registerUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUsuario);
     }
 

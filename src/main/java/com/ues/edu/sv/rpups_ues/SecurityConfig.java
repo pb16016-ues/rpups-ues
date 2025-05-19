@@ -47,17 +47,29 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        return httpSecurity.authorizeHttpRequests(auth -> {
-            auth.requestMatchers(
-                    "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**").permitAll()
-                    .anyRequest().authenticated();
-        })
-                .addFilter(
-                        new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
-                .addFilter(
-                        new JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
-                .cors().and()
-                .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+        /*
+         * return httpSecurity.authorizeHttpRequests(auth -> {
+         * auth.requestMatchers(
+         * "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**",
+         * "/v3/api-docs/**").permitAll()
+         * .anyRequest().authenticated();
+         * })
+         * .addFilter(
+         * new
+         * JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(
+         * ), jwtService))
+         * .addFilter(
+         * new
+         * JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager()
+         * , jwtService))
+         * .cors().and()
+         * .csrf().disable().sessionManagement().sessionCreationPolicy(
+         * SessionCreationPolicy.STATELESS).and()
+         * .build();
+         */
+        return httpSecurity.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
                 .build();
     }
 

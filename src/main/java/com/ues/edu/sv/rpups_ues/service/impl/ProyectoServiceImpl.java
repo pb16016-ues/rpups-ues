@@ -3,6 +3,9 @@ package com.ues.edu.sv.rpups_ues.service.impl;
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +86,12 @@ public class ProyectoServiceImpl implements ProyectoService {
     public List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
             String codigoEstado) {
         return proyectoRepository.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad, codigoEstado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable) {
+        return proyectoRepository.searchByAnyField(filter, pageable);
     }
 
     @Override

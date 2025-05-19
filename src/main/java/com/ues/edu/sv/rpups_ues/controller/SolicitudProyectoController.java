@@ -2,6 +2,10 @@ package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import com.ues.edu.sv.rpups_ues.service.SolicitudProyectoService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +72,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
-    public ResponseEntity<List<SolicitudProyecto>> getProyectosByEmpresaAndEstado(
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEmpresaAndEstado(
             @PathVariable Long idEmpresa, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService
                 .findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
@@ -76,7 +80,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/carrera/{codigoCarrera}/estado/{codigoEstado}")
-    public ResponseEntity<List<SolicitudProyecto>> getProyectosByCarreraAndEstado(
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByCarreraAndEstado(
             @PathVariable String codigoCarrera, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByCarreraCodigoAndEstadoCodigoEstado(
                 codigoCarrera,
@@ -85,12 +89,24 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/modalidad/{codigoModalidad}/estado/{codigoEstado}")
-    public ResponseEntity<List<SolicitudProyecto>> getProyectosByModalidadAndEstado(
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByModalidadAndEstado(
             @PathVariable String codigoModalidad, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService
                 .findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
                         codigoEstado);
         return ResponseEntity.ok(solicitudes);
+    }
+
+    @GetMapping("/search-filters")
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltros(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(pageable));
+        }
+        Page<SolicitudProyecto> page = solicitudProyectoService.findSolicitudByFiltros(filter, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @PostMapping

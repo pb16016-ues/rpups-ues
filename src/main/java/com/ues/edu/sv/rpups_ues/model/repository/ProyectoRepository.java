@@ -2,9 +2,13 @@ package com.ues.edu.sv.rpups_ues.model.repository;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
@@ -26,4 +30,14 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
     List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
 
     List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
+
+    @Query("SELECT p FROM Proyecto p " +
+            "WHERE (:filter IS NULL " +
+            "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(p.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(p.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+            "OR LOWER(p.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
+    Page<Proyecto> searchByAnyField(
+            @Param("filter") String filter,
+            Pageable pageable);
 }
