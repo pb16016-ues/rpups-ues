@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProyectoService {
 
-    List<Proyecto> findAll();
+    Page<Proyecto> findAll(Pageable pageable);
 
     Optional<Proyecto> findById(Long idProyecto);
 

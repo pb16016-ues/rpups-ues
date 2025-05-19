@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,8 +32,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Usuario> findAll() {
-        return usuarioRepository.findAll();
+    public Page<Usuario> findAll(Pageable pageable) {
+        return usuarioRepository.findAll(pageable);
     }
 
     @Override
@@ -69,9 +68,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Usuario> findByNombresOrApellidos(String searchTerm) {
+    public Page<Usuario> findByNombresOrApellidos(String searchTerm, Pageable pageable) {
         return usuarioRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(searchTerm,
-                searchTerm);
+                searchTerm, pageable);
     }
 
     @Override
@@ -104,33 +103,27 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.existsByUsername(username);
     }
 
-    /*
-     * @Override
-     * 
-     * @Transactional
-     * public Usuario save(Usuario usuario) {
-     * if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
-     * throw new
-     * IllegalArgumentException("El correo institucional ya está registrado.");
-     * }
-     * 
-     * if (usuario.getCorreoPersonal() != null &&
-     * existsByCorreoPersonal(usuario.getCorreoPersonal())) {
-     * throw new IllegalArgumentException("El correo personal ya está registrado.");
-     * }
-     * 
-     * if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
-     * throw new IllegalArgumentException("El carnet ya está registrado.");
-     * }
-     * 
-     * if (existsByUsername(usuario.getUsername())) {
-     * throw new
-     * IllegalArgumentException("El nombre de usuario ya está registrado.");
-     * }
-     * 
-     * return usuarioRepository.save(usuario);
-     * }
-     */
+    @Override
+    @Transactional
+    public Usuario save(Usuario usuario) {
+        if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
+            throw new IllegalArgumentException("El correo institucional ya está registrado.");
+        }
+
+        if (usuario.getCorreoPersonal() != null && existsByCorreoPersonal(usuario.getCorreoPersonal())) {
+            throw new IllegalArgumentException("El correo personal ya está registrado.");
+        }
+
+        if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
+            throw new IllegalArgumentException("El carnet ya está registrado.");
+        }
+
+        if (existsByUsername(usuario.getUsername())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está registrado.");
+        }
+
+        return usuarioRepository.save(usuario);
+    }
 
     @Override
     @Transactional
@@ -158,6 +151,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional()
+    public Usuario registerUsuario(Usuario usuario) {
+        Rol rol = new Rol("ESTUD");
+        usuario.setRol(rol);
+        return createUsuario(usuario);
+    }
+
+    @Override
+    @Transactional()
     public Usuario changePassword(ChangePasswordDTO changePasswordDTO, Principal principal) {
         Long id = Long.parseLong(principal.getName());
         Usuario usuario = usuarioRepository.findById(id)
@@ -167,14 +168,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         usuario.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         return usuarioRepository.save(usuario);
-    }
-
-    @Override
-    @Transactional()
-    public Usuario registerUsuario(Usuario usuario) {
-        Rol rol = new Rol("ESTUD");
-        usuario.setRol(rol);
-        return createUsuario(usuario);
     }
 
     @Override

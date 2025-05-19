@@ -1,16 +1,19 @@
 package com.ues.edu.sv.rpups_ues.controller;
 
+import com.ues.edu.sv.rpups_ues.model.DTO.ChangePasswordDTO;
+import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 import com.ues.edu.sv.rpups_ues.service.UsuarioService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -24,9 +27,11 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity<Page<Usuario>> getAllUsuarios(
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        return new ResponseEntity<>(usuarioService.findAll(PageRequest.of(page, size)),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -60,22 +65,25 @@ public class UsuarioController {
     }
 
     @GetMapping("/search-user/{searchTerm}")
-    public ResponseEntity<List<Usuario>> getUsuariosByNombresOrApellidos(@PathVariable String searchTerm) {
-        List<Usuario> usuarios = usuarioService.findByNombresOrApellidos(searchTerm);
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity<Page<Usuario>> getUsuariosByNombresOrApellidos(@PathVariable String searchTerm,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        return new ResponseEntity<>(usuarioService.findByNombresOrApellidos(searchTerm, PageRequest.of(page, size)),
+                HttpStatus.OK);
     }
 
     @GetMapping("/search-filters")
     public ResponseEntity<Page<Usuario>> getUsuariosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
         if (filter != null && filter.trim().matches("^[\\W_]+$")) {
-            return ResponseEntity.ok(Page.empty(pageable));
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
 
-        Page<Usuario> page = usuarioService.findUsuarioByFiltros(filter, pageable);
-        return ResponseEntity.ok(page);
+        return new ResponseEntity<>(usuarioService.findUsuarioByFiltros(filter, PageRequest.of(page, size)),
+                HttpStatus.OK);
     }
 
     @PostMapping
@@ -92,14 +100,16 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUsuario);
     }
 
+    @PutMapping("/change-password")
+    ResponseEntity<Usuario> changePassword(
+            @Valid @RequestBody ChangePasswordDTO changePasswordDTO, Principal principal) {
+        return new ResponseEntity<>(usuarioService.changePassword(changePasswordDTO, principal), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        if (!usuarioService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        usuario.setIdUsuario(id);
-        Usuario updatedUsuario = usuarioService.save(usuario);
-        return ResponseEntity.ok(updatedUsuario);
+    ResponseEntity<Usuario> editUsuario(@PathVariable Long idUsuario,
+            @Valid @RequestBody UsuarioDTO usuario) {
+        return new ResponseEntity<>(usuarioService.editUsuario(idUsuario, usuario), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

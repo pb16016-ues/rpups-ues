@@ -24,8 +24,8 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordResetEmail(String to, String passwordTemporal) {
 
         SimpleMailMessage message = new SimpleMailMessage();
-        String messageText = "Su contraseña ha sido restablecida.\nSu nueva contraseña temporal es: " + passwordTemporal
-                + " \n\nPor favor, cambiar la contraseña temporal lo antes posible.";
+        String messageText = "Buen día,\n\nSu contraseña ha sido restablecida en el sistema RPUPS UES FMOcc.\n\nSu nueva contraseña temporal es: "
+                + passwordTemporal + " \n\nPor favor, cambiar la contraseña temporal lo antes posible.";
         message.setTo(to);
         message.setSubject("Restablecimiento de contraseña");
         message.setText(messageText);

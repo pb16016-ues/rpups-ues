@@ -4,8 +4,7 @@ import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import com.ues.edu.sv.rpups_ues.service.SolicitudProyectoService;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +23,11 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SolicitudProyecto>> getAllSolicitudes() {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findAll();
-        return ResponseEntity.ok(solicitudes);
+    public ResponseEntity<Page<SolicitudProyecto>> getAllSolicitudes(
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        return new ResponseEntity<>(solicitudProyectoService.findAll(PageRequest.of(page, size)),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -100,13 +101,14 @@ public class SolicitudProyectoController {
     @GetMapping("/search-filters")
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
         if (filter != null && filter.trim().matches("^[\\W_]+$")) {
-            return ResponseEntity.ok(Page.empty(pageable));
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
-        Page<SolicitudProyecto> page = solicitudProyectoService.findSolicitudByFiltros(filter, pageable);
-        return ResponseEntity.ok(page);
+        return new ResponseEntity<>(solicitudProyectoService.findSolicitudByFiltros(filter, PageRequest.of(page, size)),
+                HttpStatus.OK);
     }
 
     @PostMapping

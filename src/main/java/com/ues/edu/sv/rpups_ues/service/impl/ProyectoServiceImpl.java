@@ -23,8 +23,8 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Proyecto> findAll() {
-        return proyectoRepository.findAll();
+    public Page<Proyecto> findAll(Pageable pageable) {
+        return proyectoRepository.findAll(pageable);
     }
 
     @Override

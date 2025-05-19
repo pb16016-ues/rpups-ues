@@ -22,8 +22,8 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SolicitudProyecto> findAll() {
-        return solicitudProyectoRepository.findAll();
+    public Page<SolicitudProyecto> findAll(Pageable pageable) {
+        return solicitudProyectoRepository.findAll(pageable);
     }
 
     @Override

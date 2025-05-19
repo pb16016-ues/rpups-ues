@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface SolicitudProyectoService {
 
-        List<SolicitudProyecto> findAll();
+        Page<SolicitudProyecto> findAll(Pageable pageable);
 
         Optional<SolicitudProyecto> findById(Long idSolicitud);
 

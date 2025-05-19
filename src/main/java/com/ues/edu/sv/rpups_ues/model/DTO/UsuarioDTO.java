@@ -23,7 +23,7 @@ public class UsuarioDTO implements Serializable {
     @Column(name = "apellidos", length = 50, nullable = false)
     private String apellidos;
 
-    @Size(min = 8, max = 8, message = "El carnet del estudiante debe tener exactamente 8 caracteres")
+    @Size(min = 7, max = 8, message = "El carnet del estudiante debe tener exactamente 8 caracteres")
     @Column(name = "carnet", length = 8, unique = true)
     private String carnet;
 

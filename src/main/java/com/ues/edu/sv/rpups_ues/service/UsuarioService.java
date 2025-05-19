@@ -5,7 +5,6 @@ import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -13,13 +12,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface UsuarioService {
 
-    List<Usuario> findAll();
+    Page<Usuario> findAll(Pageable pageable);
 
     Optional<Usuario> findById(Long idUsuario);
 
     Optional<Usuario> findByUsername(String username);
 
-    List<Usuario> findByNombresOrApellidos(String searchTerm);
+    Page<Usuario> findByNombresOrApellidos(String searchTerm, Pageable pageable);
 
     Optional<Usuario> findByCarnet(String carnet);
 
