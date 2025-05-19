@@ -106,7 +106,7 @@ public class UsuarioController {
         return new ResponseEntity<>(usuarioService.changePassword(changePasswordDTO, principal), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{idUsuario}")
     ResponseEntity<Usuario> editUsuario(@PathVariable Long idUsuario,
             @Valid @RequestBody UsuarioDTO usuario) {
         return new ResponseEntity<>(usuarioService.editUsuario(idUsuario, usuario), HttpStatus.OK);
