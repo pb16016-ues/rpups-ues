@@ -5,6 +5,8 @@ import com.ues.edu.sv.rpups_ues.service.DepartamentoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.annotation.security.PermitAll;
+import org.springframework.security.access.annotation.Secured;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,24 +22,28 @@ public class DepartamentoController {
     }
 
     @GetMapping
+    @PermitAll
     public ResponseEntity<List<Departamento>> getAllDepartamentos() {
         List<Departamento> departamentos = departamentoService.findAll();
         return ResponseEntity.ok(departamentos);
     }
 
     @GetMapping("/{codigo}")
+    @PermitAll
     public ResponseEntity<Departamento> getDepartamentoByCodigo(@PathVariable String codigo) {
         Optional<Departamento> departamento = departamentoService.findByCodigo(codigo);
         return departamento.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre/{nombre}")
+    @PermitAll
     public ResponseEntity<Departamento> getDepartamentoByNombre(@PathVariable String nombre) {
         Optional<Departamento> departamento = departamentoService.findByNombre(nombre);
         return departamento.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Departamento> createDepartamento(@RequestBody Departamento departamento) {
         if (departamentoService.existsByNombre(departamento.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -47,6 +53,7 @@ public class DepartamentoController {
     }
 
     @PutMapping("/{codigo}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Departamento> updateDepartamento(@PathVariable String codigo,
             @RequestBody Departamento departamento) {
         if (!departamentoService.findByCodigo(codigo).isPresent()) {
@@ -58,6 +65,7 @@ public class DepartamentoController {
     }
 
     @DeleteMapping("/{codigo}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Void> deleteDepartamento(@PathVariable String codigo) {
         if (!departamentoService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -67,6 +75,7 @@ public class DepartamentoController {
     }
 
     @GetMapping("/exists/{nombre}")
+    @PermitAll
     public ResponseEntity<Boolean> existsByNombre(@PathVariable String nombre) {
         boolean exists = departamentoService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);

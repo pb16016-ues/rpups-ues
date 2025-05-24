@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.annotation.Secured;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,7 @@ public class ProyectoController {
     }
 
     @GetMapping
+    @PermitAll
     public ResponseEntity<Page<Proyecto>> getAllProyectos(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -31,48 +34,56 @@ public class ProyectoController {
     }
 
     @GetMapping("/{id}")
+    @PermitAll
     public ResponseEntity<Proyecto> getProyectoById(@PathVariable Long id) {
         Optional<Proyecto> proyecto = proyectoService.findById(id);
         return proyecto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/titulo/{titulo}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByTitulo(@PathVariable String titulo) {
         List<Proyecto> proyectos = proyectoService.findByTitulo(titulo);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/estado/{codigoEstado}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByEstado(@PathVariable String codigoEstado) {
         List<Proyecto> proyectos = proyectoService.findByEstado(codigoEstado);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/empresa/{idEmpresa}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByEmpresa(@PathVariable Long idEmpresa) {
         List<Proyecto> proyectos = proyectoService.findByEmpresa(idEmpresa);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/carrera/{codigoCarrera}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByCarrera(@PathVariable String codigoCarrera) {
         List<Proyecto> proyectos = proyectoService.findByCarrera(codigoCarrera);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/modalidad/{codigoModalidad}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByModalidad(@PathVariable String codigoModalidad) {
         List<Proyecto> proyectos = proyectoService.findByModalidad(codigoModalidad);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/admin-aprobador/{idUsuario}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByAdministradorAprobador(@PathVariable Long idUsuario) {
         List<Proyecto> proyectos = proyectoService.findByAdministradorAprobador(idUsuario);
         return ResponseEntity.ok(proyectos);
     }
 
     @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByEmpresaAndEstado(
             @PathVariable Long idEmpresa, @PathVariable String codigoEstado) {
         List<Proyecto> proyectos = proyectoService.findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
@@ -80,6 +91,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/carrera/{codigoCarrera}/estado/{codigoEstado}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByCarreraAndEstado(
             @PathVariable String codigoCarrera, @PathVariable String codigoEstado) {
         List<Proyecto> proyectos = proyectoService.findByCarreraCodigoAndEstadoCodigoEstado(codigoCarrera,
@@ -88,6 +100,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/modalidad/{codigoModalidad}/estado/{codigoEstado}")
+    @PermitAll
     public ResponseEntity<List<Proyecto>> getProyectosByModalidadAndEstado(
             @PathVariable String codigoModalidad, @PathVariable String codigoEstado) {
         List<Proyecto> proyectos = proyectoService.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
@@ -96,6 +109,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/search-filters")
+    @PermitAll
     public ResponseEntity<Page<Proyecto>> getProyectosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
@@ -109,12 +123,14 @@ public class ProyectoController {
     }
 
     @PostMapping
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto proyecto) {
         Proyecto savedProyecto = proyectoService.save(proyecto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProyecto);
     }
 
     @PutMapping("/{id}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Proyecto> updateProyecto(@PathVariable Long id, @RequestBody Proyecto proyecto) {
         if (!proyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -125,6 +141,7 @@ public class ProyectoController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Void> deleteProyecto(@PathVariable Long id) {
         if (!proyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

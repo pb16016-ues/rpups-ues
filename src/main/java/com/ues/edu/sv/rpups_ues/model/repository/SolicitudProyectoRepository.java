@@ -13,32 +13,34 @@ import java.util.List;
 @Repository
 public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProyecto, Long> {
 
-    List<SolicitudProyecto> findByTituloContainingIgnoreCase(String titulo);
+        List<SolicitudProyecto> findByTituloContainingIgnoreCase(String titulo);
 
-    List<SolicitudProyecto> findByEstadoCodigoEstado(String codigoEstado);
+        List<SolicitudProyecto> findByEstadoCodigoEstado(String codigoEstado);
 
-    List<SolicitudProyecto> findByEmpresaIdEmpresa(Long idEmpresa);
+        List<SolicitudProyecto> findByEmpresaIdEmpresa(Long idEmpresa);
 
-    List<SolicitudProyecto> findByCarreraCodigo(String codigoCarrera);
+        List<SolicitudProyecto> findByCarreraCodigo(String codigoCarrera);
 
-    List<SolicitudProyecto> findByModalidadCodigoModalidad(String codigoModalidad);
+        List<SolicitudProyecto> findByModalidadCodigoModalidad(String codigoModalidad);
 
-    List<SolicitudProyecto> findByAdministradorIdUsuario(Long idUsuario);
+        List<SolicitudProyecto> findByAdminRevisorIdUsuario(Long idUsuario);
 
-    List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
+        List<SolicitudProyecto> findByUserCreadorIdUsuario(Long idUsuario);
 
-    List<SolicitudProyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
+        List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
 
-    List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
-            String codigoEstado);
+        List<SolicitudProyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
 
-    @Query("SELECT s FROM SolicitudProyecto s " +
-            "WHERE (:filter IS NULL " +
-            "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(s.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(s.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(s.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
-    Page<SolicitudProyecto> searchByAnyField(
-            @Param("filter") String filter,
-            Pageable pageable);
+        List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
+                        String codigoEstado);
+
+        @Query("SELECT s FROM SolicitudProyecto s " +
+                        "WHERE (:filter IS NULL " +
+                        "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
+        Page<SolicitudProyecto> searchByAnyField(
+                        @Param("filter") String filter,
+                        Pageable pageable);
 }

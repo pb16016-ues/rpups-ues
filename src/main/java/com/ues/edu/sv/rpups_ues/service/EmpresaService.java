@@ -17,6 +17,8 @@ public interface EmpresaService {
 
     List<Empresa> findByRubroIdRubro(Long idRubro);
 
+    List<Empresa> findByUserCreador(Long idUsuario);
+
     Empresa save(Empresa empresa);
 
     void deleteById(Long idEmpresa);

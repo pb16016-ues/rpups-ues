@@ -5,6 +5,7 @@ import com.ues.edu.sv.rpups_ues.service.RolService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.annotation.Secured;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,24 +21,28 @@ public class RolController {
     }
 
     @GetMapping
+    @Secured({ "ADMIN", "COOR" })
     public ResponseEntity<List<Rol>> getAllRoles() {
         List<Rol> roles = rolService.findAll();
         return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/{codigo}")
+    @Secured({ "ADMIN", "COOR" })
     public ResponseEntity<Rol> getRolByCodigo(@PathVariable String codigo) {
         Optional<Rol> rol = rolService.findByCodigo(codigo);
         return rol.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre/{nombre}")
+    @Secured({ "ADMIN", "COOR" })
     public ResponseEntity<Rol> getRolByNombre(@PathVariable String nombre) {
         Optional<Rol> rol = rolService.findByNombre(nombre);
         return rol.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @Secured({ "ADMIN" })
     public ResponseEntity<Rol> createRol(@RequestBody Rol rol) {
         if (rolService.existsByNombre(rol.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -47,6 +52,7 @@ public class RolController {
     }
 
     @PutMapping("/{codigo}")
+    @Secured({ "ADMIN" })
     public ResponseEntity<Rol> updateRol(@PathVariable String codigo, @RequestBody Rol rol) {
         if (!rolService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -57,6 +63,7 @@ public class RolController {
     }
 
     @DeleteMapping("/{codigo}")
+    @Secured({ "ADMIN" })
     public ResponseEntity<Void> deleteRol(@PathVariable String codigo) {
         if (!rolService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -66,6 +73,7 @@ public class RolController {
     }
 
     @GetMapping("/exists/{nombre}")
+    @Secured({ "ADMIN", "COOR" })
     public ResponseEntity<Boolean> existsByNombre(@PathVariable String nombre) {
         boolean exists = rolService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);

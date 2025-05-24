@@ -25,6 +25,8 @@ public interface SolicitudProyectoService {
 
         List<SolicitudProyecto> findByAdministradorRevisor(Long idUsuario);
 
+        List<SolicitudProyecto> findByUserCreador(Long idUsuario);
+
         List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
 
         List<SolicitudProyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);

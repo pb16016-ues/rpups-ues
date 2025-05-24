@@ -4,7 +4,9 @@ import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
 import com.ues.edu.sv.rpups_ues.service.CarreraService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,24 +22,28 @@ public class CarreraController {
     }
 
     @GetMapping
+    @PermitAll
     public ResponseEntity<List<Carrera>> getAllCarreras() {
         List<Carrera> carreras = carreraService.findAll();
         return ResponseEntity.ok(carreras);
     }
 
     @GetMapping("/{codigo}")
+    @PermitAll
     public ResponseEntity<Carrera> getCarreraByCodigo(@PathVariable String codigo) {
         Optional<Carrera> carrera = carreraService.findByCodigo(codigo);
         return carrera.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre/{nombre}")
+    @PermitAll
     public ResponseEntity<Carrera> getCarreraByNombre(@PathVariable String nombre) {
         Optional<Carrera> carrera = carreraService.findByNombre(nombre);
         return carrera.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Carrera> createCarrera(@RequestBody Carrera carrera) {
         if (carreraService.existsByNombre(carrera.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -47,6 +53,7 @@ public class CarreraController {
     }
 
     @PutMapping("/{codigo}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Carrera> updateCarrera(@PathVariable String codigo, @RequestBody Carrera carrera) {
         if (!carreraService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -57,6 +64,7 @@ public class CarreraController {
     }
 
     @DeleteMapping("/{codigo}")
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Void> deleteCarrera(@PathVariable String codigo) {
         if (!carreraService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -66,6 +74,7 @@ public class CarreraController {
     }
 
     @GetMapping("/exists/{nombre}")
+    @PermitAll
     public ResponseEntity<Boolean> existsByNombre(@PathVariable String nombre) {
         boolean exists = carreraService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);

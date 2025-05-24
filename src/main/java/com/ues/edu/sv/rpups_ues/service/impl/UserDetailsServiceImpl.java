@@ -29,9 +29,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Usuario user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("The username:" + username + " does not exist"));
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority(user.getRol().getNombre()));
-        // if(authorities.isEmpty()) throw new UsernameNotFoundException("the user has
-        // no assigned roles");
+        authorities.add(new SimpleGrantedAuthority(user.getRol().getCodigo()));
+        if (authorities.isEmpty())
+            throw new UsernameNotFoundException("the user has no assigned roles");
 
         return new AuthUser(user.getIdUsuario(), user.getUsername(), user.getPassword(), true, true, true, true,
                 authorities);

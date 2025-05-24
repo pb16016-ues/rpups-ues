@@ -81,14 +81,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean existsByCorreoInstitucional(String correoInstitucional) {
-        return usuarioRepository.existsByCorreoInstitucional(correoInstitucional);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByCorreoPersonal(String correoPersonal) {
-        return usuarioRepository.existsByCorreoPersonal(correoPersonal);
+    public boolean existsByCorreo(String correo) {
+        return usuarioRepository.existsByCorreoInstitucional(correo)
+                || usuarioRepository.existsByCorreoPersonal(correo);
     }
 
     @Override
@@ -106,19 +101,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public Usuario save(Usuario usuario) {
-        if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
+        if (usuarioRepository.existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
             throw new IllegalArgumentException("El correo institucional ya está registrado.");
         }
 
-        if (usuario.getCorreoPersonal() != null && existsByCorreoPersonal(usuario.getCorreoPersonal())) {
+        if (usuario.getCorreoPersonal() != null
+                && usuarioRepository.existsByCorreoPersonal(usuario.getCorreoPersonal())) {
             throw new IllegalArgumentException("El correo personal ya está registrado.");
         }
 
-        if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
+        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())) {
             throw new IllegalArgumentException("El carnet ya está registrado.");
         }
 
-        if (existsByUsername(usuario.getUsername())) {
+        if (usuarioRepository.existsByUsername(usuario.getUsername())) {
             throw new IllegalArgumentException("El nombre de usuario ya está registrado.");
         }
 
@@ -131,16 +127,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (usuario == null) {
             throw new IllegalArgumentException("El argumento usuario no puede ser nulo");
         }
-        if (existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
+        if (usuarioRepository.existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
             throw new UniqueValidationException("El correo institucional ingresado ya está registrado.");
         }
-        if (usuario.getCorreoPersonal() != null && existsByCorreoPersonal(usuario.getCorreoPersonal())) {
+        if (usuario.getCorreoPersonal() != null
+                && usuarioRepository.existsByCorreoPersonal(usuario.getCorreoPersonal())) {
             throw new UniqueValidationException("El correo personal ingresado ya está registrado.");
         }
-        if (usuario.getCarnet() != null && existsByCarnet(usuario.getCarnet())) {
+        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())) {
             throw new UniqueValidationException("El carnet ingresado ya está registrado.");
         }
-        if (existsByUsername(usuario.getUsername())) {
+        if (usuarioRepository.existsByUsername(usuario.getUsername())) {
             throw new UniqueValidationException("Ya existe un usuario con el username ingresado");
         }
 
@@ -153,6 +150,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional()
     public Usuario registerUsuario(Usuario usuario) {
         Rol rol = new Rol("ESTUD");
+        usuario.setRol(rol);
+        return createUsuario(usuario);
+    }
+
+    @Override
+    @Transactional()
+    public Usuario registerAdministrativo(Usuario usuario) {
+        return createUsuario(usuario);
+    }
+
+    @Override
+    @Transactional()
+    public Usuario registerRepresentanteEmpresa(Usuario usuario) {
+        Rol rol = new Rol("EMP");
         usuario.setRol(rol);
         return createUsuario(usuario);
     }

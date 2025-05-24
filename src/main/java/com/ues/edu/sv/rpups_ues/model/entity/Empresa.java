@@ -63,6 +63,10 @@ public class Empresa implements Serializable {
     @JoinColumn(name = "id_rubro", referencedColumnName = "id_rubro", insertable = false, updatable = false)
     private Rubro rubro;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_user_creacion", referencedColumnName = "id_usuario", nullable = false)
+    private Usuario userCreador;
+
     public Empresa(Long idEmpresa) {
         this.idEmpresa = idEmpresa;
     }

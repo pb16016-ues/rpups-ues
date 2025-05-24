@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,7 +19,7 @@ import com.ues.edu.sv.rpups_ues.service.impl.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
@@ -47,30 +47,24 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        /*
-         * return httpSecurity.authorizeHttpRequests(auth -> {
-         * auth.requestMatchers(
-         * "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**",
-         * "/v3/api-docs/**").permitAll()
-         * .anyRequest().authenticated();
-         * })
-         * .addFilter(
-         * new
-         * JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(
-         * ), jwtService))
-         * .addFilter(
-         * new
-         * JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager()
-         * , jwtService))
-         * .cors().and()
-         * .csrf().disable().sessionManagement().sessionCreationPolicy(
-         * SessionCreationPolicy.STATELESS).and()
-         * .build();
-         */
-        return httpSecurity.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll())
+        return httpSecurity.authorizeHttpRequests(auth -> {
+            auth.requestMatchers(
+                    "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**")
+                    .permitAll()
+                    .anyRequest().authenticated();
+        })
+                .addFilter(
+                        new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
+                .addFilter(
+                        new JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
+                .cors().and()
+                .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .build();
     }
-
+    /*
+     * return httpSecurity.csrf(csrf -> csrf.disable())
+     * .authorizeHttpRequests(auth -> auth
+     * .anyRequest().permitAll())
+     * .build();
+     */
 }

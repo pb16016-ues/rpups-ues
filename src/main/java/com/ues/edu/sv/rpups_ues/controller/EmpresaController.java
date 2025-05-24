@@ -49,6 +49,12 @@ public class EmpresaController {
         return ResponseEntity.ok(empresas);
     }
 
+    @GetMapping("/user-creador/{idUsuario}")
+    public ResponseEntity<List<Empresa>> getEmpresasByUserCreador(@PathVariable Long idUsuario) {
+        List<Empresa> empresas = empresaService.findByUserCreador(idUsuario);
+        return ResponseEntity.ok(empresas);
+    }
+
     @PostMapping
     public ResponseEntity<Empresa> createEmpresa(@RequestBody Empresa empresa) {
         Empresa savedEmpresa = empresaService.save(empresa);

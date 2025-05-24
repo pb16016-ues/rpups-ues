@@ -49,6 +49,12 @@ public class EmpresaServiceImpl implements EmpresaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Empresa> findByUserCreador(Long idUsuario) {
+        return empresaRepository.findByUserCreadorIdUsuario(idUsuario);
+    }
+
+    @Override
     @Transactional
     public Empresa save(Empresa empresa) {
         return empresaRepository.save(empresa);

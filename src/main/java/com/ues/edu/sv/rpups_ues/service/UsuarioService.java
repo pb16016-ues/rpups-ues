@@ -2,6 +2,7 @@ package com.ues.edu.sv.rpups_ues.service;
 
 import com.ues.edu.sv.rpups_ues.model.DTO.ChangePasswordDTO;
 import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
+import com.ues.edu.sv.rpups_ues.model.entity.Rol;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 
 import java.security.Principal;
@@ -36,15 +37,17 @@ public interface UsuarioService {
 
     Usuario registerUsuario(Usuario usuario);
 
+    Usuario registerAdministrativo(Usuario usuario);
+
+    Usuario registerRepresentanteEmpresa(Usuario usuario);
+
     Usuario editUsuario(Long idUsuario, UsuarioDTO usuario);
 
     Usuario editPasswordUsuario(Usuario usuario);
 
     Usuario deleteById(Long idUsuario);
 
-    boolean existsByCorreoInstitucional(String correoInstitucional);
-
-    boolean existsByCorreoPersonal(String correoPersonal);
+    boolean existsByCorreo(String correo);
 
     boolean existsByCarnet(String carnet);
 

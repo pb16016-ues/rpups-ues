@@ -65,7 +65,13 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByAdministradorRevisor(Long idUsuario) {
-        return solicitudProyectoRepository.findByAdministradorIdUsuario(idUsuario);
+        return solicitudProyectoRepository.findByAdminRevisorIdUsuario(idUsuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findByUserCreador(Long idUsuario) {
+        return solicitudProyectoRepository.findByUserCreadorIdUsuario(idUsuario);
     }
 
     @Override
