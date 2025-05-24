@@ -2,7 +2,6 @@ package com.ues.edu.sv.rpups_ues.service;
 
 import com.ues.edu.sv.rpups_ues.model.DTO.ChangePasswordDTO;
 import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
-import com.ues.edu.sv.rpups_ues.model.entity.Rol;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 
 import java.security.Principal;

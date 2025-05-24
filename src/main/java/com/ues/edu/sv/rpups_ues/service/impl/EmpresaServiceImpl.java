@@ -57,12 +57,18 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     @Transactional
     public Empresa save(Empresa empresa) {
+        if (empresa != null && (empresa.getEstadoActivo() == null || !empresa.getEstadoActivo())) {
+            empresa.setEstadoActivo(true);
+        }
         return empresaRepository.save(empresa);
     }
 
     @Override
     @Transactional
-    public void deleteById(Long idEmpresa) {
-        empresaRepository.deleteById(idEmpresa);
+    public void desactiveById(Long idEmpresa) {
+        Empresa empresa = empresaRepository.findById(idEmpresa)
+                .orElseThrow(() -> new RuntimeException("No existe la empresa con id: " + idEmpresa));
+        empresa.setEstadoActivo(false);
+        empresaRepository.save(empresa);
     }
 }

@@ -33,6 +33,15 @@ public class ProyectoController {
                 HttpStatus.OK);
     }
 
+    @GetMapping("/public")
+    @PermitAll
+    public ResponseEntity<Page<Proyecto>> getAllProyectosPublic(
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        return new ResponseEntity<>(proyectoService.findAll(PageRequest.of(page, size)),
+                HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     @PermitAll
     public ResponseEntity<Proyecto> getProyectoById(@PathVariable Long id) {
@@ -56,8 +65,10 @@ public class ProyectoController {
 
     @GetMapping("/empresa/{idEmpresa}")
     @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByEmpresa(@PathVariable Long idEmpresa) {
-        List<Proyecto> proyectos = proyectoService.findByEmpresa(idEmpresa);
+    public ResponseEntity<Page<Proyecto>> getProyectosByEmpresa(@PathVariable Long idEmpresa,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<Proyecto> proyectos = proyectoService.findByEmpresa(idEmpresa, PageRequest.of(page, size));
         return ResponseEntity.ok(proyectos);
     }
 
@@ -109,7 +120,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/search-filters")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Page<Proyecto>> getProyectosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
@@ -119,6 +130,21 @@ public class ProyectoController {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
         return new ResponseEntity<>(proyectoService.findProyectoByFiltros(filter, PageRequest.of(page, size)),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/disp-search-filters")
+    @PermitAll
+    public ResponseEntity<Page<Proyecto>> getProyectosByFiltrosWithEstadoDisponible(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
+        }
+        return new ResponseEntity<>(
+                proyectoService.findProyectoByFiltrosWithEstadoDisponible(filter, PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 

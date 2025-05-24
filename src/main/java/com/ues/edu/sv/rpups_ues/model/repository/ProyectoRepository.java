@@ -13,31 +13,43 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
-    List<Proyecto> findByTituloContainingIgnoreCase(String titulo);
+        List<Proyecto> findByTituloContainingIgnoreCase(String titulo);
 
-    List<Proyecto> findByEstadoCodigoEstado(String codigoEstado);
+        List<Proyecto> findByEstadoCodigoEstado(String codigoEstado);
 
-    List<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa);
+        Page<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa, Pageable pageable);
 
-    List<Proyecto> findByCarreraCodigo(String codigoCarrera);
+        List<Proyecto> findByCarreraCodigo(String codigoCarrera);
 
-    List<Proyecto> findByModalidadCodigoModalidad(String codigoModalidad);
+        List<Proyecto> findByModalidadCodigoModalidad(String codigoModalidad);
 
-    List<Proyecto> findByAdministradorIdUsuario(Long idUsuario);
+        List<Proyecto> findByAdministradorIdUsuario(Long idUsuario);
 
-    List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
+        List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
 
-    List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
+        List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
 
-    List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
+        List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
 
-    @Query("SELECT p FROM Proyecto p " +
-            "WHERE (:filter IS NULL " +
-            "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(p.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(p.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-            "OR LOWER(p.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
-    Page<Proyecto> searchByAnyField(
-            @Param("filter") String filter,
-            Pageable pageable);
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE (:filter IS NULL " +
+                        "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(p.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(p.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(p.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%')))")
+        Page<Proyecto> searchByAnyField(
+                        @Param("filter") String filter,
+                        Pageable pageable);
+
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE (p.estado.codigoEstado = 'DIS') " +
+                        "AND (" +
+                        ":filter IS NULL " +
+                        "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(p.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(p.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        ")")
+        Page<Proyecto> searchByAnyFieldDisponible(
+                        @Param("filter") String filter,
+                        Pageable pageable);
 }

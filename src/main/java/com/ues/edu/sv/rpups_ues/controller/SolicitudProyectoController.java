@@ -36,6 +36,15 @@ public class SolicitudProyectoController {
                 HttpStatus.OK);
     }
 
+    @GetMapping
+    @Secured({ "ADMIN", "COOR", "SUP" })
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByEstadoRevision(
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        return new ResponseEntity<>(solicitudProyectoService.findByEstadoRevision(PageRequest.of(page, size)),
+                HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     @PermitAll
     public ResponseEntity<SolicitudProyecto> getSolicitudById(@PathVariable Long id) {
@@ -122,7 +131,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/search-filters")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
@@ -132,6 +141,23 @@ public class SolicitudProyectoController {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
         return new ResponseEntity<>(solicitudProyectoService.findSolicitudByFiltros(filter, PageRequest.of(page, size)),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/user-search-filters")
+    @PermitAll
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltrosWithUser(
+            @RequestParam(name = "idUser", defaultValue = "", required = false) Long idUserCreador,
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
+        }
+        return new ResponseEntity<>(
+                solicitudProyectoService.findSolicitudByFiltrosWithUserCreador(filter, idUserCreador,
+                        PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 
@@ -149,28 +175,41 @@ public class SolicitudProyectoController {
         if (!solicitudProyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
+
+        if (solicitudProyecto.getEstado() == null) {
+            return ResponseEntity.badRequest().build();
+        } else if (solicitudProyecto.getEstado().getNombre() == null
+                || solicitudProyecto.getEstado().getNombre().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         solicitudProyecto.setIdSolicitud(id);
         SolicitudProyecto updatedSolicitud = solicitudProyectoService.save(solicitudProyecto);
 
-        // Enviar el correo institucional
-        emailService.sendNotificationSolicitudProyectoEmail(
-                updatedSolicitud.getUserCreador().getCorreoInstitucional(),
-                updatedSolicitud.getEstado().getNombre(),
-                updatedSolicitud.getObservaciones());
+        if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Aprobado")
+                || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Rechazado")
+                || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Observación")) {
 
-        // Enviar el correo personal
-        if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
+            // Enviar el correo institucional
             emailService.sendNotificationSolicitudProyectoEmail(
-                    updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                    updatedSolicitud.getUserCreador().getCorreoInstitucional(),
+                    updatedSolicitud.getEstado().getNombre(),
+                    updatedSolicitud.getObservaciones());
+
+            // Enviar el correo personal
+            if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
+                emailService.sendNotificationSolicitudProyectoEmail(
+                        updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                        updatedSolicitud.getEstado().getNombre(),
+                        updatedSolicitud.getObservaciones());
+            }
+
+            // Enviar el correo a la empresa
+            emailService.sendNotificationSolicitudProyectoEmail(
+                    updatedSolicitud.getEmpresa().getContactoEmail(),
                     updatedSolicitud.getEstado().getNombre(),
                     updatedSolicitud.getObservaciones());
         }
-
-        // Enviar el correo a la empresa
-        emailService.sendNotificationSolicitudProyectoEmail(
-                updatedSolicitud.getEmpresa().getContactoEmail(),
-                updatedSolicitud.getEstado().getNombre(),
-                updatedSolicitud.getObservaciones());
 
         return ResponseEntity.ok(updatedSolicitud);
     }

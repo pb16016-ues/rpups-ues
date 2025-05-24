@@ -51,6 +51,9 @@ public class Empresa implements Serializable {
     @Column(name = "direccion_detallada", columnDefinition = "TEXT", nullable = true, length = 250)
     private String direccionDetallada;
 
+    @Column(name = "estado_activo", nullable = false)
+    private Boolean estadoActivo;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", insertable = false, updatable = false)
     private Departamento departamento;

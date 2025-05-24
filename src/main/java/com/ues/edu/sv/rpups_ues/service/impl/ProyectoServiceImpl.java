@@ -47,8 +47,8 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Proyecto> findByEmpresa(Long idEmpresa) {
-        return proyectoRepository.findByEmpresaIdEmpresa(idEmpresa);
+    public Page<Proyecto> findByEmpresa(Long idEmpresa, Pageable pageable) {
+        return proyectoRepository.findByEmpresaIdEmpresa(idEmpresa, pageable);
     }
 
     @Override
@@ -92,6 +92,12 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Transactional(readOnly = true)
     public Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable) {
         return proyectoRepository.searchByAnyField(filter, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Pageable pageable) {
+        return proyectoRepository.searchByAnyFieldDisponible(filter, pageable);
     }
 
     @Override

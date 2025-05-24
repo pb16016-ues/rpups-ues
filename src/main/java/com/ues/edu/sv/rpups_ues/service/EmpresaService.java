@@ -21,5 +21,5 @@ public interface EmpresaService {
 
     Empresa save(Empresa empresa);
 
-    void deleteById(Long idEmpresa);
+    void desactiveById(Long idEmpresa);
 }

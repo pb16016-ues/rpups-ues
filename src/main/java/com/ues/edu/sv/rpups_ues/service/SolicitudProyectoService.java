@@ -36,6 +36,11 @@ public interface SolicitudProyectoService {
 
         Page<SolicitudProyecto> findSolicitudByFiltros(String filter, Pageable pageable);
 
+        Page<SolicitudProyecto> findByEstadoRevision(Pageable pageable);
+
+        Page<SolicitudProyecto> findSolicitudByFiltrosWithUserCreador(String filter, Long idUserCreador,
+                        Pageable pageable);
+
         SolicitudProyecto save(SolicitudProyecto solicitudProyecto);
 
         void deleteById(Long idSolicitud);

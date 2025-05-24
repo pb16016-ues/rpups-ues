@@ -18,7 +18,7 @@ public interface ProyectoService {
 
     List<Proyecto> findByEstado(String codigoEstado);
 
-    List<Proyecto> findByEmpresa(Long idEmpresa);
+    Page<Proyecto> findByEmpresa(Long idEmpresa, Pageable pageable);
 
     List<Proyecto> findByCarrera(String codigoCarrera);
 
@@ -33,6 +33,8 @@ public interface ProyectoService {
     List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
 
     Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable);
+
+    Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Pageable pageable);
 
     Proyecto save(Proyecto proyecto);
 

@@ -36,7 +36,6 @@ public class AuthController {
         if (!jwtService.requiresAuthentication(header) || !jwtService.validate(header)) {
             body.put("error", "there was an error refreshing token");
             return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
-
         }
 
         AuthUser user = new AuthUser(jwtService.getId(header), jwtService.getUsername(header), "", true, true, true,

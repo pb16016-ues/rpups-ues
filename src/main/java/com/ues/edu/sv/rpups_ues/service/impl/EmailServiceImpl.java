@@ -42,7 +42,8 @@ public class EmailServiceImpl implements EmailService {
 
         if ("Aprobado".equalsIgnoreCase(estadoSolicitud)) {
             message.setSubject("Notificación de aprobación de solicitud de proyecto propuesto");
-            messageText = "Buen día,\n\nSu solicitud de proyecto ha sido APROBADA. \nObservaciones: " + observaciones
+            messageText = "Buen día,\n\nSu solicitud de proyecto ha sido APROBADA. \nObservaciones: "
+                    + observaciones
                     + "\n\n\n\nSaludos cordiales,\n\nSistema RPUPS UES";
         } else if ("Rechazado".equalsIgnoreCase(estadoSolicitud)) {
             message.setSubject("Notificación de rechazo de solicitud de proyecto propuesto");
@@ -53,16 +54,6 @@ public class EmailServiceImpl implements EmailService {
             messageText = "Buen día,\n\nSu solicitud de proyecto tiene OBSERVACIONES. \nLas observaciones realizadas a su solicitud son las siguientes: \n\n"
                     + observaciones + "\n\n\n\nSaludos cordiales,\n\nSistema RPUPS UES";
         }
-        /**
-         * else {
-         * message.setSubject("Notificación sobre solicitud de proyecto propuesto");
-         * messageText = "Buen día,\n\nSu solicitud se encuentra en estado: " +
-         * estadoSolicitud
-         * + ". \n\nLas observaciones realizadas a su solicitud son las siguientes:
-         * \n\n" + observaciones
-         * + "\n\n\n\nSaludos cordiales,\n\nSistema RPUPS UES";
-         * }
-         **/
 
         message.setTo(to);
         message.setText(messageText);

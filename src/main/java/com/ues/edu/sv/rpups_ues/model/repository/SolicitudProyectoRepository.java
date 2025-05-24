@@ -37,10 +37,24 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
         @Query("SELECT s FROM SolicitudProyecto s " +
                         "WHERE (:filter IS NULL " +
                         "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(s.carrera.codigo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(s.modalidad.codigoModalidad) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(s.estado.codigoEstado) LIKE LOWER(CONCAT('%', :filter, '%')))")
+                        "OR LOWER(s.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%')))")
         Page<SolicitudProyecto> searchByAnyField(
                         @Param("filter") String filter,
                         Pageable pageable);
+
+        @Query("SELECT s FROM SolicitudProyecto s " +
+                        "WHERE (:filter IS NULL " +
+                        "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+                        "AND (:idUserCreador IS NULL OR s.idUserCreacion.idUsuario = :idUserCreador)")
+        Page<SolicitudProyecto> searchByAnyFieldAndUser(
+                        @Param("filter") String filter,
+                        @Param("idUserCreador") Long idUserCreador,
+                        Pageable pageable);
+
+        Page<SolicitudProyecto> findByEstadoCodigoEstado(String codigoEstado, Pageable pageable);
 }

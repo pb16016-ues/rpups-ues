@@ -18,7 +18,8 @@ public class WebMvcConfigurerImpl implements WebMvcConfigurer {
                 .allowedOrigins(
                         "https://rpups-ues-frontend.web.app",
                         "http://localhost:3000", // Para desarrollo local
-                        "http://127.0.0.1:3000" // Otra posible configuración local
+                        "http://127.0.0.1:3000",
+                        "http://localhost:4200" // Otra posible configuración local
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     }
