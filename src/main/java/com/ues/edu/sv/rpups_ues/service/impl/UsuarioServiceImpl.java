@@ -134,7 +134,8 @@ public class UsuarioServiceImpl implements UsuarioService {
                 && usuarioRepository.existsByCorreoPersonal(usuario.getCorreoPersonal())) {
             throw new UniqueValidationException("El correo personal ingresado ya está registrado.");
         }
-        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())) {
+        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())
+                && !usuario.getCarnet().isEmpty()) {
             throw new UniqueValidationException("El carnet ingresado ya está registrado.");
         }
         if (usuarioRepository.existsByUsername(usuario.getUsername())) {
@@ -194,7 +195,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuarioDB.setNombres(usuarioDTO.getNombres());
         if (usuarioDTO.getApellidos() != null)
             usuarioDB.setApellidos(usuarioDTO.getApellidos());
-        if (usuarioDTO.getCarnet() != null) {
+        if (usuarioDTO.getCarnet() != null && !usuarioDTO.getCarnet().isEmpty()) {
             if (usuarioRepository.existsByCarnet(usuarioDTO.getCarnet())
                     && !usuarioDB.getCarnet().equals(usuarioDTO.getCarnet())) {
                 throw new UniqueValidationException("Ya existe un usuario con el carnet ingresado");
