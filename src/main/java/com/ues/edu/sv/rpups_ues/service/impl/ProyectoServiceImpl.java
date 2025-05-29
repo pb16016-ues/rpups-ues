@@ -1,6 +1,8 @@
 package com.ues.edu.sv.rpups_ues.service.impl;
 
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
+import com.ues.edu.sv.rpups_ues.model.repository.EstadoRepository;
 import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
 
@@ -8,17 +10,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.util.Optional;
+import java.io.ByteArrayOutputStream;
 
 @Service
 public class ProyectoServiceImpl implements ProyectoService {
 
     private final ProyectoRepository proyectoRepository;
+    private final SpringTemplateEngine templateEngine;
+    private final EstadoRepository estadoRepository;
 
-    public ProyectoServiceImpl(ProyectoRepository proyectoRepository) {
+    public ProyectoServiceImpl(ProyectoRepository proyectoRepository, SpringTemplateEngine templateEngine,
+            EstadoRepository estadoRepository) {
         this.proyectoRepository = proyectoRepository;
+        this.templateEngine = templateEngine;
+        this.estadoRepository = estadoRepository;
     }
 
     @Override
@@ -110,6 +120,72 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Transactional
     public void deleteById(Long idProyecto) {
         proyectoRepository.deleteById(idProyecto);
+    }
+
+    @Override
+    public byte[] generarReportePorEstado(String codigoEstado, String nombreEstado) {
+
+        List<Proyecto> proyectos = proyectoRepository.findByEstadoCodigoEstado(codigoEstado);
+
+        Context context = new Context();
+        context.setVariable("proyectos", proyectos);
+        context.setVariable("estado", nombreEstado);
+
+        String htmlContent = templateEngine.process("proyectos/reporte_proyectos_by_estado", context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF", e);
+        }
+    }
+
+    @Override
+    public byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera) {
+
+        List<Proyecto> proyectos = proyectoRepository.findByCarreraCodigo(codigoCarrera);
+
+        Context context = new Context();
+        context.setVariable("proyectos", proyectos);
+        context.setVariable("carrera", nombreCarrera);
+
+        String htmlContent = templateEngine.process("proyectos/reporte_proyectos_by_carrera", context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF", e);
+        }
+    }
+
+    @Override
+    public byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa) {
+
+        List<Proyecto> proyectos = proyectoRepository.findByEmpresaIdEmpresa(idEmpresa);
+
+        Context context = new Context();
+        context.setVariable("proyectos", proyectos);
+        context.setVariable("carrera", nombreEmpresa);
+
+        String htmlContent = templateEngine.process("proyectos/reporte_proyectos_by_empresa", context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF", e);
+        }
     }
 
 }

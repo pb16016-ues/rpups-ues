@@ -19,6 +19,8 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
         Page<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa, Pageable pageable);
 
+        List<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa);
+
         List<Proyecto> findByCarreraCodigo(String codigoCarrera);
 
         List<Proyecto> findByModalidadCodigoModalidad(String codigoModalidad);

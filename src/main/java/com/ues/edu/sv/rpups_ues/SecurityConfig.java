@@ -50,7 +50,8 @@ public class SecurityConfig {
         return httpSecurity.authorizeHttpRequests(auth -> {
             auth.requestMatchers(
                     "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**",
-                    "/api/proyectos/public/**")
+                    "/api/proyectos/public/**", "/api/usuarios/register/**", "/api/v1/password-reset/request/**",
+                    "/api/usuarios/repres-empresa/**")
                     .permitAll()
                     .anyRequest().authenticated();
         })

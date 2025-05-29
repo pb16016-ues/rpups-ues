@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="file:src/main/resources/static/css/reportes.css"/>
+</head>
+<body>
+    <div class="header-logos only-first-page">
+        <img src="file:src/main/resources/static/img/logo_izquierdo.png" class="logo logo-left"/>
+        <img src="file:src/main/resources/static/img/logo_derecho.png" class="logo logo-right"/>
+    </div>
+    <h1>Reporte de Proyectos - Carrera: [[${empresa}]]</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Título</th>
+            <th>Estado</th>
+            <th>Descripción</th>
+            <th>Carrera</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Duración</th>
+            <th>Modalidad</th>
+            <th>Departamento</th>
+            <th>Municipio</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="proyecto : ${proyectos}">
+            <td th:text="${proyecto.titulo}"></td>
+            <td th:text="${proyecto.estado.nombre}"></td>
+            <td th:text="${proyecto.descripcion}"></td>
+            <td th:text="${proyecto.carrera.nombre}"></td>
+            <td th:text="${proyecto.fechaInicio}"></td>
+            <td th:text="${proyecto.fechaFin}"></td>
+            <td th:text="${proyecto.duracion} + ' días'"></td>
+            <td th:text="${proyecto.modalidad.nombre}"></td>
+            <td th:text="${proyecto.departamento.nombre}"></td>
+            <td th:text="${proyecto.municipio.nombre}"></td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>

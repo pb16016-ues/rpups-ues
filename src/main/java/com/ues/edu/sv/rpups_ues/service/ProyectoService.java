@@ -39,4 +39,10 @@ public interface ProyectoService {
     Proyecto save(Proyecto proyecto);
 
     void deleteById(Long idProyecto);
+
+    byte[] generarReportePorEstado(String codigoEstado, String nombreEstado);
+
+    byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera);
+
+    byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa);
 }

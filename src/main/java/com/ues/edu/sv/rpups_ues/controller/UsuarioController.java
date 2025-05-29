@@ -97,7 +97,7 @@ public class UsuarioController {
     }
 
     // Crear usuario general
-    @PostMapping
+    @PostMapping("/register")
     @PermitAll
     public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
         if (usuarioService.existsByCorreo(usuario.getCorreoInstitucional()) ||

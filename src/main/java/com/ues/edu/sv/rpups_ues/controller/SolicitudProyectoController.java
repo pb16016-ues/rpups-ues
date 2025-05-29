@@ -36,7 +36,7 @@ public class SolicitudProyectoController {
                 HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/estado-revision")
     @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByEstadoRevision(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,

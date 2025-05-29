@@ -1,12 +1,21 @@
 package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
+import com.ues.edu.sv.rpups_ues.model.entity.Estado;
+import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
+import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
+import com.ues.edu.sv.rpups_ues.service.CarreraService;
+import com.ues.edu.sv.rpups_ues.service.EstadoService;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
+import com.ues.edu.sv.rpups_ues.service.EmpresaService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ContentDisposition;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.annotation.Secured;
 import jakarta.annotation.security.PermitAll;
@@ -19,9 +28,16 @@ import java.util.Optional;
 public class ProyectoController {
 
     private final ProyectoService proyectoService;
+    private final EstadoService estadoService;
+    private final CarreraService carreraService;
+    private final EmpresaService empresaService;
 
-    public ProyectoController(ProyectoService proyectoService) {
+    public ProyectoController(ProyectoService proyectoService, EstadoService estadoService,
+            CarreraService carreraService, EmpresaService empresaService) {
         this.proyectoService = proyectoService;
+        this.estadoService = estadoService;
+        this.carreraService = carreraService;
+        this.empresaService = empresaService;
     }
 
     @GetMapping
@@ -174,5 +190,82 @@ public class ProyectoController {
         }
         proyectoService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/report-estado")
+    @PermitAll
+    public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
+
+        Optional<Estado> estado = estadoService.findByCodigoEstado(codigoEstado);
+        if (!estado.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Estado con código " + codigoEstado + " no encontrado.").getBytes());
+        }
+        String nombreEstado = estado.get().getNombre();
+
+        byte[] pdfReport = proyectoService.generarReportePorEstado(codigoEstado, nombreEstado);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        String safeNombreEstado = nombreEstado.replaceAll("[^a-zA-Z0-9\\-_]", "_");
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename("Reporte de proyectos por estado " + safeNombreEstado + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/report-carrera")
+    @PermitAll
+    public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
+            @RequestParam("codCarrera") String codigoCarrera) {
+
+        Optional<Carrera> carrera = carreraService.findByCodigo(codigoCarrera);
+        if (!carrera.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Carrera con código " + codigoCarrera + " no encontrada.").getBytes());
+        }
+        String nombreCarrera = carrera.get().getNombre();
+
+        byte[] pdfReport = proyectoService.generarReportePorCarrera(codigoCarrera, nombreCarrera);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        String safeNombreCarrera = nombreCarrera.replaceAll("[^a-zA-Z0-9\\-_]", "_");
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename("Reporte de proyectos por carrera " + safeNombreCarrera + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/report-empresa")
+    @PermitAll
+    public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
+            @RequestParam("idEmpresa") Long idEmpresa) {
+
+        Optional<Empresa> empresa = empresaService.findById(idEmpresa);
+        if (!empresa.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Empresa con ID " + idEmpresa + " no encontrada.").getBytes());
+        }
+        String nombreEmpresa = empresa.get().getNombreComercial() + " (" + empresa.get().getNombreLegal() + ")";
+
+        byte[] pdfReport = proyectoService.generarReportePorEmpresa(idEmpresa, nombreEmpresa);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        String safeNombreEmpresa = nombreEmpresa.replaceAll("[^a-zA-Z0-9\\-_]", "_");
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename("Reporte de proyectos por empresa " + safeNombreEmpresa + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
     }
 }

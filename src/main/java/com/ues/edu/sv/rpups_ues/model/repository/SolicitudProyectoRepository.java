@@ -50,7 +50,7 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         "OR LOWER(s.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
-                        "AND (:idUserCreador IS NULL OR s.idUserCreacion.idUsuario = :idUserCreador)")
+                        "AND (:idUserCreador IS NULL OR s.userCreador.idUsuario = :idUserCreador)")
         Page<SolicitudProyecto> searchByAnyFieldAndUser(
                         @Param("filter") String filter,
                         @Param("idUserCreador") Long idUserCreador,
