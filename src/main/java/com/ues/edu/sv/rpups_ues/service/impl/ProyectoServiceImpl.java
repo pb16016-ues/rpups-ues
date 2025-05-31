@@ -2,7 +2,6 @@ package com.ues.edu.sv.rpups_ues.service.impl;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
-import com.ues.edu.sv.rpups_ues.model.repository.EstadoRepository;
 import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
 
@@ -22,13 +21,10 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     private final ProyectoRepository proyectoRepository;
     private final SpringTemplateEngine templateEngine;
-    private final EstadoRepository estadoRepository;
 
-    public ProyectoServiceImpl(ProyectoRepository proyectoRepository, SpringTemplateEngine templateEngine,
-            EstadoRepository estadoRepository) {
+    public ProyectoServiceImpl(ProyectoRepository proyectoRepository, SpringTemplateEngine templateEngine) {
         this.proyectoRepository = proyectoRepository;
         this.templateEngine = templateEngine;
-        this.estadoRepository = estadoRepository;
     }
 
     @Override
@@ -173,7 +169,7 @@ public class ProyectoServiceImpl implements ProyectoService {
 
         Context context = new Context();
         context.setVariable("proyectos", proyectos);
-        context.setVariable("carrera", nombreEmpresa);
+        context.setVariable("empresa", nombreEmpresa);
 
         String htmlContent = templateEngine.process("proyectos/reporte_proyectos_by_empresa", context);
 
@@ -187,5 +183,4 @@ public class ProyectoServiceImpl implements ProyectoService {
             throw new RuntimeException("Error al generar el reporte PDF", e);
         }
     }
-
 }

@@ -60,7 +60,11 @@ public class EmpresaServiceImpl implements EmpresaService {
         if (empresa != null && (empresa.getEstadoActivo() == null || !empresa.getEstadoActivo())) {
             empresa.setEstadoActivo(true);
         }
-        return empresaRepository.save(empresa);
+        Empresa savedEmpresa = empresaRepository.save(empresa);
+        if (savedEmpresa == null) {
+            throw new RuntimeException("Error al guardar la empresa");
+        }
+        return savedEmpresa;
     }
 
     @Override

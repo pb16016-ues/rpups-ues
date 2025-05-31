@@ -18,7 +18,7 @@ public class Empresa implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_empresa", nullable = false)
+    @Column(name = "id_empresa", nullable = true)
     private Long idEmpresa;
 
     @NotBlank(message = "El nombre comercial no puede estar vacío")
@@ -55,15 +55,15 @@ public class Empresa implements Serializable {
     private Boolean estadoActivo;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", insertable = false, updatable = false)
+    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false)
     private Departamento departamento;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", insertable = false, updatable = false)
+    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false)
     private Municipio municipio;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_rubro", referencedColumnName = "id_rubro", insertable = false, updatable = false)
+    @JoinColumn(name = "id_rubro", referencedColumnName = "id_rubro", nullable = false)
     private Rubro rubro;
 
     @ManyToOne(optional = false)

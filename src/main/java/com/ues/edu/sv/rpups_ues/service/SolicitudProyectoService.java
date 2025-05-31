@@ -44,4 +44,10 @@ public interface SolicitudProyectoService {
         SolicitudProyecto save(SolicitudProyecto solicitudProyecto);
 
         void deleteById(Long idSolicitud);
+
+        byte[] generarReportePorEstado(String codigoEstado, String nombreEstado);
+
+        byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera);
+
+        byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa);
 }

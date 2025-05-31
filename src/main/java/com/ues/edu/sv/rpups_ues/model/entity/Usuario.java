@@ -21,7 +21,7 @@ public class Usuario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario", nullable = false)
+    @Column(name = "id_usuario", nullable = true)
     private Long idUsuario;
 
     @NotBlank(message = "Los nombres del usuario no pueden estar vacíos")
@@ -35,7 +35,7 @@ public class Usuario implements Serializable {
     private String apellidos;
 
     @Size(min = 7, max = 8, message = "El carnet del estudiante debe tener exactamente 8 caracteres")
-    @Column(name = "carnet", length = 8, unique = true)
+    @Column(name = "carnet", length = 8, unique = false)
     private String carnet;
 
     @NotBlank(message = "El correo institucional del usuario no puede estar vacío")

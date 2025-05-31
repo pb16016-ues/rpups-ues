@@ -23,15 +23,35 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    /*
+     * @Override
+     * 
+     * @Transactional(readOnly = true)
+     * public UserDetails loadUserByUsername(String username) throws
+     * UsernameNotFoundException {
+     * Usuario user = userRepository.findByUsername(username)
+     * .orElseThrow(() -> new UsernameNotFoundException("The username:" + username +
+     * " does not exist"));
+     * List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+     * authorities.add(new SimpleGrantedAuthority(user.getRol().getCodigo()));
+     * if (authorities.isEmpty())
+     * throw new UsernameNotFoundException("the user has no assigned roles");
+     * 
+     * return new AuthUser(user.getIdUsuario(), user.getUsername(),
+     * user.getPassword(), true, true, true, true,
+     * authorities);
+     * }
+     */
+
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("The username:" + username + " does not exist"));
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+        Usuario user = userRepository.findByUsernameOrCorreoInstitucional(input, input)
+                .orElseThrow(() -> new UsernameNotFoundException("No existe el usuario: " + input));
+        List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRol().getCodigo()));
         if (authorities.isEmpty())
-            throw new UsernameNotFoundException("the user has no assigned roles");
+            throw new UsernameNotFoundException("El usuario no tiene roles asignados");
 
         return new AuthUser(user.getIdUsuario(), user.getUsername(), user.getPassword(), true, true, true, true,
                 authorities);

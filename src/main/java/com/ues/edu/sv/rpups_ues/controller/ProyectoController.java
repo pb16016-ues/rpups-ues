@@ -196,6 +196,11 @@ public class ProyectoController {
     @PermitAll
     public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
 
+        if (codigoEstado == null || codigoEstado.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("El código de estado es requerido.".getBytes());
+        }
+
         Optional<Estado> estado = estadoService.findByCodigoEstado(codigoEstado);
         if (!estado.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -203,7 +208,17 @@ public class ProyectoController {
         }
         String nombreEstado = estado.get().getNombre();
 
+        if (nombreEstado == null || nombreEstado.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("El estado con código " + codigoEstado + " no tiene nombre válido.").getBytes());
+        }
+
         byte[] pdfReport = proyectoService.generarReportePorEstado(codigoEstado, nombreEstado);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(("No se pudo generar el reporte para el estado " + nombreEstado).getBytes());
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -222,6 +237,11 @@ public class ProyectoController {
     public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
             @RequestParam("codCarrera") String codigoCarrera) {
 
+        if (codigoCarrera == null || codigoCarrera.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("El código de carrera es requerido.".getBytes());
+        }
+
         Optional<Carrera> carrera = carreraService.findByCodigo(codigoCarrera);
         if (!carrera.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -229,7 +249,17 @@ public class ProyectoController {
         }
         String nombreCarrera = carrera.get().getNombre();
 
+        if (nombreCarrera == null || nombreCarrera.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("La carrera con código " + codigoCarrera + " no tiene nombre válido.").getBytes());
+        }
+
         byte[] pdfReport = proyectoService.generarReportePorCarrera(codigoCarrera, nombreCarrera);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(("No se pudo generar el reporte para la carrera " + nombreCarrera).getBytes());
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -248,14 +278,34 @@ public class ProyectoController {
     public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
             @RequestParam("idEmpresa") Long idEmpresa) {
 
+        if (idEmpresa == null) {
+            return ResponseEntity.badRequest()
+                    .body("El ID de la empresa es requerido.".getBytes());
+        }
+
         Optional<Empresa> empresa = empresaService.findById(idEmpresa);
         if (!empresa.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(("Empresa con ID " + idEmpresa + " no encontrada.").getBytes());
         }
-        String nombreEmpresa = empresa.get().getNombreComercial() + " (" + empresa.get().getNombreLegal() + ")";
+
+        String nombreComercial = empresa.get().getNombreComercial();
+        String nombreLegal = empresa.get().getNombreLegal();
+
+        if (nombreComercial == null || nombreComercial.trim().isEmpty() ||
+                nombreLegal == null || nombreLegal.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("La empresa con ID " + idEmpresa + " no tiene nombre comercial o legal válido.").getBytes());
+        }
+
+        String nombreEmpresa = nombreComercial + " (" + nombreLegal + ")";
 
         byte[] pdfReport = proyectoService.generarReportePorEmpresa(idEmpresa, nombreEmpresa);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(("No se pudo generar el reporte para la empresa " + nombreEmpresa).getBytes());
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);

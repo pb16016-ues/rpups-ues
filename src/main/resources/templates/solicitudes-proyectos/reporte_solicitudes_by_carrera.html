@@ -7,7 +7,7 @@
 <body>
     <div class="header-flex only-first-page">
         <img src="file:src/main/resources/static/img/logo_izquierdo.png" class="logo logo-left"/>
-        <h1>Reporte de Proyectos por Carrera: [[${carrera}]]</h1>
+        <h1>Reporte de Solicitudes de Proyectos por Carrera: [[${carrera}]]</h1>
     </div>
     <table>
         <thead>
@@ -25,17 +25,17 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="proyecto : ${proyectos}">
-            <td th:text="${proyecto.titulo}"></td>
-            <td th:text="${proyecto.estado.nombre}"></td>
-            <td th:text="${proyecto.descripcion}"></td>
-            <td th:text="${proyecto.fechaInicio}"></td>
-            <td th:text="${proyecto.fechaFin}"></td>
-            <td th:text="${proyecto.duracion} + ' días'"></td>
-            <td th:text="${proyecto.empresa.nombre}"></td>
-            <td th:text="${proyecto.modalidad.nombre}"></td>
-            <td th:text="${proyecto.departamento.nombre}"></td>
-            <td th:text="${proyecto.municipio.nombre}"></td>
+        <tr th:each="solicitud : ${solicitudes}">
+            <td th:text="${solicitud.titulo}"></td>
+            <td th:text="${solicitud.estado.nombre}"></td>
+            <td th:text="${solicitud.descripcion}"></td>
+            <td th:text="${solicitud.fechaInicio}"></td>
+            <td th:text="${solicitud.fechaFin}"></td>
+            <td th:text="${solicitud.duracion} + ' días'"></td>
+            <td th:text="${solicitud.empresa.nombre}"></td>
+            <td th:text="${solicitud.modalidad.nombre}"></td>
+            <td th:text="${solicitud.departamento.nombre}"></td>
+            <td th:text="${solicitud.municipio.nombre}"></td>
         </tr>
         </tbody>
     </table>
