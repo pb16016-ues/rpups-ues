@@ -65,12 +65,10 @@ public class SolicitudProyecto implements Serializable {
     @Column(name = "direccion_detallada", columnDefinition = "TEXT", nullable = true)
     private String direccionDetallada;
 
-    @NotNull(message = "La fecha de revisión del proyecto propuesto no puede estar vacía")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "fecha_revision", nullable = true)
     private LocalDateTime fechaRevision;
 
-    @NotBlank(message = "Las observaciones de la propuesta de proyecto no pueden estar vacías")
     @Column(name = "observaciones", columnDefinition = "TEXT", nullable = true)
     private String observaciones;
 

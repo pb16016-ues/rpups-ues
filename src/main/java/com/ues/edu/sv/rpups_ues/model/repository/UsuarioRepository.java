@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,4 +45,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         boolean existsByCarnet(String carnet);
 
         boolean existsByUsername(String username);
+
+        @Query("SELECT u FROM Usuario u WHERE u.rol.codigo IN ('ADMIN', 'COOR', 'SUP')")
+        List<Usuario> findUsuariosAdministradores();
 }

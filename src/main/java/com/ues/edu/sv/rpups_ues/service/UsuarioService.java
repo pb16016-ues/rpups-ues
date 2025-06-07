@@ -5,6 +5,7 @@ import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -51,4 +52,6 @@ public interface UsuarioService {
     boolean existsByCarnet(String carnet);
 
     boolean existsByUsername(String username);
+
+    List<Usuario> findUsuariosAdministradores();
 }
