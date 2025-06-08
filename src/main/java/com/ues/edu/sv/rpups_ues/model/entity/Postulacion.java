@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "postulaciones")
@@ -29,9 +33,9 @@ public class Postulacion implements Serializable {
     @JoinColumn(name = "id_proyecto", referencedColumnName = "id_proyecto", nullable = false)
     private Proyecto proyecto;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false)
-    private Estado estado;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Column(name = "fecha_postulacion", nullable = true)
+    private LocalDateTime fechaPostulacion;
 
     public Postulacion(Long idPostulacion) {
         this.idPostulacion = idPostulacion;

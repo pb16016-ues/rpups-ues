@@ -28,6 +28,13 @@ public class PostulacionController {
         return ResponseEntity.ok(postulaciones);
     }
 
+    @GetMapping("/proyecto/{id}")
+    @PermitAll
+    public ResponseEntity<List<Postulacion>> getPostulacionesByProyecto(@PathVariable Long id) {
+        List<Postulacion> postulaciones = postulacionService.findByProyecto(id);
+        return ResponseEntity.ok(postulaciones);
+    }
+
     @GetMapping("/{id}")
     @PermitAll
     public ResponseEntity<Postulacion> getPostulacionById(@PathVariable Long id) {
@@ -35,27 +42,11 @@ public class PostulacionController {
         return postulacion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<List<Postulacion>> getPostulacionesByEstado(@PathVariable String codigoEstado) {
-        List<Postulacion> postulaciones = postulacionService.findByEstado(codigoEstado);
-        return ResponseEntity.ok(postulaciones);
-    }
-
     @GetMapping("/estudiante/{idEstudiante}/proyecto/{idProyecto}")
     @PermitAll
     public ResponseEntity<Postulacion> getPostulacionByEstudianteAndProyecto(
             @PathVariable Long idEstudiante, @PathVariable Long idProyecto) {
         Optional<Postulacion> postulacion = postulacionService.findByEstudianteAndProyecto(idEstudiante, idProyecto);
-        return postulacion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/estudiante/{idEstudiante}/proyecto/{idProyecto}/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<Postulacion> getPostulacionByEstudianteAndProyectoAndEstado(
-            @PathVariable Long idEstudiante, @PathVariable Long idProyecto, @PathVariable String codigoEstado) {
-        Optional<Postulacion> postulacion = postulacionService.findByEstudianteAndProyectoAndEstado(
-                idEstudiante, idProyecto, codigoEstado);
         return postulacion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 

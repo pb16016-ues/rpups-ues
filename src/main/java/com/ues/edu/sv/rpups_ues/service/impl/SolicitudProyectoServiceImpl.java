@@ -2,6 +2,7 @@ package com.ues.edu.sv.rpups_ues.service.impl;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
+import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.repository.SolicitudProyectoRepository;
 import com.ues.edu.sv.rpups_ues.service.SolicitudProyectoService;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
@@ -124,6 +126,99 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     @Transactional
     public SolicitudProyecto save(SolicitudProyecto solicitudProyecto) {
+        solicitudProyecto.setFechaCreacion(null);
+        solicitudProyecto.setFechaRevision(null);
+        solicitudProyecto.setObservaciones(null);
+        solicitudProyecto.setAdminRevisor(null);
+
+        Estado estadoNew = new Estado("PEND");
+        solicitudProyecto.setEstado(estadoNew);
+
+        if (solicitudProyecto.getFechaFin() != null && solicitudProyecto.getFechaInicio() != null) {
+            if (!solicitudProyecto.getFechaFin().isAfter(solicitudProyecto.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha estimada de finalización del proyecto debe ser posterior a la fecha estimada de inicio.");
+            }
+        }
+
+        return solicitudProyectoRepository.save(solicitudProyecto);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudProyecto updateAdmin(SolicitudProyecto solicitudProyectoBD, SolicitudProyecto solicitudProyecto) {
+        solicitudProyecto.setFechaCreacion(solicitudProyectoBD.getFechaCreacion());
+
+        if (solicitudProyecto.getEstado() == null && solicitudProyectoBD.getEstado() == null) {
+            throw new IllegalArgumentException(
+                    "La solicitud de proyecto debe contener un estado especificado.");
+        }
+
+        if (solicitudProyecto.getFechaRevision() != null && solicitudProyectoBD.getFechaCreacion() != null) {
+            if (!solicitudProyecto.getFechaRevision().isAfter(solicitudProyectoBD.getFechaCreacion())) {
+                throw new IllegalArgumentException(
+                        "La fecha de revisión debe ser posterior a la fecha de creación de la solicitud.");
+            }
+        }
+        if (solicitudProyectoBD.getFechaCreacion() == null) {
+            solicitudProyecto.setFechaCreacion(LocalDateTime.now());
+        }
+
+        if (solicitudProyecto.getFechaFin() != null && solicitudProyecto.getFechaInicio() != null) {
+            if (!solicitudProyecto.getFechaFin().isAfter(solicitudProyecto.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha estimada de finalización del proyecto debe ser posterior a la fecha estimada de inicio.");
+            }
+        }
+
+        if ((solicitudProyecto.getEstado().getCodigoEstado().equals("RECH")
+                || solicitudProyecto.getEstado().getCodigoEstado().equals("OBS"))
+                && (!solicitudProyecto.getEstado().getCodigoEstado().equals("APRO"))
+                && (solicitudProyecto.getObservaciones() == null || solicitudProyecto.getObservaciones().isEmpty())
+                && solicitudProyectoBD.getObservaciones() == null) {
+            throw new IllegalArgumentException(
+                    "La solicitud de proyecto debe contener al menos un argumento en Observaciones");
+        }
+
+        return solicitudProyectoRepository.save(solicitudProyecto);
+    }
+
+    @Override
+    @Transactional
+    public SolicitudProyecto updateExterno(SolicitudProyecto solicitudProyectoBD, SolicitudProyecto solicitudProyecto) {
+        solicitudProyecto.setFechaCreacion(solicitudProyectoBD.getFechaCreacion());
+
+        if (solicitudProyecto.getEstado() == null && solicitudProyectoBD.getEstado() == null) {
+            throw new IllegalArgumentException(
+                    "La solicitud de proyecto debe contener un estado especificado.");
+        }
+
+        if (solicitudProyecto.getFechaRevision() != null && solicitudProyectoBD.getFechaCreacion() != null) {
+            if (!solicitudProyecto.getFechaRevision().isAfter(solicitudProyectoBD.getFechaCreacion())) {
+                throw new IllegalArgumentException(
+                        "La fecha de revisión debe ser posterior a la fecha de creación de la solicitud.");
+            }
+        }
+        if (solicitudProyectoBD.getFechaCreacion() == null) {
+            solicitudProyecto.setFechaCreacion(LocalDateTime.now());
+        }
+
+        if (solicitudProyecto.getFechaFin() != null && solicitudProyecto.getFechaInicio() != null) {
+            if (!solicitudProyecto.getFechaFin().isAfter(solicitudProyecto.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha estimada de finalización del proyecto debe ser posterior a la fecha estimada de inicio.");
+            }
+        }
+
+        if ((solicitudProyecto.getEstado().getCodigoEstado().equals("RECH")
+                || solicitudProyecto.getEstado().getCodigoEstado().equals("OBS"))
+                && (!solicitudProyecto.getEstado().getCodigoEstado().equals("APRO"))
+                && (solicitudProyecto.getObservaciones() == null || solicitudProyecto.getObservaciones().isEmpty())
+                && solicitudProyectoBD.getObservaciones() == null) {
+            throw new IllegalArgumentException(
+                    "La solicitud de proyecto debe contener al menos un argumento en Observaciones");
+        }
+
         return solicitudProyectoRepository.save(solicitudProyecto);
     }
 

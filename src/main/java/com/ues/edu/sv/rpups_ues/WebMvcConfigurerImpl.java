@@ -21,6 +21,8 @@ public class WebMvcConfigurerImpl implements WebMvcConfigurer {
                         "http://127.0.0.1:3000",
                         "http://localhost:4200" // Otra posible configuración local
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .exposedHeaders("Content-Disposition");
+        ;
     }
 }

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -26,8 +27,8 @@ public class Proyecto implements Serializable {
     private Long idProyecto;
 
     @NotBlank(message = "El título del proyecto no puede estar vacío")
-    @Size(max = 250, message = "El título del proyecto debe tener un máximo de 250 caracteres")
-    @Column(name = "titulo", nullable = false, length = 250)
+    @Size(max = 255, message = "El título del proyecto debe tener un máximo de 255 caracteres")
+    @Column(name = "titulo", nullable = false, length = 255)
     private String titulo;
 
     @NotBlank(message = "La descripción del proyecto no puede estar vacía")
@@ -60,9 +61,13 @@ public class Proyecto implements Serializable {
     @Column(name = "max_estudiantes", nullable = false)
     private Integer maxEstudiantes;
 
-    @Size(max = 250, message = "La dirección detallada debe tener un máximo de 250 caracteres")
+    @Size(max = 255, message = "La dirección detallada debe tener un máximo de 255 caracteres")
     @Column(name = "direccion_detallada", columnDefinition = "TEXT", nullable = true)
     private String direccionDetallada;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Column(name = "fecha_creacion", nullable = true)
+    private LocalDateTime fechaCreacion;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false)
@@ -84,8 +89,8 @@ public class Proyecto implements Serializable {
     @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false)
     private Modalidad modalidad;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_admin_aprobacion", referencedColumnName = "id_usuario", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_admin_aprobacion", referencedColumnName = "id_usuario", nullable = true)
     private Usuario administrador;
 
     @ManyToOne(optional = false)

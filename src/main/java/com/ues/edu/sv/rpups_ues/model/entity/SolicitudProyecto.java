@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "solicitudes_proyectos")
@@ -28,7 +29,7 @@ public class SolicitudProyecto implements Serializable {
 
     @NotBlank(message = "El título del proyecto propuesto no puede estar vacío")
     @Size(max = 250, message = "El título del proyecto propuesto debe tener un máximo de 150 caracteres")
-    @Column(name = "titulo", nullable = false, length = 150)
+    @Column(name = "titulo", nullable = false, length = 250)
     private String titulo;
 
     @NotBlank(message = "La descripción del proyecto propuesto no puede estar vacía")
@@ -42,13 +43,13 @@ public class SolicitudProyecto implements Serializable {
     @NotNull(message = "La fecha de inicio del proyecto propuesto no puede estar vacía")
     @FutureOrPresent(message = "La fecha de inicio del proyecto propuesto debe ser una fecha futura o presente")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "fecha_inicio", nullable = true)
+    @Column(name = "fecha_inicio", nullable = false)
     private LocalDate fechaInicio;
 
     @NotNull(message = "La fecha de finalización del proyecto propuesto no puede estar vacía")
     @FutureOrPresent(message = "La fecha de finalización del proyecto propuesto debe ser una fecha futura o presente")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "fecha_fin", nullable = true)
+    @Column(name = "fecha_fin", nullable = false)
     private LocalDate fechaFin;
 
     @NotNull(message = "La duración del proyecto propuesto no puede estar vacía")
@@ -61,16 +62,18 @@ public class SolicitudProyecto implements Serializable {
     @Column(name = "max_estudiantes", nullable = false)
     private Integer maxEstudiantes;
 
-    @Size(max = 250, message = "La dirección detallada de la ejecución del proyecto propuesto debe tener un máximo de 250 caracteres")
+    @Size(max = 255, message = "La dirección detallada de la ejecución del proyecto propuesto debe tener un máximo de 255 caracteres")
     @Column(name = "direccion_detallada", columnDefinition = "TEXT", nullable = true)
     private String direccionDetallada;
 
-    @NotNull(message = "La fecha de revisión del proyecto propuesto no puede estar vacía")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "fecha_revision", nullable = true)
     private LocalDateTime fechaRevision;
 
-    @NotBlank(message = "Las observaciones de la propuesta de proyecto no pueden estar vacías")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Column(name = "fecha_creacion", nullable = true)
+    private LocalDateTime fechaCreacion;
+
     @Column(name = "observaciones", columnDefinition = "TEXT", nullable = true)
     private String observaciones;
 
@@ -94,7 +97,7 @@ public class SolicitudProyecto implements Serializable {
     @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false)
     private Modalidad modalidad;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "id_admin_revision", referencedColumnName = "id_usuario", nullable = true)
     private Usuario adminRevisor;
 

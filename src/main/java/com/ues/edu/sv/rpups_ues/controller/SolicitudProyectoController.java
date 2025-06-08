@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.annotation.Secured;
 import jakarta.annotation.security.PermitAll;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -184,50 +186,121 @@ public class SolicitudProyectoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSolicitud);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/admin/{id}")
     @PermitAll
-    public ResponseEntity<SolicitudProyecto> updateSolicitud(@PathVariable Long id,
+    public ResponseEntity<?> updateSolicitudAdmin(@PathVariable Long id,
             @RequestBody SolicitudProyecto solicitudProyecto) {
+
+        SolicitudProyecto solicitudProyectoBD = null;
+        Map<String, Object> response = new HashMap<>();
+
         if (!solicitudProyectoService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
+            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } else {
+            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(id);
+            solicitudProyectoBD = optSolicitudProyectoBD.get();
         }
 
-        if (solicitudProyecto.getEstado() == null) {
-            return ResponseEntity.badRequest().build();
-        } else if (solicitudProyecto.getEstado().getNombre() == null
-                || solicitudProyecto.getEstado().getNombre().isEmpty()) {
-            return ResponseEntity.badRequest().build();
+        if (solicitudProyectoBD == null) {
+            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        solicitudProyecto.setIdSolicitud(id);
-        SolicitudProyecto updatedSolicitud = solicitudProyectoService.save(solicitudProyecto);
+        try {
+            solicitudProyecto.setIdSolicitud(id);
+            SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateAdmin(solicitudProyectoBD,
+                    solicitudProyecto);
 
-        if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Aprobado")
-                || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Rechazado")
-                || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Observación")) {
+            if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Aprobado")
+                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Rechazado")
+                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Observación")) {
 
-            // Enviar el correo institucional
-            emailService.sendNotificationSolicitudProyectoEmail(
-                    updatedSolicitud.getUserCreador().getCorreoInstitucional(),
-                    updatedSolicitud.getEstado().getNombre(),
-                    updatedSolicitud.getObservaciones());
-
-            // Enviar el correo personal
-            if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
+                // Enviar el correo institucional
                 emailService.sendNotificationSolicitudProyectoEmail(
-                        updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                        updatedSolicitud.getUserCreador().getCorreoInstitucional(),
                         updatedSolicitud.getEstado().getNombre(),
                         updatedSolicitud.getObservaciones());
+
+                // Enviar el correo personal
+                if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
+
+                    if (!updatedSolicitud.getUserCreador().getCorreoInstitucional()
+                            .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
+                        emailService.sendNotificationSolicitudProyectoEmail(
+                                updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                                updatedSolicitud.getEstado().getNombre(),
+                                updatedSolicitud.getObservaciones());
+                    }
+                }
+
+                if (!updatedSolicitud.getEmpresa().getContactoEmail()
+                        .equals(updatedSolicitud.getUserCreador().getCorreoInstitucional())
+                        && !updatedSolicitud.getEmpresa().getContactoEmail()
+                                .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
+                    // Enviar el correo a la empresa
+                    emailService.sendNotificationSolicitudProyectoEmail(
+                            updatedSolicitud.getEmpresa().getContactoEmail(),
+                            updatedSolicitud.getEstado().getNombre(),
+                            updatedSolicitud.getObservaciones());
+                }
             }
 
-            // Enviar el correo a la empresa
-            emailService.sendNotificationSolicitudProyectoEmail(
-                    updatedSolicitud.getEmpresa().getContactoEmail(),
-                    updatedSolicitud.getEstado().getNombre(),
-                    updatedSolicitud.getObservaciones());
+            return ResponseEntity.ok(updatedSolicitud);
+
+        } catch (IllegalArgumentException e) {
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/externo/{id}")
+    @PermitAll
+    public ResponseEntity<?> updateSolicitudExterno(@PathVariable Long id,
+            @RequestBody SolicitudProyecto solicitudProyecto) {
+
+        SolicitudProyecto solicitudProyectoBD = null;
+        Map<String, Object> response = new HashMap<>();
+
+        if (!solicitudProyectoService.findById(id).isPresent()) {
+            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } else {
+            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(id);
+            solicitudProyectoBD = optSolicitudProyectoBD.get();
         }
 
-        return ResponseEntity.ok(updatedSolicitud);
+        if (solicitudProyectoBD == null) {
+            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        try {
+            solicitudProyecto.setIdSolicitud(id);
+            SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateExterno(solicitudProyectoBD,
+                    solicitudProyecto);
+
+            if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Revisión")
+                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Pendiente")) {
+
+                String datos = updatedSolicitud.getTitulo() + "|" + updatedSolicitud.getUserCreador().getNombres() + " "
+                        + updatedSolicitud.getUserCreador().getApellidos() + "|"
+                        + updatedSolicitud.getUserCreador().getCorreoInstitucional() + "|"
+                        + updatedSolicitud.getObservaciones();
+
+                // Enviar el correo institucional
+                emailService.sendNotificationSolicitudProyectoEmail(
+                        updatedSolicitud.getAdminRevisor().getCorreoInstitucional(),
+                        updatedSolicitud.getEstado().getNombre(),
+                        datos);
+            }
+
+            return ResponseEntity.ok(updatedSolicitud);
+
+        } catch (IllegalArgumentException e) {
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @DeleteMapping("/{id}")

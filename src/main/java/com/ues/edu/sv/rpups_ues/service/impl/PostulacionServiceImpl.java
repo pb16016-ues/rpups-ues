@@ -26,14 +26,14 @@ public class PostulacionServiceImpl implements PostulacionService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Postulacion> findById(Long idPostulacion) {
-        return postulacionRepository.findById(idPostulacion);
+    public List<Postulacion> findByProyecto(Long idProyecto) {
+        return postulacionRepository.findByProyectoIdProyecto(idProyecto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Postulacion> findByEstado(String codigoEstado) {
-        return postulacionRepository.findByEstadoCodigoEstado(codigoEstado);
+    public Optional<Postulacion> findById(Long idPostulacion) {
+        return postulacionRepository.findById(idPostulacion);
     }
 
     @Override
@@ -43,16 +43,9 @@ public class PostulacionServiceImpl implements PostulacionService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Postulacion> findByEstudianteAndProyectoAndEstado(Long idEstudiante, Long idProyecto,
-            String codigoEstado) {
-        return postulacionRepository.findByEstudianteIdUsuarioAndProyectoIdProyectoAndEstadoCodigoEstado(idEstudiante,
-                idProyecto, codigoEstado);
-    }
-
-    @Override
     @Transactional
     public Postulacion save(Postulacion postulacion) {
+
         Optional<Postulacion> existingPostulacion = postulacionRepository
                 .findByEstudianteIdUsuarioAndProyectoIdProyecto(
                         postulacion.getEstudiante().getIdUsuario(),
@@ -62,6 +55,7 @@ public class PostulacionServiceImpl implements PostulacionService {
             throw new IllegalArgumentException(
                     "Ya existe una postulación para este estudiante asociada a este proyecto.");
         }
+        postulacion.setFechaPostulacion(null);
 
         return postulacionRepository.save(postulacion);
     }

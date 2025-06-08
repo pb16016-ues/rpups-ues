@@ -222,11 +222,9 @@ public class ProyectoController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-
-        String safeNombreEstado = nombreEstado.replaceAll("[^a-zA-Z0-9\\-_]", "_");
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
-                .filename("Reporte de proyectos por estado " + safeNombreEstado + ".pdf")
+                .filename("Reporte de proyectos por estado " + nombreEstado + ".pdf")
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
@@ -263,11 +261,9 @@ public class ProyectoController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-
-        String safeNombreCarrera = nombreCarrera.replaceAll("[^a-zA-Z0-9\\-_]", "_");
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
-                .filename("Reporte de proyectos por carrera " + safeNombreCarrera + ".pdf")
+                .filename("Reporte de proyectos por carrera " + nombreCarrera + ".pdf")
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
@@ -299,7 +295,6 @@ public class ProyectoController {
         }
 
         String nombreEmpresa = nombreComercial + " (" + nombreLegal + ")";
-
         byte[] pdfReport = proyectoService.generarReportePorEmpresa(idEmpresa, nombreEmpresa);
 
         if (pdfReport == null || pdfReport.length == 0) {
@@ -309,12 +304,8 @@ public class ProyectoController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-
-        String safeNombreEmpresa = nombreEmpresa.replaceAll("[^a-zA-Z0-9\\-_]", "_");
-        headers.setContentDisposition(ContentDisposition
-                .builder("attachment")
-                .filename("Reporte de proyectos por empresa " + safeNombreEmpresa + ".pdf")
-                .build());
+        headers.setContentDisposition(ContentDisposition.inline()
+                .filename("Reporte de proyectos por empresa " + nombreEmpresa + ".pdf").build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
     }

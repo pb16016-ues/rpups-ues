@@ -43,6 +43,10 @@ public interface SolicitudProyectoService {
 
         SolicitudProyecto save(SolicitudProyecto solicitudProyecto);
 
+        SolicitudProyecto updateAdmin(SolicitudProyecto solicitudProyectoBD, SolicitudProyecto solicitudProyecto);
+
+        SolicitudProyecto updateExterno(SolicitudProyecto solicitudProyectoBD, SolicitudProyecto solicitudProyecto);
+
         void deleteById(Long idSolicitud);
 
         byte[] generarReportePorEstado(String codigoEstado, String nombreEstado);

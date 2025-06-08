@@ -11,11 +11,9 @@ public interface PostulacionService {
 
     Optional<Postulacion> findById(Long idPostulacion);
 
-    List<Postulacion> findByEstado(String codigoEstado);
-
     Optional<Postulacion> findByEstudianteAndProyecto(Long idEstudiante, Long idProyecto);
 
-    Optional<Postulacion> findByEstudianteAndProyectoAndEstado(Long idEstudiante, Long idProyecto, String codigoEstado);
+    List<Postulacion> findByProyecto(Long idProyecto);
 
     Postulacion save(Postulacion postulacion);
 
