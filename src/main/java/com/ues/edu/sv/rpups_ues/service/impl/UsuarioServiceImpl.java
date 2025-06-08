@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -253,5 +254,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                 () -> new EntityNotFoundException("Usuario no encontrada con el ID proporcionado: " + idUsuario));
         usuarioRepository.delete(usuario);
         return usuario;
+    }
+
+    @Override
+    public List<Usuario> findUsuariosAdministradores() {
+        return usuarioRepository.findUsuariosAdministradores();
     }
 }

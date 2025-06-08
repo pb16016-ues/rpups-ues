@@ -16,6 +16,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -45,7 +46,8 @@ public class UsuarioController {
     }
 
     @GetMapping("/username/{username}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    // @Secured({ "ADMIN", "COOR", "SUP" })
+    @PermitAll
     public ResponseEntity<Usuario> getUsuarioByUsername(@PathVariable String username) {
         Optional<Usuario> usuario = usuarioService.findByUsername(username);
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -119,10 +121,11 @@ public class UsuarioController {
                 (usuario.getCorreoPersonal() != null
                         && usuarioService.existsByCorreo(usuario.getCorreoPersonal()))
                 ||
-                usuarioService.existsByCarnet(usuario.getCarnet()) ||
+                
                 usuarioService.existsByUsername(usuario.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+        System.out.println("Creating administrative user: " + usuario);
         Usuario savedUsuario = usuarioService.registerAdministrativo(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUsuario);
     }
@@ -135,7 +138,6 @@ public class UsuarioController {
                 (usuario.getCorreoPersonal() != null
                         && usuarioService.existsByCorreo(usuario.getCorreoPersonal()))
                 ||
-                usuarioService.existsByCarnet(usuario.getCarnet()) ||
                 usuarioService.existsByUsername(usuario.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
@@ -186,5 +188,12 @@ public class UsuarioController {
     public ResponseEntity<Boolean> existsByUsername(@PathVariable String username) {
         boolean exists = usuarioService.existsByUsername(username);
         return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/administradores")
+    @Secured({ "ADMIN", "SUP" })
+    public ResponseEntity<List<Usuario>> getUsuariosAdministradores() {
+        List<Usuario> administradores = usuarioService.findUsuariosAdministradores();
+        return ResponseEntity.ok(administradores);
     }
 }
