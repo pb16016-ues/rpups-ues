@@ -15,23 +15,23 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
         List<Proyecto> findByTituloContainingIgnoreCase(String titulo);
 
-        List<Proyecto> findByEstadoCodigoEstado(String codigoEstado);
+        List<Proyecto> findByCodigoEstado(String codigoEstado);
 
-        Page<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa, Pageable pageable);
+        Page<Proyecto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
 
-        List<Proyecto> findByEmpresaIdEmpresa(Long idEmpresa);
+        List<Proyecto> findByIdEmpresa(Long idEmpresa);
 
-        List<Proyecto> findByCarreraCodigo(String codigoCarrera);
+        List<Proyecto> findByCodigoCarrera(String codigoCarrera);
 
-        List<Proyecto> findByModalidadCodigoModalidad(String codigoModalidad);
+        List<Proyecto> findByCodigoModalidad(String codigoModalidad);
 
-        List<Proyecto> findByAdministradorIdUsuario(Long idUsuario);
+        List<Proyecto> findByIdAdministrador(Long idUsuario);
 
-        List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
+        List<Proyecto> findByIdEmpresaAndCodigoEstado(Long idEmpresa, String codigoEstado);
 
-        List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
+        List<Proyecto> findByCodigoCarreraAndCodigoEstado(String codigoCarrera, String codigoEstado);
 
-        List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
+        List<Proyecto> findByCodigoModalidadAndCodigoEstado(String codigoModalidad, String codigoEstado);
 
         @Query("SELECT p FROM Proyecto p " +
                         "WHERE (:filter IS NULL " +

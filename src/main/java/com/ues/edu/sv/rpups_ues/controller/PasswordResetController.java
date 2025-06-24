@@ -30,24 +30,21 @@ public class PasswordResetController {
             return ResponseEntity.badRequest().body("El correo electrónico no puede estar vacío");
         }
         if (usuarioService.existsByCorreo(email)) {
-
             Usuario usuario = usuarioService.findByCorreoInstitucional(email).orElse(null);
 
             if (usuario == null) {
                 usuario = usuarioService.findByCorreoPersonal(email).orElse(null);
-
                 if (usuario == null) {
                     return ResponseEntity.badRequest().body("Usuario no existe o no ha podido ser encontrado " + email);
                 }
             }
-            String passwordTemporal = emailService.generateTemporaryPassword();
 
+            String passwordTemporal = emailService.generateTemporaryPassword();
             usuario.setPassword(passwordTemporal);
             usuarioService.editPasswordUsuario(usuario);
 
             // Enviar el correo electrónico
             emailService.sendPasswordResetEmail(usuario.getCorreoInstitucional(), passwordTemporal);
-
             return ResponseEntity
                     .ok(new Message("Contraseña restablecida con éxito, puede verificar en su correo electrónico"));
 

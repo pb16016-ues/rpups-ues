@@ -107,8 +107,10 @@ public class SolicitudProyectoController {
 
     @GetMapping("/admin-revisor/{idUsuario}")
     @PermitAll
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByAdministradorRevisor(@PathVariable Long idUsuario) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByAdministradorRevisor(idUsuario);
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByAdministradorRevisorAndCodigoEstadoRevision(
+            @PathVariable Long idUsuario) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService
+                .findByAdministradorRevisorAndCodigoEstadoRevision(idUsuario);
         return ResponseEntity.ok(solicitudes);
     }
 

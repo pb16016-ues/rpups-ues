@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "proyectos")
@@ -69,32 +70,66 @@ public class Proyecto implements Serializable {
     @Column(name = "fecha_creacion", nullable = true)
     private LocalDateTime fechaCreacion;
 
+    @NotNull(message = "El id de empresa no puede estar vacío o nulo")
+    @Column(name = "id_empresa", nullable = false)
+    private Long idEmpresa;
+
+    @NotNull(message = "El código de departamento no puede estar vacío o nulo")
+    @Column(name = "codigo_departamento", nullable = false)
+    private String codigoDepartamento;
+
+    @NotNull(message = "El código de municipio no puede estar vacío o nulo")
+    @Column(name = "codigo_municipio", nullable = false)
+    private String codigoMunicipio;
+
+    @NotNull(message = "El código de carrera no puede estar vacío o nulo")
+    @Column(name = "codigo_carrera", nullable = false)
+    private String codigoCarrera;
+
+    @NotNull(message = "El código de modalidad no puede estar vacío o nulo")
+    @Column(name = "codigo_modalidad", nullable = false)
+    private String codigoModalidad;
+
+    @Column(name = "id_admin_aprobacion", nullable = true)
+    private Long idAdministrador;
+
+    @NotNull(message = "El código de estado no puede estar vacío o nulo")
+    @Column(name = "codigo_estado", nullable = false)
+    private String codigoEstado;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false)
+    @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Empresa empresa;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Departamento departamento;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Municipio municipio;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Carrera carrera;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false)
+    @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Modalidad modalidad;
 
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_admin_aprobacion", referencedColumnName = "id_usuario", nullable = true)
+    @JoinColumn(name = "id_admin_aprobacion", referencedColumnName = "id_usuario", nullable = true, insertable = false, updatable = false)
+    @JsonIgnore
     private Usuario administrador;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false)
+    @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Estado estado;
 
     public Proyecto(Long idProyecto) {

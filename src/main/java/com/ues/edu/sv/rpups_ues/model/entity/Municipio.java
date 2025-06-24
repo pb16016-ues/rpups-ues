@@ -2,6 +2,8 @@ package com.ues.edu.sv.rpups_ues.model.entity;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +28,7 @@ public class Municipio implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", insertable = false, updatable = false)
+    @JsonIgnore
     private Departamento departamento;
 
     public Municipio(String codigo) {

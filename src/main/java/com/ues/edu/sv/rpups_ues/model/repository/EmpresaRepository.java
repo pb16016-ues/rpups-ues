@@ -13,7 +13,7 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
 
     List<Empresa> findByNombreLegalContainingIgnoreCase(String nombreLegal);
 
-    List<Empresa> findByRubroIdRubro(Long idRubro);
+    List<Empresa> findByIdRubro(Long idRubro);
 
-    List<Empresa> findByUserCreadorIdUsuario(Long idUsuario);
+    List<Empresa> findByIdUserCreador(Long idUserCreador);
 }

@@ -32,7 +32,7 @@
             <td th:text="${proyecto.fechaInicio}"></td>
             <td th:text="${proyecto.fechaFin}"></td>
             <td th:text="${proyecto.duracion} + ' días'"></td>
-            <td th:text="${proyecto.empresa.nombre}"></td>
+            <td th:text="${proyecto.empresa.nombreComercial + ' (' + proyecto.empresa.nombreLegal + ')'}"></td>
             <td th:text="${proyecto.modalidad.nombre}"></td>
             <td th:text="${proyecto.departamento.nombre}"></td>
             <td th:text="${proyecto.municipio.nombre}"></td>

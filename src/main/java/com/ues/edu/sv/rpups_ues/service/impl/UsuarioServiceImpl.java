@@ -101,29 +101,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public Usuario save(Usuario usuario) {
-        if (usuarioRepository.existsByCorreoInstitucional(usuario.getCorreoInstitucional())) {
-            throw new IllegalArgumentException("El correo institucional ya está registrado.");
-        }
-
-        if (usuario.getCorreoPersonal() != null
-                && usuarioRepository.existsByCorreoPersonal(usuario.getCorreoPersonal())) {
-            throw new IllegalArgumentException("El correo personal ya está registrado.");
-        }
-
-        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())) {
-            throw new IllegalArgumentException("El carnet ya está registrado.");
-        }
-
-        if (usuarioRepository.existsByUsername(usuario.getUsername())) {
-            throw new IllegalArgumentException("El nombre de usuario ya está registrado.");
-        }
-
-        return usuarioRepository.save(usuario);
-    }
-
-    @Override
-    @Transactional
     public Usuario createUsuario(Usuario usuario) {
         if (usuario == null) {
             throw new IllegalArgumentException("El argumento usuario no puede ser nulo");

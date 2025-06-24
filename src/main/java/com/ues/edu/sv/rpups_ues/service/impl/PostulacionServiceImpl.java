@@ -27,7 +27,7 @@ public class PostulacionServiceImpl implements PostulacionService {
     @Override
     @Transactional(readOnly = true)
     public List<Postulacion> findByProyecto(Long idProyecto) {
-        return postulacionRepository.findByProyectoIdProyecto(idProyecto);
+        return postulacionRepository.findByIdProyecto(idProyecto);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class PostulacionServiceImpl implements PostulacionService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Postulacion> findByEstudianteAndProyecto(Long idEstudiante, Long idProyecto) {
-        return postulacionRepository.findByEstudianteIdUsuarioAndProyectoIdProyecto(idEstudiante, idProyecto);
+        return postulacionRepository.findByIdEstudianteAndIdProyecto(idEstudiante, idProyecto);
     }
 
     @Override
@@ -47,9 +47,9 @@ public class PostulacionServiceImpl implements PostulacionService {
     public Postulacion save(Postulacion postulacion) {
 
         Optional<Postulacion> existingPostulacion = postulacionRepository
-                .findByEstudianteIdUsuarioAndProyectoIdProyecto(
-                        postulacion.getEstudiante().getIdUsuario(),
-                        postulacion.getProyecto().getIdProyecto());
+                .findByIdEstudianteAndIdProyecto(
+                        postulacion.getIdEstudiante(),
+                        postulacion.getIdProyecto());
 
         if (existingPostulacion.isPresent()) {
             throw new IllegalArgumentException(

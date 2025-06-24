@@ -45,13 +45,13 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     @Transactional(readOnly = true)
     public List<Empresa> findByRubroIdRubro(Long idRubro) {
-        return empresaRepository.findByRubroIdRubro(idRubro);
+        return empresaRepository.findByIdRubro(idRubro);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Empresa> findByUserCreador(Long idUsuario) {
-        return empresaRepository.findByUserCreadorIdUsuario(idUsuario);
+        return empresaRepository.findByIdUserCreador(idUsuario);
     }
 
     @Override

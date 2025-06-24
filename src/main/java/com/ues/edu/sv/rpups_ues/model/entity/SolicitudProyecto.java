@@ -77,37 +77,76 @@ public class SolicitudProyecto implements Serializable {
     @Column(name = "observaciones", columnDefinition = "TEXT", nullable = true)
     private String observaciones;
 
+    @NotNull(message = "El id de empresa no puede estar vacío o nulo")
+    @Column(name = "id_empresa", nullable = false)
+    private Long idEmpresa;
+
+    @NotNull(message = "El código de departamento no puede estar vacío o nulo")
+    @Column(name = "codigo_departamento", nullable = false)
+    private String codigoDepartamento;
+
+    @NotNull(message = "El código de municipio no puede estar vacío o nulo")
+    @Column(name = "codigo_municipio", nullable = false)
+    private String codigoMunicipio;
+
+    @NotNull(message = "El código de carrera no puede estar vacío o nulo")
+    @Column(name = "codigo_carrera", nullable = false)
+    private String codigoCarrera;
+
+    @NotNull(message = "El código de modalidad no puede estar vacío o nulo")
+    @Column(name = "codigo_modalidad", nullable = false)
+    private String codigoModalidad;
+
+    @NotNull(message = "El código de estado no puede estar vacío o nulo")
+    @Column(name = "codigo_estado", nullable = false)
+    private String codigoEstado;
+
+    @Column(name = "id_admin_revision", nullable = true)
+    private Long idAdminRevisor;
+
+    @NotNull(message = "El id del usuario creador de la solicitud no puede estar vacío o nulo")
+    @Column(name = "id_user_creacion", nullable = false)
+    private Long idUserCreador;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false)
+    @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Empresa empresa;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Departamento departamento;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Municipio municipio;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Carrera carrera;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false)
+    @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Modalidad modalidad;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private Estado estado;
+
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_admin_revision", referencedColumnName = "id_usuario", nullable = true)
+    @JoinColumn(name = "id_admin_revision", referencedColumnName = "id_usuario", nullable = true, insertable = false, updatable = false)
+    @JsonIgnore
     private Usuario adminRevisor;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_user_creacion", referencedColumnName = "id_usuario", nullable = false)
+    @JoinColumn(name = "id_user_creacion", referencedColumnName = "id_usuario", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Usuario userCreador;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false)
-    private Estado estado;
 
     public SolicitudProyecto(Long idSolicitud) {
         this.idSolicitud = idSolicitud;

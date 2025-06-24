@@ -23,7 +23,7 @@ public interface SolicitudProyectoService {
 
         List<SolicitudProyecto> findByModalidad(String codigoModalidad);
 
-        List<SolicitudProyecto> findByAdministradorRevisor(Long idUsuario);
+        List<SolicitudProyecto> findByAdministradorRevisorAndCodigoEstadoRevision(Long idAdminRevisor);
 
         List<SolicitudProyecto> findByUserCreador(Long idUsuario);
 

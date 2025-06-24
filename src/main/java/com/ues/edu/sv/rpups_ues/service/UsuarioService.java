@@ -29,8 +29,6 @@ public interface UsuarioService {
 
     Page<Usuario> findUsuarioByFiltros(String filter, Pageable pageable);
 
-    Usuario save(Usuario usuario);
-
     Usuario createUsuario(Usuario usuario);
 
     Usuario changePassword(ChangePasswordDTO changePasswordDTO, Principal principal);

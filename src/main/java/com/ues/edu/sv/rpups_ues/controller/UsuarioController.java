@@ -3,6 +3,7 @@ package com.ues.edu.sv.rpups_ues.controller;
 import com.ues.edu.sv.rpups_ues.model.DTO.ChangePasswordDTO;
 import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
+import com.ues.edu.sv.rpups_ues.service.EmailService;
 import com.ues.edu.sv.rpups_ues.service.UsuarioService;
 
 import jakarta.annotation.security.PermitAll;
@@ -24,9 +25,11 @@ import java.util.Optional;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final EmailService emailService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, EmailService emailService) {
         this.usuarioService = usuarioService;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -116,17 +119,30 @@ public class UsuarioController {
 
     @PostMapping("/administrativo")
     @Secured({ "ADMIN" })
-    public ResponseEntity<Usuario> createUsuarioAdministrativo(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> createUsuarioAdministrativo(@RequestBody Usuario usuario,
+            Boolean withPasswordDefault) {
         if (usuarioService.existsByCorreo(usuario.getCorreoInstitucional()) ||
                 (usuario.getCorreoPersonal() != null
                         && usuarioService.existsByCorreo(usuario.getCorreoPersonal()))
                 ||
-                
+
                 usuarioService.existsByUsername(usuario.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+
+        String passwordTemporal = null;
+
         System.out.println("Creating administrative user: " + usuario);
+        if (withPasswordDefault != null && withPasswordDefault) {
+            passwordTemporal = emailService.generateTemporaryPassword();
+            usuario.setPassword(passwordTemporal);
+        }
         Usuario savedUsuario = usuarioService.registerAdministrativo(usuario);
+
+        // Enviar el correo electrónico
+        if (withPasswordDefault != null && withPasswordDefault) {
+            emailService.sendPasswordInitialEmail(savedUsuario.getCorreoInstitucional(), passwordTemporal);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUsuario);
     }
 

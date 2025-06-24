@@ -48,50 +48,50 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByEstado(String codigoEstado) {
-        return proyectoRepository.findByEstadoCodigoEstado(codigoEstado);
+        return proyectoRepository.findByCodigoEstado(codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Proyecto> findByEmpresa(Long idEmpresa, Pageable pageable) {
-        return proyectoRepository.findByEmpresaIdEmpresa(idEmpresa, pageable);
+        return proyectoRepository.findByIdEmpresa(idEmpresa, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByCarrera(String codigoCarrera) {
-        return proyectoRepository.findByCarreraCodigo(codigoCarrera);
+        return proyectoRepository.findByCodigoCarrera(codigoCarrera);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByModalidad(String codigoModalidad) {
-        return proyectoRepository.findByModalidadCodigoModalidad(codigoModalidad);
+        return proyectoRepository.findByCodigoModalidad(codigoModalidad);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByAdministradorAprobador(Long idUsuario) {
-        return proyectoRepository.findByAdministradorIdUsuario(idUsuario);
+        return proyectoRepository.findByIdAdministrador(idUsuario);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado) {
-        return proyectoRepository.findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
+        return proyectoRepository.findByIdEmpresaAndCodigoEstado(idEmpresa, codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado) {
-        return proyectoRepository.findByCarreraCodigoAndEstadoCodigoEstado(codigoCarrera, codigoEstado);
+        return proyectoRepository.findByCodigoCarreraAndCodigoEstado(codigoCarrera, codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
             String codigoEstado) {
-        return proyectoRepository.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad, codigoEstado);
+        return proyectoRepository.findByCodigoModalidadAndCodigoEstado(codigoModalidad, codigoEstado);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     public byte[] generarReportePorEstado(String codigoEstado, String nombreEstado) {
 
-        List<Proyecto> proyectos = proyectoRepository.findByEstadoCodigoEstado(codigoEstado);
+        List<Proyecto> proyectos = proyectoRepository.findByCodigoEstado(codigoEstado);
 
         Context context = new Context();
         context.setVariable("proyectos", proyectos);
@@ -143,7 +143,7 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     public byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera) {
 
-        List<Proyecto> proyectos = proyectoRepository.findByCarreraCodigo(codigoCarrera);
+        List<Proyecto> proyectos = proyectoRepository.findByCodigoCarrera(codigoCarrera);
 
         Context context = new Context();
         context.setVariable("proyectos", proyectos);
@@ -165,7 +165,7 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     public byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa) {
 
-        List<Proyecto> proyectos = proyectoRepository.findByEmpresaIdEmpresa(idEmpresa);
+        List<Proyecto> proyectos = proyectoRepository.findByIdEmpresa(idEmpresa);
 
         Context context = new Context();
         context.setVariable("proyectos", proyectos);

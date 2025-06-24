@@ -24,14 +24,26 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordResetEmail(String to, String passwordTemporal) {
 
         SimpleMailMessage message = new SimpleMailMessage();
-        String messageText = "Buen día,\n\nSu contraseña ha sido restablecida.\n\nSu nueva contraseña temporal es: "
+        String messageText = "Buen día,\n\nSu contraseña de usuario ha sido restablecida.\n\nSu nueva contraseña temporal es: "
                 + passwordTemporal
                 + " \n\nPor favor, cambiar la contraseña temporal lo antes posible, si así lo desea. \n\n\n\nSaludos cordiales,\n\nSistema RPUPS UES";
         message.setTo(to);
-        message.setSubject("Restablecimiento de contraseña");
+        message.setSubject("Restablecimiento de contraseña en el sistema RPUPS UES");
         message.setText(messageText);
         javaMailSender.send(message);
+    }
 
+    @Override
+    public void sendPasswordInitialEmail(String to, String passwordTemporal) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        String messageText = "Buen día,\n\nSu contraseña de usuario ha sido generada.\n\nSu contraseña temporal es: "
+                + passwordTemporal
+                + " \n\nPor favor, cambiar la contraseña temporal lo antes posible, si así lo desea. \n\n\n\nSaludos cordiales,\n\nSistema RPUPS UES";
+        message.setTo(to);
+        message.setSubject("Contraseña temporal de usuario en el sistema RPUPS UES");
+        message.setText(messageText);
+        javaMailSender.send(message);
     }
 
     @Override

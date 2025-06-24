@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "carreras")
 @Getter
@@ -23,6 +25,14 @@ public class Carrera implements Serializable {
     @Size(max = 250, message = "El nombre de la carrera no puede tener más de 250 caracteres.")
     @NotBlank(message = "El nombre de la carrera no puede estar vacío.")
     private String nombre;
+
+    @Column(name = "id_depto_carrera", nullable = false)
+    private Long idDepartamentoCarrera;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_depto_carrera", referencedColumnName = "id_depto_carrera", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private DepartamentoCarrera departamentoCarrera;
 
     public Carrera(String codigo) {
         this.codigo = codigo;

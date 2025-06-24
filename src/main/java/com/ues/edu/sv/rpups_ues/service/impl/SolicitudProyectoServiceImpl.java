@@ -50,63 +50,63 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByEstado(String codigoEstado) {
-        return solicitudProyectoRepository.findByEstadoCodigoEstado(codigoEstado);
+        return solicitudProyectoRepository.findByCodigoEstado(codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<SolicitudProyecto> findByEstadoRevision(Pageable pageable) {
         String codigoEstado = "REV";
-        return solicitudProyectoRepository.findByEstadoCodigoEstado(codigoEstado, pageable);
+        return solicitudProyectoRepository.findByCodigoEstado(codigoEstado, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByEmpresa(Long idEmpresa) {
-        return solicitudProyectoRepository.findByEmpresaIdEmpresa(idEmpresa);
+        return solicitudProyectoRepository.findByIdEmpresa(idEmpresa);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByCarrera(String codigoCarrera) {
-        return solicitudProyectoRepository.findByCarreraCodigo(codigoCarrera);
+        return solicitudProyectoRepository.findByCodigoCarrera(codigoCarrera);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByModalidad(String codigoModalidad) {
-        return solicitudProyectoRepository.findByModalidadCodigoModalidad(codigoModalidad);
+        return solicitudProyectoRepository.findByCodigoModalidad(codigoModalidad);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SolicitudProyecto> findByAdministradorRevisor(Long idUsuario) {
-        return solicitudProyectoRepository.findByAdminRevisorIdUsuario(idUsuario);
+    public List<SolicitudProyecto> findByAdministradorRevisorAndCodigoEstadoRevision(Long idUsuario) {
+        return solicitudProyectoRepository.findByIdAdminRevisorAndCodigoEstado(idUsuario, "REV");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByUserCreador(Long idUsuario) {
-        return solicitudProyectoRepository.findByUserCreadorIdUsuario(idUsuario);
+        return solicitudProyectoRepository.findByIdUserCreador(idUsuario);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado) {
-        return solicitudProyectoRepository.findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
+        return solicitudProyectoRepository.findByIdEmpresaAndCodigoEstado(idEmpresa, codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado) {
-        return solicitudProyectoRepository.findByCarreraCodigoAndEstadoCodigoEstado(codigoCarrera, codigoEstado);
+        return solicitudProyectoRepository.findByCodigoCarreraAndCodigoEstado(codigoCarrera, codigoEstado);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
             String codigoEstado) {
-        return solicitudProyectoRepository.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
+        return solicitudProyectoRepository.findByCodigoModalidadAndCodigoEstado(codigoModalidad,
                 codigoEstado);
     }
 
@@ -171,9 +171,9 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
             }
         }
 
-        if ((solicitudProyecto.getEstado().getCodigoEstado().equals("RECH")
-                || solicitudProyecto.getEstado().getCodigoEstado().equals("OBS"))
-                && (!solicitudProyecto.getEstado().getCodigoEstado().equals("APRO"))
+        if ((solicitudProyecto.getCodigoEstado().equals("RECH")
+                || solicitudProyecto.getCodigoEstado().equals("OBS"))
+                && (!solicitudProyecto.getCodigoEstado().equals("APRO"))
                 && (solicitudProyecto.getObservaciones() == null || solicitudProyecto.getObservaciones().isEmpty())
                 && solicitudProyectoBD.getObservaciones() == null) {
             throw new IllegalArgumentException(
@@ -210,9 +210,9 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
             }
         }
 
-        if ((solicitudProyecto.getEstado().getCodigoEstado().equals("RECH")
-                || solicitudProyecto.getEstado().getCodigoEstado().equals("OBS"))
-                && (!solicitudProyecto.getEstado().getCodigoEstado().equals("APRO"))
+        if ((solicitudProyecto.getCodigoEstado().equals("RECH")
+                || solicitudProyecto.getCodigoEstado().equals("OBS"))
+                && (!solicitudProyecto.getCodigoEstado().equals("APRO"))
                 && (solicitudProyecto.getObservaciones() == null || solicitudProyecto.getObservaciones().isEmpty())
                 && solicitudProyectoBD.getObservaciones() == null) {
             throw new IllegalArgumentException(
@@ -231,7 +231,7 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     public byte[] generarReportePorEstado(String codigoEstado, String nombreEstado) {
 
-        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByEstadoCodigoEstado(codigoEstado);
+        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByCodigoEstado(codigoEstado);
 
         Context context = new Context();
         context.setVariable("solicitudes", solicitudes);
@@ -253,7 +253,7 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     public byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera) {
 
-        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByCarreraCodigo(codigoCarrera);
+        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByCodigoCarrera(codigoCarrera);
 
         Context context = new Context();
         context.setVariable("solicitudes", solicitudes);
@@ -275,7 +275,7 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     public byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa) {
 
-        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByEmpresaIdEmpresa(idEmpresa);
+        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository.findByIdEmpresa(idEmpresa);
 
         Context context = new Context();
         context.setVariable("solicitudes", solicitudes);

@@ -15,23 +15,23 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
 
         List<SolicitudProyecto> findByTituloContainingIgnoreCase(String titulo);
 
-        List<SolicitudProyecto> findByEstadoCodigoEstado(String codigoEstado);
+        List<SolicitudProyecto> findByCodigoEstado(String codigoEstado);
 
-        List<SolicitudProyecto> findByEmpresaIdEmpresa(Long idEmpresa);
+        List<SolicitudProyecto> findByIdEmpresa(Long idEmpresa);
 
-        List<SolicitudProyecto> findByCarreraCodigo(String codigoCarrera);
+        List<SolicitudProyecto> findByCodigoCarrera(String codigoCarrera);
 
-        List<SolicitudProyecto> findByModalidadCodigoModalidad(String codigoModalidad);
+        List<SolicitudProyecto> findByCodigoModalidad(String codigoModalidad);
 
-        List<SolicitudProyecto> findByAdminRevisorIdUsuario(Long idUsuario);
+        List<SolicitudProyecto> findByIdAdminRevisorAndCodigoEstado(Long idAdminRevisor, String codigoEstado);
 
-        List<SolicitudProyecto> findByUserCreadorIdUsuario(Long idUsuario);
+        List<SolicitudProyecto> findByIdUserCreador(Long idUserCreador);
 
-        List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
+        List<SolicitudProyecto> findByIdEmpresaAndCodigoEstado(Long idEmpresa, String codigoEstado);
 
-        List<SolicitudProyecto> findByCarreraCodigoAndEstadoCodigoEstado(String codigoCarrera, String codigoEstado);
+        List<SolicitudProyecto> findByCodigoCarreraAndCodigoEstado(String codigoCarrera, String codigoEstado);
 
-        List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
+        List<SolicitudProyecto> findByCodigoModalidadAndCodigoEstado(String codigoModalidad,
                         String codigoEstado);
 
         @Query("SELECT s FROM SolicitudProyecto s " +
@@ -56,5 +56,5 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         @Param("idUserCreador") Long idUserCreador,
                         Pageable pageable);
 
-        Page<SolicitudProyecto> findByEstadoCodigoEstado(String codigoEstado, Pageable pageable);
+        Page<SolicitudProyecto> findByCodigoEstado(String codigoEstado, Pageable pageable);
 }

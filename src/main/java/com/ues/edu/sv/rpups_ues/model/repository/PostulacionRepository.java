@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface PostulacionRepository extends JpaRepository<Postulacion, Long> {
 
-    Optional<Postulacion> findByEstudianteIdUsuarioAndProyectoIdProyecto(Long idEstudiante, Long idProyecto);
+    Optional<Postulacion> findByIdEstudianteAndIdProyecto(Long idEstudiante, Long idProyecto);
 
-    List<Postulacion> findByProyectoIdProyecto(Long idProyecto);
+    List<Postulacion> findByIdProyecto(Long idProyecto);
 }

@@ -2,6 +2,7 @@ package com.ues.edu.sv.rpups_ues.model.entity;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
@@ -34,7 +35,8 @@ public class Usuario implements Serializable {
     @Column(name = "apellidos", length = 50, nullable = false)
     private String apellidos;
 
-    // @Size(min = 7, max = 8, message = "El carnet del estudiante debe tener exactamente 8 caracteres")
+    // @Size(min = 7, max = 8, message = "El carnet del estudiante debe tener
+    // exactamente 8 caracteres")
     @Column(name = "carnet", length = 8, unique = false)
     private String carnet;
 
@@ -63,9 +65,26 @@ public class Usuario implements Serializable {
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
+    @NotNull(message = "El código del rol no puede estar vacío")
+    @Size(min = 3, max = 5, message = "El código del rol debe tener entre 3 y 5 caracteres")
+    @Column(name = "codigo_rol", length = 5, nullable = false)
+    private String codigoRol;
+
+    @Column(name = "estado_activo", nullable = false)
+    private Boolean estadoActivo;
+
+    @Column(name = "codigo_carrera", nullable = true)
+    private String codigoCarrera;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "codigo_rol", referencedColumnName = "codigo", nullable = false)
+    @JoinColumn(name = "codigo_rol", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
     private Rol rol;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = true, insertable = false, updatable = false)
+    @JsonIgnore
+    private Carrera carrera;
 
     public Usuario(Long idUsuario) {
         this.idUsuario = idUsuario;
