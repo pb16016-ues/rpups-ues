@@ -17,7 +17,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -90,6 +89,7 @@ public class UsuarioController {
     @Secured({ "ADMIN", "COOR", "SUP", "EMP", "EST" })
     public ResponseEntity<Page<Usuario>> getUsuariosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "idDeptoCarrera", defaultValue = "", required = true) Long idDeptoCarrera,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
@@ -97,7 +97,8 @@ public class UsuarioController {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
 
-        return new ResponseEntity<>(usuarioService.findUsuarioByFiltros(filter, PageRequest.of(page, size)),
+        return new ResponseEntity<>(
+                usuarioService.findUsuarioByFiltros(filter, idDeptoCarrera, PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 
@@ -207,9 +208,22 @@ public class UsuarioController {
     }
 
     @GetMapping("/administradores")
-    @Secured({ "ADMIN", "SUP" })
-    public ResponseEntity<List<Usuario>> getUsuariosAdministradores() {
-        List<Usuario> administradores = usuarioService.findUsuariosAdministradores();
+    @Secured({ "ADMIN", "COOR", "SUP" })
+    public ResponseEntity<Page<Usuario>> getUsuariosAdministradores(
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<Usuario> administradores = usuarioService.findUsuariosAdministradores(PageRequest.of(page, size));
+        return ResponseEntity.ok(administradores);
+    }
+
+    @GetMapping("/administradores-by-carrera")
+    @Secured({ "ADMIN", "COOR", "SUP" })
+    public ResponseEntity<Page<Usuario>> getUsuariosAdministradoresByDepartamento(
+            @RequestParam(name = "idDeptoCarrera", defaultValue = "", required = true) Long idDeptoCarrera,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<Usuario> administradores = usuarioService.findUsuariosAdministradoresByDepartamento(idDeptoCarrera,
+                PageRequest.of(page, size));
         return ResponseEntity.ok(administradores);
     }
 }

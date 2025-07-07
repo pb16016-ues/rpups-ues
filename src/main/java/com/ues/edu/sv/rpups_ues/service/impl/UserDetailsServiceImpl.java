@@ -46,7 +46,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
-        Usuario user = userRepository.findByUsernameOrCorreoInstitucional(input, input)
+        Usuario user = userRepository.findByUsernameOrCorreoInstitucionalAndEstadoActivoTrue(input, input)
                 .orElseThrow(() -> new UsernameNotFoundException("No existe el usuario: " + input));
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRol().getCodigo()));

@@ -5,7 +5,6 @@ import com.ues.edu.sv.rpups_ues.model.DTO.UsuarioDTO;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -27,7 +26,7 @@ public interface UsuarioService {
 
     Optional<Usuario> findByCorreoPersonal(String correoPersonal);
 
-    Page<Usuario> findUsuarioByFiltros(String filter, Pageable pageable);
+    Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, Pageable pageable);
 
     Usuario createUsuario(Usuario usuario);
 
@@ -51,5 +50,7 @@ public interface UsuarioService {
 
     boolean existsByUsername(String username);
 
-    List<Usuario> findUsuariosAdministradores();
+    Page<Usuario> findUsuariosAdministradores(Pageable pageable);
+
+    Page<Usuario> findUsuariosAdministradoresByDepartamento(Long idDeptoCarrera, Pageable pageable);
 }

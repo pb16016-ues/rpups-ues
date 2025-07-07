@@ -7,6 +7,7 @@ import com.ues.edu.sv.rpups_ues.model.entity.Rol;
 import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 import com.ues.edu.sv.rpups_ues.model.repository.UsuarioRepository;
 import com.ues.edu.sv.rpups_ues.service.UsuarioService;
+import com.ues.edu.sv.rpups_ues.utils.JavaUtils;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,7 +46,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Usuario> findByUsername(String username) {
-        return usuarioRepository.findByUsername(username);
+        return usuarioRepository.findByUsernameAndEstadoActivoTrue(username);
     }
 
     @Override
@@ -58,39 +58,40 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Usuario> findByCorreoInstitucional(String correoInstitucional) {
-        return usuarioRepository.findByCorreoInstitucional(correoInstitucional);
+        return usuarioRepository.findByCorreoInstitucionalAndEstadoActivoTrue(correoInstitucional);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Usuario> findByCorreoPersonal(String correoPersonal) {
-        return usuarioRepository.findByCorreoPersonal(correoPersonal);
+        return usuarioRepository.findByCorreoPersonalAndEstadoActivoTrue(correoPersonal);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Usuario> findByNombresOrApellidos(String searchTerm, Pageable pageable) {
-        return usuarioRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCase(searchTerm,
+        return usuarioRepository.findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCaseAndEstadoActivoTrue(
+                searchTerm,
                 searchTerm, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Usuario> findUsuarioByFiltros(String filter, Pageable pageable) {
-        return usuarioRepository.searchByAnyField(filter, pageable);
+    public Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, Pageable pageable) {
+        return usuarioRepository.searchByAnyField(filter, idDeptoCarrera, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByCorreo(String correo) {
         return usuarioRepository.existsByCorreoInstitucional(correo)
-                || usuarioRepository.existsByCorreoPersonal(correo);
+                || usuarioRepository.existsByCorreoPersonalAndEstadoActivoTrue(correo);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByCarnet(String carnet) {
-        return usuarioRepository.existsByCarnet(carnet);
+        return usuarioRepository.existsByCarnetAndEstadoActivoTrue(carnet);
     }
 
     @Override
@@ -109,12 +110,19 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new UniqueValidationException("El correo institucional ingresado ya está registrado.");
         }
         if (usuario.getCorreoPersonal() != null
-                && usuarioRepository.existsByCorreoPersonal(usuario.getCorreoPersonal())) {
+                && usuarioRepository.existsByCorreoPersonalAndEstadoActivoTrue(usuario.getCorreoPersonal())) {
             throw new UniqueValidationException("El correo personal ingresado ya está registrado.");
         }
-        if (usuario.getCarnet() != null && usuarioRepository.existsByCarnet(usuario.getCarnet())
-                && !usuario.getCarnet().isEmpty()) {
-            throw new UniqueValidationException("El carnet ingresado ya está registrado.");
+        if (usuario.getCarnet() != null && !usuario.getCarnet().isEmpty()) {
+
+            String carnet = usuario.getCarnet().substring(0, 2).toUpperCase();
+
+            if (usuarioRepository.existsByCarnetAndEstadoActivoTrue(carnet)) {
+                throw new UniqueValidationException("El carnet ingresado ya está registrado.");
+            }
+
+            String carnetFormat = JavaUtils.validarFormatearCarnet(carnet);
+            usuario.setCarnet(carnetFormat);
         }
         if (usuarioRepository.existsByUsername(usuario.getUsername())) {
             throw new UniqueValidationException("Ya existe un usuario con el username ingresado");
@@ -130,12 +138,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Usuario registerUsuario(Usuario usuario) {
         Rol rol = new Rol("ESTUD");
         usuario.setRol(rol);
+        usuario.setEstadoActivo(true);
         return createUsuario(usuario);
     }
 
     @Override
     @Transactional()
     public Usuario registerAdministrativo(Usuario usuario) {
+        usuario.setEstadoActivo(true);
         return createUsuario(usuario);
     }
 
@@ -144,6 +154,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Usuario registerRepresentanteEmpresa(Usuario usuario) {
         Rol rol = new Rol("EMP");
         usuario.setRol(rol);
+        usuario.setEstadoActivo(true);
         return createUsuario(usuario);
     }
 
@@ -173,13 +184,20 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuarioDB.setNombres(usuarioDTO.getNombres());
         if (usuarioDTO.getApellidos() != null)
             usuarioDB.setApellidos(usuarioDTO.getApellidos());
+
         if (usuarioDTO.getCarnet() != null && !usuarioDTO.getCarnet().isEmpty()) {
-            if (usuarioRepository.existsByCarnet(usuarioDTO.getCarnet())
+
+            String carnet = usuarioDTO.getCarnet().substring(0, 2).toUpperCase();
+
+            if (usuarioRepository.existsByCarnetAndEstadoActivoTrue(carnet)
                     && !usuarioDB.getCarnet().equals(usuarioDTO.getCarnet())) {
                 throw new UniqueValidationException("Ya existe un usuario con el carnet ingresado");
             }
-            usuarioDB.setCarnet(usuarioDTO.getCarnet());
+
+            String carnetFormat = JavaUtils.validarFormatearCarnet(carnet);
+            usuarioDB.setCarnet(carnetFormat);
         }
+
         if (usuarioDTO.getCorreoInstitucional() != null) {
             if (usuarioRepository.existsByCorreoInstitucional(usuarioDTO.getCorreoInstitucional())
                     && !usuarioDB.getCorreoInstitucional().equals(usuarioDTO.getCorreoInstitucional())) {
@@ -188,7 +206,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuarioDB.setCorreoInstitucional(usuarioDTO.getCorreoInstitucional());
         }
         if (usuarioDTO.getCorreoPersonal() != null) {
-            if (usuarioRepository.existsByCorreoPersonal(usuarioDTO.getCorreoPersonal())
+            if (usuarioRepository.existsByCorreoPersonalAndEstadoActivoTrue(usuarioDTO.getCorreoPersonal())
                     && !usuarioDB.getCorreoPersonal().equals(usuarioDTO.getCorreoPersonal())) {
                 throw new UniqueValidationException("Ya existe un usuario con el correo personal ingresado");
             }
@@ -229,12 +247,21 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(
                 () -> new EntityNotFoundException("Usuario no encontrada con el ID proporcionado: " + idUsuario));
-        usuarioRepository.delete(usuario);
+        usuario.setEstadoActivo(false);
+        usuarioRepository.save(usuario);
         return usuario;
     }
 
     @Override
-    public List<Usuario> findUsuariosAdministradores() {
-        return usuarioRepository.findUsuariosAdministradores();
+    @Transactional(readOnly = true)
+    public Page<Usuario> findUsuariosAdministradores(Pageable pageable) {
+        return usuarioRepository.findUsuariosAdministradores(pageable);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Usuario> findUsuariosAdministradoresByDepartamento(Long idDepartamento, Pageable pageable) {
+        return usuarioRepository.findUsuariosAdministradoresByDepartamento(idDepartamento, pageable);
+    }
+
 }

@@ -115,7 +115,15 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     @Transactional
     public void deleteById(Long idProyecto) {
-        proyectoRepository.deleteById(idProyecto);
+        if (idProyecto == null) {
+            throw new IllegalArgumentException("El ID del proyecto no puede ser nulo");
+        }
+        Proyecto proyecto = proyectoRepository.findById(idProyecto)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Proyecto no encontrado con el ID proporcionado: " + idProyecto));
+
+        proyecto.setCodigoEstado("ELI");
+        proyectoRepository.save(proyecto);
     }
 
     @Override

@@ -70,11 +70,11 @@ public class Usuario implements Serializable {
     @Column(name = "codigo_rol", length = 5, nullable = false)
     private String codigoRol;
 
-    @Column(name = "estado_activo", nullable = false)
+    @Column(name = "estado_activo", nullable = true)
     private Boolean estadoActivo;
 
-    @Column(name = "codigo_carrera", nullable = true)
-    private String codigoCarrera;
+    @Column(name = "id_depto_carrera", nullable = true)
+    private Long IdDeptoCarrera;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_rol", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
@@ -82,9 +82,9 @@ public class Usuario implements Serializable {
     private Rol rol;
 
     @ManyToOne(optional = true)
-    @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = true, insertable = false, updatable = false)
+    @JoinColumn(name = "id_depto_carrera", referencedColumnName = "id_depto_carrera", nullable = true, insertable = false, updatable = false)
     @JsonIgnore
-    private Carrera carrera;
+    private DepartamentoCarrera departamentoCarrera;
 
     public Usuario(Long idUsuario) {
         this.idUsuario = idUsuario;

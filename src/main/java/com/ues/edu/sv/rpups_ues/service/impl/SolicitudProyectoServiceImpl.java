@@ -225,7 +225,15 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Override
     @Transactional
     public void deleteById(Long idSolicitud) {
-        solicitudProyectoRepository.deleteById(idSolicitud);
+        if (idSolicitud == null) {
+            throw new IllegalArgumentException("El ID del proyecto no puede ser nulo");
+        }
+        SolicitudProyecto solicitudProyecto = solicitudProyectoRepository.findById(idSolicitud)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Proyecto no encontrado con el ID proporcionado: " + idSolicitud));
+
+        solicitudProyecto.setCodigoEstado("ELI");
+        solicitudProyectoRepository.save(solicitudProyecto);
     }
 
     @Override
