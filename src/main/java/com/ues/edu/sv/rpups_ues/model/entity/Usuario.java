@@ -74,7 +74,7 @@ public class Usuario implements Serializable {
     private Boolean estadoActivo;
 
     @Column(name = "id_depto_carrera", nullable = true)
-    private Long IdDeptoCarrera;
+    private Long idDeptoCarrera;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_rol", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)

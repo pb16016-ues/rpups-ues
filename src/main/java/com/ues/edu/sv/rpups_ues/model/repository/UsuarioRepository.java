@@ -29,8 +29,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         Optional<Usuario> findByCorreoPersonalAndEstadoActivoTrue(String correoPersonal);
 
         @Query("SELECT u FROM Usuario u " +
-                        "WHERE u.estado_activo = true " +
-                        "AND (:idDeptoCarrera IS NULL OR u.id_depto_carrera = :idDeptoCarrera) " +
+                        "WHERE u.estadoActivo = true " +
+                        "AND (:idDeptoCarrera IS NULL OR u.idDeptoCarrera = :idDeptoCarrera) " +
                         "AND (" +
                         "(:filter IS NULL) " +
                         "OR LOWER(u.nombres) LIKE LOWER(CONCAT('%', :filter, '%')) " +
@@ -52,12 +52,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
         boolean existsByUsername(String username);
 
-        @Query("SELECT u FROM Usuario u WHERE u.rol.codigo IN ('ADMIN', 'COOR', 'SUP') AND u.estado_activo = true")
+        @Query("SELECT u FROM Usuario u WHERE u.rol.codigo IN ('ADMIN', 'COOR', 'SUP') AND u.estadoActivo = true")
         Page<Usuario> findUsuariosAdministradores(Pageable pageable);
 
         @Query("SELECT u FROM Usuario u WHERE u.rol.codigo IN ('ADMIN', 'COOR', 'SUP') " +
-                        "AND (:idDeptoCarrera IS NULL OR u.id_depto_carrera = :idDeptoCarrera) " +
-                        "AND u.estado_activo = true")
+                        "AND (:idDeptoCarrera IS NULL OR u.idDeptoCarrera = :idDeptoCarrera) " +
+                        "AND u.estadoActivo = true")
         Page<Usuario> findUsuariosAdministradoresByDepartamento(@Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 
