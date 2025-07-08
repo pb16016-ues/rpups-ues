@@ -115,7 +115,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         if (usuario.getCarnet() != null && !usuario.getCarnet().isEmpty()) {
 
-            String carnet = usuario.getCarnet().substring(0, 2).toUpperCase();
+            String carnet = usuario.getCarnet().toUpperCase();
 
             if (usuarioRepository.existsByCarnetAndEstadoActivoTrue(carnet)) {
                 throw new UniqueValidationException("El carnet ingresado ya está registrado.");
@@ -187,7 +187,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         if (usuarioDTO.getCarnet() != null && !usuarioDTO.getCarnet().isEmpty()) {
 
-            String carnet = usuarioDTO.getCarnet().substring(0, 2).toUpperCase();
+            String carnet = usuarioDTO.getCarnet().toUpperCase();
 
             if (usuarioRepository.existsByCarnetAndEstadoActivoTrue(carnet)
                     && !usuarioDB.getCarnet().equals(usuarioDTO.getCarnet())) {
