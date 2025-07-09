@@ -51,7 +51,7 @@ public class SecurityConfig {
             auth.requestMatchers(
                     "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**",
                     "/api/proyectos/public/**", "/api/usuarios/register/**", "/api/v1/password-reset/request/**",
-                    "/api/usuarios/repres-empresa/**")
+                    "/api/usuarios/repres-empresa/**", "/api/deptos-carreras/deptos/**")
                     .permitAll()
                     .anyRequest().authenticated();
         })

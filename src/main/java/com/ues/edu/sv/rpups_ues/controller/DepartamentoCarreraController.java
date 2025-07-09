@@ -21,7 +21,7 @@ public class DepartamentoCarreraController {
         this.departamentoCarreraService = departamentoCarreraService;
     }
 
-    @GetMapping
+    @GetMapping("/deptos")
     @PermitAll
     public ResponseEntity<List<DepartamentoCarrera>> getAllDepartamentosCarreras() {
         List<DepartamentoCarrera> departamentosCarreras = departamentoCarreraService.findAll();
