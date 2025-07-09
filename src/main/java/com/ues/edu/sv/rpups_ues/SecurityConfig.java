@@ -51,7 +51,7 @@ public class SecurityConfig {
             auth.requestMatchers(
                     "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**",
                     "/api/proyectos/public/**", "/api/usuarios/register/**", "/api/v1/password-reset/request/**",
-                    "/api/usuarios/repres-empresa/**", "/api/deptos-carreras/deptos/**")
+                    "/api/usuarios/repres-empresa/**", "/api/deptos-carreras/deptos/**", "/api/carreras/by-depto/**")
                     .permitAll()
                     .anyRequest().authenticated();
         })
@@ -59,8 +59,9 @@ public class SecurityConfig {
                         new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
                 .addFilter(
                         new JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
-                .cors().and()
-                .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .cors(cors -> cors.disable())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
     /*

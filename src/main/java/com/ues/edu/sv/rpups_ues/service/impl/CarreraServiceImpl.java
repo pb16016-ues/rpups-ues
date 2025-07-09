@@ -46,4 +46,9 @@ public class CarreraServiceImpl implements CarreraService {
     public boolean existsByNombre(String nombre) {
         return carreraRepository.existsByNombre(nombre);
     }
+
+    @Override
+    public List<Carrera> findAllByDepartamento(Long idDepartamentoCarrera) {
+        return carreraRepository.findByIdDepartamentoCarrera(idDepartamentoCarrera);
+    }
 }

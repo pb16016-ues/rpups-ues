@@ -10,6 +10,8 @@ import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 @RequestMapping("/api/carreras")
@@ -79,4 +81,11 @@ public class CarreraController {
         boolean exists = carreraService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);
     }
+
+    @GetMapping("/by-depto/{idDeptoCarrera}")
+    @PermitAll
+    public ResponseEntity<List<Carrera>> getCarrerasByDepto(@PathVariable Long idDeptoCarrera) {
+        return ResponseEntity.status(HttpStatus.OK).body(carreraService.findAllByDepartamento(idDeptoCarrera));
+    }
+    
 }
