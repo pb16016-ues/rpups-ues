@@ -86,8 +86,11 @@ public class SolicitudProyectoController {
 
     @GetMapping("/empresa/{idEmpresa}")
     @PermitAll
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEmpresa(@PathVariable Long idEmpresa) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByEmpresa(idEmpresa);
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByEmpresa(@PathVariable Long idEmpresa,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<SolicitudProyecto> solicitudes = solicitudProyectoService.findByEmpresa(idEmpresa,
+                PageRequest.of(page, size));
         return ResponseEntity.ok(solicitudes);
     }
 
@@ -154,13 +157,15 @@ public class SolicitudProyectoController {
     @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
         if (filter != null && filter.trim().matches("^[\\W_]+$")) {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
-        return new ResponseEntity<>(solicitudProyectoService.findSolicitudByFiltros(filter, PageRequest.of(page, size)),
+        return new ResponseEntity<>(
+                solicitudProyectoService.findSolicitudByFiltros(filter, idDeptoCarrera, PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 
@@ -168,6 +173,7 @@ public class SolicitudProyectoController {
     @PermitAll
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltrosWithUser(
             @RequestParam(name = "idUser", defaultValue = "", required = false) Long idUserCreador,
+            @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -176,7 +182,7 @@ public class SolicitudProyectoController {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
         return new ResponseEntity<>(
-                solicitudProyectoService.findSolicitudByFiltrosWithUserCreador(filter, idUserCreador,
+                solicitudProyectoService.findSolicitudByFiltrosWithUserCreador(filter, idUserCreador, idDeptoCarrera,
                         PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
@@ -316,7 +322,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/report-estado")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
 
         if (codigoEstado == null || codigoEstado.trim().isEmpty()) {
@@ -356,7 +362,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/report-carrera")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
             @RequestParam("codCarrera") String codigoCarrera) {
 
@@ -397,7 +403,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/report-empresa")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
             @RequestParam("idEmpresa") Long idEmpresa) {
 

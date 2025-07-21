@@ -17,6 +17,8 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
 
         List<SolicitudProyecto> findByCodigoEstado(String codigoEstado);
 
+        Page<SolicitudProyecto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
+
         List<SolicitudProyecto> findByIdEmpresa(Long idEmpresa);
 
         List<SolicitudProyecto> findByCodigoCarrera(String codigoCarrera);
@@ -39,9 +41,11 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         "OR LOWER(s.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%')))")
+                        "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+                        "AND (:idDeptoCarrera IS NULL OR s.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera)")
         Page<SolicitudProyecto> searchByAnyField(
                         @Param("filter") String filter,
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 
         @Query("SELECT s FROM SolicitudProyecto s " +
@@ -50,10 +54,12 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         "OR LOWER(s.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(s.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
-                        "AND (:idUserCreador IS NULL OR s.userCreador.idUsuario = :idUserCreador)")
+                        "AND (:idUserCreador IS NULL OR s.userCreador.idUsuario = :idUserCreador)" +
+                        "AND (:idDeptoCarrera IS NULL OR s.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera)")
         Page<SolicitudProyecto> searchByAnyFieldAndUser(
                         @Param("filter") String filter,
                         @Param("idUserCreador") Long idUserCreador,
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 
         Page<SolicitudProyecto> findByCodigoEstado(String codigoEstado, Pageable pageable);

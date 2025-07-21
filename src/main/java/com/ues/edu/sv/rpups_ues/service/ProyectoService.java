@@ -32,9 +32,9 @@ public interface ProyectoService {
 
     List<Proyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad, String codigoEstado);
 
-    Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable);
+    Page<Proyecto> findProyectoByFiltros(String filter, Long idDeptoCarrera, Pageable pageable);
 
-    Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Pageable pageable);
+    Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Long idDeptoCarrera, Pageable pageable);
 
     Proyecto save(Proyecto proyecto);
 

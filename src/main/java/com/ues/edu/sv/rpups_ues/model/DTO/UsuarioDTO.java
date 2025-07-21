@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Rol;
 
 import java.io.Serializable;
@@ -47,4 +49,6 @@ public class UsuarioDTO implements Serializable {
     private String username;
 
     private Rol rol;
+
+    private DepartamentoCarrera departamentoCarrera;
 }

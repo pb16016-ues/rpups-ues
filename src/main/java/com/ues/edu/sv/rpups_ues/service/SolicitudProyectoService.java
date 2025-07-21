@@ -17,7 +17,7 @@ public interface SolicitudProyectoService {
 
         List<SolicitudProyecto> findByEstado(String codigoEstado);
 
-        List<SolicitudProyecto> findByEmpresa(Long idEmpresa);
+        Page<SolicitudProyecto> findByEmpresa(Long idEmpresa, Pageable pageable);
 
         List<SolicitudProyecto> findByCarrera(String codigoCarrera);
 
@@ -34,11 +34,12 @@ public interface SolicitudProyectoService {
         List<SolicitudProyecto> findByModalidadCodigoModalidadAndEstadoCodigoEstado(String codigoModalidad,
                         String codigoEstado);
 
-        Page<SolicitudProyecto> findSolicitudByFiltros(String filter, Pageable pageable);
+        Page<SolicitudProyecto> findSolicitudByFiltros(String filter, Long idDeptoCarrera, Pageable pageable);
 
         Page<SolicitudProyecto> findByEstadoRevision(Pageable pageable);
 
         Page<SolicitudProyecto> findSolicitudByFiltrosWithUserCreador(String filter, Long idUserCreador,
+                        Long idDeptoCarrera,
                         Pageable pageable);
 
         SolicitudProyecto save(SolicitudProyecto solicitudProyecto);

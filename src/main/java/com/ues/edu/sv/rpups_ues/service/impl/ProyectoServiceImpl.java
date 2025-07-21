@@ -96,14 +96,15 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Proyecto> findProyectoByFiltros(String filter, Pageable pageable) {
-        return proyectoRepository.searchByAnyField(filter, pageable);
+    public Page<Proyecto> findProyectoByFiltros(String filter, Long idDeptoCarrera, Pageable pageable) {
+        return proyectoRepository.searchByAnyField(filter, idDeptoCarrera, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Pageable pageable) {
-        return proyectoRepository.searchByAnyFieldDisponible(filter, pageable);
+    public Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Long idDeptoCarrera,
+            Pageable pageable) {
+        return proyectoRepository.searchByAnyFieldDisponible(filter, idDeptoCarrera, pageable);
     }
 
     @Override

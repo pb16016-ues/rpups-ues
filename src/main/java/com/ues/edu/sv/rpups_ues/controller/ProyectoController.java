@@ -139,20 +139,7 @@ public class ProyectoController {
     @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<Page<Proyecto>> getProyectosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
-            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
-
-        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
-            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
-        }
-        return new ResponseEntity<>(proyectoService.findProyectoByFiltros(filter, PageRequest.of(page, size)),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/disp-search-filters")
-    @PermitAll
-    public ResponseEntity<Page<Proyecto>> getProyectosByFiltrosWithEstadoDisponible(
-            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
@@ -160,7 +147,24 @@ public class ProyectoController {
             return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
         }
         return new ResponseEntity<>(
-                proyectoService.findProyectoByFiltrosWithEstadoDisponible(filter, PageRequest.of(page, size)),
+                proyectoService.findProyectoByFiltros(filter, idDeptoCarrera, PageRequest.of(page, size)),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/disp-search-filters")
+    @PermitAll
+    public ResponseEntity<Page<Proyecto>> getProyectosByFiltrosWithEstadoDisponible(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
+        }
+        return new ResponseEntity<>(
+                proyectoService.findProyectoByFiltrosWithEstadoDisponible(filter, idDeptoCarrera,
+                        PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 
@@ -193,7 +197,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-estado")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
 
         if (codigoEstado == null || codigoEstado.trim().isEmpty()) {
@@ -231,7 +235,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-carrera")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
             @RequestParam("codCarrera") String codigoCarrera) {
 
@@ -270,7 +274,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-empresa")
-    @PermitAll
+    @Secured({ "ADMIN", "COOR", "SUP" })
     public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
             @RequestParam("idEmpresa") Long idEmpresa) {
 

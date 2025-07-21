@@ -38,9 +38,11 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
                         "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(p.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(p.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(p.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%')))")
+                        "OR LOWER(p.estado.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+                        "AND (:idDeptoCarrera IS NULL OR p.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera)")
         Page<Proyecto> searchByAnyField(
                         @Param("filter") String filter,
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 
         @Query("SELECT p FROM Proyecto p " +
@@ -49,9 +51,10 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
                         ":filter IS NULL " +
                         "OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(p.carrera.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        "OR LOWER(p.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " +
-                        ")")
+                        "OR LOWER(p.modalidad.nombre) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+                        "AND (:idDeptoCarrera IS NULL OR p.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera)")
         Page<Proyecto> searchByAnyFieldDisponible(
                         @Param("filter") String filter,
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 }

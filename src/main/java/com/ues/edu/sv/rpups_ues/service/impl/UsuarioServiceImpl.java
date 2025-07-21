@@ -224,6 +224,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (usuarioDTO.getRol() != null)
             usuarioDB.setRol(usuarioDTO.getRol());
 
+        if (usuarioDTO.getDepartamentoCarrera() != null)
+            usuarioDB.setDepartamentoCarrera(usuarioDTO.getDepartamentoCarrera());
+
         return usuarioRepository.save(usuarioDB);
     }
 

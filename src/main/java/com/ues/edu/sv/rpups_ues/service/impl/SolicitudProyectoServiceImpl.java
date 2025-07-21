@@ -62,8 +62,8 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SolicitudProyecto> findByEmpresa(Long idEmpresa) {
-        return solicitudProyectoRepository.findByIdEmpresa(idEmpresa);
+    public Page<SolicitudProyecto> findByEmpresa(Long idEmpresa, Pageable pageable) {
+        return solicitudProyectoRepository.findByIdEmpresa(idEmpresa, pageable);
     }
 
     @Override
@@ -112,15 +112,16 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SolicitudProyecto> findSolicitudByFiltros(String filter, Pageable pageable) {
-        return solicitudProyectoRepository.searchByAnyField(filter, pageable);
+    public Page<SolicitudProyecto> findSolicitudByFiltros(String filter, Long idDeptoCarrera, Pageable pageable) {
+        return solicitudProyectoRepository.searchByAnyField(filter, idDeptoCarrera, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<SolicitudProyecto> findSolicitudByFiltrosWithUserCreador(String filter, Long idUserCreador,
+            Long idDeptoCarrera,
             Pageable pageable) {
-        return solicitudProyectoRepository.searchByAnyFieldAndUser(filter, idUserCreador, pageable);
+        return solicitudProyectoRepository.searchByAnyFieldAndUser(filter, idUserCreador, idDeptoCarrera, pageable);
     }
 
     @Override
