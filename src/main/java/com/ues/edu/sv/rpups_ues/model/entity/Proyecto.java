@@ -99,37 +99,30 @@ public class Proyecto implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Empresa empresa;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Departamento departamento;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Municipio municipio;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_carrera", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Carrera carrera;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_modalidad", referencedColumnName = "codigo_modalidad", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Modalidad modalidad;
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "id_admin_aprobacion", referencedColumnName = "id_usuario", nullable = true, insertable = false, updatable = false)
-    @JsonIgnore
     private Usuario administrador;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Estado estado;
 
     public Proyecto(Long idProyecto) {
