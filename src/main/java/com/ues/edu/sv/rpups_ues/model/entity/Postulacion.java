@@ -40,12 +40,10 @@ public class Postulacion implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_estudiante", referencedColumnName = "id_usuario", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Usuario estudiante;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_proyecto", referencedColumnName = "id_proyecto", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Proyecto proyecto;
 
     public Postulacion(Long idPostulacion) {

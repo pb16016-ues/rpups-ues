@@ -85,7 +85,6 @@ public class Empresa implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_rubro", referencedColumnName = "id_rubro", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Rubro rubro;
 
     @ManyToOne(optional = false)

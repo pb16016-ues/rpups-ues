@@ -31,7 +31,6 @@ public class Carrera implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_depto_carrera", referencedColumnName = "id_depto_carrera", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private DepartamentoCarrera departamentoCarrera;
 
     public Carrera(String codigo) {
