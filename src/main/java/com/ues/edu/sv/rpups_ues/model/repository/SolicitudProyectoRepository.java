@@ -27,7 +27,7 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
 
         List<SolicitudProyecto> findByIdAdminRevisorAndCodigoEstado(Long idAdminRevisor, String codigoEstado);
 
-        List<SolicitudProyecto> findByIdUserCreador(Long idUserCreador);
+        Page<SolicitudProyecto> findByIdUserCreador(Long idUserCreador, Pageable pageable);
 
         List<SolicitudProyecto> findByIdEmpresaAndCodigoEstado(Long idEmpresa, String codigoEstado);
 
