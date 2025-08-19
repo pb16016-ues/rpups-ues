@@ -25,7 +25,7 @@ public interface SolicitudProyectoService {
 
         List<SolicitudProyecto> findByAdministradorRevisorAndCodigoEstadoRevision(Long idAdminRevisor);
 
-        List<SolicitudProyecto> findByUserCreador(Long idUsuario);
+        Page<SolicitudProyecto> findByUserCreador(Long idUsuario, Pageable pageable);
 
         List<SolicitudProyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
 
@@ -55,4 +55,7 @@ public interface SolicitudProyectoService {
         byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera);
 
         byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa);
+
+        byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
+                        String codigoCarrera, String nombreCarrera);
 }

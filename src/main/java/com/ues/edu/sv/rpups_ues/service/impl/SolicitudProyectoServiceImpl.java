@@ -86,8 +86,8 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SolicitudProyecto> findByUserCreador(Long idUsuario) {
-        return solicitudProyectoRepository.findByIdUserCreador(idUsuario);
+    public Page<SolicitudProyecto> findByUserCreador(Long idUsuario, Pageable pageable) {
+        return solicitudProyectoRepository.findByIdUserCreador(idUsuario, pageable);
     }
 
     @Override
@@ -291,6 +291,31 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
         context.setVariable("empresa", nombreEmpresa);
 
         String htmlContent = templateEngine.process("solicitudes-proyectos/reporte_solicitudes_by_empresa", context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF", e);
+        }
+    }
+
+    @Override
+    public byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
+            String codigoCarrera, String nombreCarrera) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoRepository
+                .findByIdDeptoCarreraAndCodigoCarrera(idDeptoCarrera, codigoCarrera);
+
+        Context context = new Context();
+        context.setVariable("solicitudes", solicitudes);
+        context.setVariable("departamentoCarrera", nombreDeptoCarrera);
+        context.setVariable("carrera", nombreCarrera);
+
+        String htmlContent = templateEngine.process("solicitudes-proyectos/reporte_solicitudes_by_depto_carrera",
+                context);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

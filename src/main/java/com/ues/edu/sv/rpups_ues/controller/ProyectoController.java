@@ -3,8 +3,10 @@ package com.ues.edu.sv.rpups_ues.controller;
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
+import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
 import com.ues.edu.sv.rpups_ues.service.CarreraService;
+import com.ues.edu.sv.rpups_ues.service.DepartamentoCarreraService;
 import com.ues.edu.sv.rpups_ues.service.EstadoService;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
 import com.ues.edu.sv.rpups_ues.service.EmpresaService;
@@ -30,13 +32,16 @@ public class ProyectoController {
     private final ProyectoService proyectoService;
     private final EstadoService estadoService;
     private final CarreraService carreraService;
+    private final DepartamentoCarreraService deptoCarreraService;
     private final EmpresaService empresaService;
 
     public ProyectoController(ProyectoService proyectoService, EstadoService estadoService,
-            CarreraService carreraService, EmpresaService empresaService) {
+            CarreraService carreraService, DepartamentoCarreraService deptoCarreraService,
+            EmpresaService empresaService) {
         this.proyectoService = proyectoService;
         this.estadoService = estadoService;
         this.carreraService = carreraService;
+        this.deptoCarreraService = deptoCarreraService;
         this.empresaService = empresaService;
     }
 
@@ -310,6 +315,67 @@ public class ProyectoController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(ContentDisposition.inline()
                 .filename("Reporte de proyectos por empresa " + nombreEmpresa + ".pdf").build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/report-depto-carrera")
+    @Secured({ "ADMIN", "COOR", "SUP" })
+    public ResponseEntity<byte[]> proyectosByDeptosCarreraGenerarReportePDF(
+            @RequestParam("idDeptoCarrera") Long idDeptoCarrera,
+            @RequestParam(value = "codCarrera", required = false) String codigoCarrera) {
+
+        if (idDeptoCarrera == null || idDeptoCarrera <= 0) {
+            return ResponseEntity.badRequest()
+                    .body("El id de departamento de carrera es requerido.".getBytes());
+        }
+
+        Optional<DepartamentoCarrera> deptoCarrera = deptoCarreraService.findById(idDeptoCarrera);
+        if (!deptoCarrera.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Departamento Carrera con id " + idDeptoCarrera + " no encontrada.").getBytes());
+        }
+        String nombreDeptoCarrera = deptoCarrera.get().getNombre();
+
+        String nombreCarrera = null;
+        if (codigoCarrera != null && !codigoCarrera.trim().isEmpty()) {
+            Optional<Carrera> carrera = carreraService.findByCodigo(codigoCarrera);
+            if (!carrera.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(("Carrera con código " + codigoCarrera + " no encontrada.").getBytes());
+            }
+            nombreCarrera = carrera.get().getNombre();
+            if (nombreCarrera == null || nombreCarrera.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(("La carrera con código " + codigoCarrera + " no tiene nombre válido.").getBytes());
+            }
+        }
+
+        byte[] pdfReport = proyectoService.generarReportePorDeptoCarreraYCarrera(
+                idDeptoCarrera,
+                nombreDeptoCarrera,
+                codigoCarrera,
+                nombreCarrera);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(("No se pudo generar el reporte para el departamento de carrera " + nombreDeptoCarrera)
+                            .getBytes());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        String fileName = "Reporte de solicitudes de proyecto por departamento " + nombreDeptoCarrera;
+        if (nombreCarrera != null) {
+            fileName += " - carrera " + nombreCarrera;
+        }
+        String safeFileName = fileName.replaceAll("[^a-zA-Z0-9\\-_]", "_") + ".pdf";
+
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename(safeFileName)
+                .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
     }

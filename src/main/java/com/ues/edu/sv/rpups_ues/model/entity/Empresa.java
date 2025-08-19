@@ -58,19 +58,19 @@ public class Empresa implements Serializable {
 
     @NotNull(message = "El código de departamento no puede estar vacío o nulo")
     @Column(name = "codigo_departamento", nullable = false)
-    private String codigoDepartamento;
+    private String codigoDepartamento;//AGREGAR EN EL FRONT
 
     @NotNull(message = "El código de municipio no puede estar vacío o nulo")
     @Column(name = "codigo_municipio", nullable = false)
-    private String codigoMunicipio;
+    private String codigoMunicipio;//AGREGAR EN EL FRONT
 
     @NotNull(message = "El id del rubro de la empresa no puede estar vacío o nulo")
     @Column(name = "id_rubro", nullable = false)
-    private Long idRubro;
+    private Long idRubro;//AGREGAR EN EL FRONT
 
     @NotNull(message = "El id del usuario creador de la solicitud no puede estar vacío o nulo")
     @Column(name = "id_user_creacion", nullable = false)
-    private Long idUserCreador;
+    private Long idUserCreador;//AGREGAR EN EL FRONT
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)

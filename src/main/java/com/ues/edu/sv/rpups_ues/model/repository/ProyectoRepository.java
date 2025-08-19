@@ -1,6 +1,7 @@
 package com.ues.edu.sv.rpups_ues.model.repository;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -57,4 +58,23 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
                         @Param("filter") String filter,
                         @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
+
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE ((:idDeptoCarrera IS NULL OR p.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera) "
+                        +
+                        "AND (:codigoCarrera IS NULL OR p.codigoCarrera = :codigoCarrera) " +
+                        "AND (:codigoEstado IS NULL OR p.codigoEstado = :codigoEstado) " +
+                        "AND (:idEmpresa IS NULL OR p.idEmpresa = :idEmpresa))")
+        List<Proyecto> findByAnyField(
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
+                        @Param("codigoCarrera") String codigoCarrera,
+                        @Param("codigoEstado") String codigoEstado,
+                        @Param("idEmpresa") Long idEmpresa);
+
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE p.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera " +
+                        "AND (:codigoCarrera IS NULL OR p.carrera.codigo = :codigoCarrera)")
+        List<Proyecto> findByIdDeptoCarreraAndCodigoCarrera(
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
+                        @Param("codigoCarrera") String codigoCarrera);
 }

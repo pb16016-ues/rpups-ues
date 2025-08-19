@@ -15,6 +15,7 @@
             <th>Título</th>
             <th>Estado</th>
             <th>Descripción</th>
+            <th>Depto Carrera</th>
             <th>Carrera</th>
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
@@ -29,6 +30,7 @@
             <td th:text="${proyecto.titulo}"></td>
             <td th:text="${proyecto.estado.nombre}"></td>
             <td th:text="${proyecto.descripcion}"></td>
+            <td th:text="${proyecto.carrera.departamentoCarrera.nombre}"></td>
             <td th:text="${proyecto.carrera.nombre}"></td>
             <td th:text="${proyecto.fechaInicio}"></td>
             <td th:text="${proyecto.fechaFin}"></td>

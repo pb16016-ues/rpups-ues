@@ -7,7 +7,11 @@
 <body>
     <div class="header-flex only-first-page">
         <img src="file:src/main/resources/static/img/logo_izquierdo.png" class="logo logo-left"/>
-        <h1>Reporte de Solicitudes de Proyectos por Carrera: [[${carrera}]]</h1>
+        <h1>
+            Reporte de Solicitudes de Proyectos por
+            <span th:if="${departamentoCarrera != null}"> Departamento: [[${departamentoCarrera}]]</span>
+            <span th:if="${carrera != null}"> - Carrera: [[${carrera}]]</span>
+        </h1>
     </div>
     <table>
         <thead>
@@ -15,7 +19,7 @@
             <th>Título</th>
             <th>Estado</th>
             <th>Descripción</th>
-            <th>Depto Carrera</th>
+            <th th:if="${carrera == null}">Carrera</th>
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
             <th>Duración</th>
@@ -30,7 +34,7 @@
             <td th:text="${solicitud.titulo}"></td>
             <td th:text="${solicitud.estado.nombre}"></td>
             <td th:text="${solicitud.descripcion}"></td>
-            <td th:text="${solicitud.carrera.departamentoCarrera.nombre}"></td>
+            <td th:if="${carrera == null}" th:text="${solicitud.carrera.nombre}"></td>
             <td th:text="${solicitud.fechaInicio}"></td>
             <td th:text="${solicitud.fechaFin}"></td>
             <td th:text="${solicitud.duracion} + ' días'"></td>

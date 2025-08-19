@@ -1,10 +1,12 @@
 package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
+import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import com.ues.edu.sv.rpups_ues.service.CarreraService;
+import com.ues.edu.sv.rpups_ues.service.DepartamentoCarreraService;
 import com.ues.edu.sv.rpups_ues.service.EmailService;
 import com.ues.edu.sv.rpups_ues.service.EmpresaService;
 import com.ues.edu.sv.rpups_ues.service.EstadoService;
@@ -34,14 +36,17 @@ public class SolicitudProyectoController {
     private final EmailService emailService;
     private final EstadoService estadoService;
     private final CarreraService carreraService;
+    private final DepartamentoCarreraService deptoCarreraService;
     private final EmpresaService empresaService;
 
     public SolicitudProyectoController(SolicitudProyectoService solicitudProyectoService, EmailService emailService,
-            EstadoService estadoService, CarreraService carreraService, EmpresaService empresaService) {
+            EstadoService estadoService, CarreraService carreraService, DepartamentoCarreraService deptoCarreraService,
+            EmpresaService empresaService) {
         this.solicitudProyectoService = solicitudProyectoService;
         this.emailService = emailService;
         this.estadoService = estadoService;
         this.carreraService = carreraService;
+        this.deptoCarreraService = deptoCarreraService;
         this.empresaService = empresaService;
     }
 
@@ -119,9 +124,12 @@ public class SolicitudProyectoController {
 
     @GetMapping("/user-creador/{idUsuario}")
     @PermitAll
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByUserCreador(@PathVariable Long idUsuario) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByUserCreador(idUsuario);
-        return ResponseEntity.ok(solicitudes);
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByUserCreador(
+            @PathVariable Long idUsuario,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<SolicitudProyecto> result = solicitudProyectoService.findByUserCreador(idUsuario, PageRequest.of(page, size));
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
@@ -323,7 +331,8 @@ public class SolicitudProyectoController {
 
     @GetMapping("/report-estado")
     @Secured({ "ADMIN", "COOR", "SUP" })
-    public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
+    public ResponseEntity<byte[]> solicitudesProyectoByEstadosGenerarReportePDF(
+            @RequestParam("codEstado") String codigoEstado) {
 
         if (codigoEstado == null || codigoEstado.trim().isEmpty()) {
             return ResponseEntity.badRequest()
@@ -355,7 +364,7 @@ public class SolicitudProyectoController {
         String safeNombreEstado = nombreEstado.replaceAll("[^a-zA-Z0-9\\-_]", "_");
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
-                .filename("Reporte de proyectos por estado " + safeNombreEstado + ".pdf")
+                .filename("Reporte de solicitudes de proyecto por estado " + safeNombreEstado + ".pdf")
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
@@ -363,7 +372,7 @@ public class SolicitudProyectoController {
 
     @GetMapping("/report-carrera")
     @Secured({ "ADMIN", "COOR", "SUP" })
-    public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
+    public ResponseEntity<byte[]> solicitudesProyectoByCarrerasGenerarReportePDF(
             @RequestParam("codCarrera") String codigoCarrera) {
 
         if (codigoCarrera == null || codigoCarrera.trim().isEmpty()) {
@@ -396,7 +405,7 @@ public class SolicitudProyectoController {
         String safeNombreCarrera = nombreCarrera.replaceAll("[^a-zA-Z0-9\\-_]", "_");
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
-                .filename("Reporte de proyectos por carrera " + safeNombreCarrera + ".pdf")
+                .filename("Reporte de solicitudes de proyecto por carrera " + safeNombreCarrera + ".pdf")
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
@@ -404,7 +413,7 @@ public class SolicitudProyectoController {
 
     @GetMapping("/report-empresa")
     @Secured({ "ADMIN", "COOR", "SUP" })
-    public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
+    public ResponseEntity<byte[]> solicitudesProyectoByEmpresasGenerarReportePDF(
             @RequestParam("idEmpresa") Long idEmpresa) {
 
         if (idEmpresa == null) {
@@ -442,7 +451,68 @@ public class SolicitudProyectoController {
         String safeNombreEmpresa = nombreEmpresa.replaceAll("[^a-zA-Z0-9\\-_]", "_");
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
-                .filename("Reporte de proyectos por empresa " + safeNombreEmpresa + ".pdf")
+                .filename("Reporte de solicitudes de proyecto por empresa " + safeNombreEmpresa + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/report-depto-carrera")
+    @Secured({ "ADMIN", "COOR", "SUP" })
+    public ResponseEntity<byte[]> solicitudesProyectoByDeptosCarreraGenerarReportePDF(
+            @RequestParam("idDeptoCarrera") Long idDeptoCarrera,
+            @RequestParam(value = "codCarrera", required = false) String codigoCarrera) {
+
+        if (idDeptoCarrera == null || idDeptoCarrera <= 0) {
+            return ResponseEntity.badRequest()
+                    .body("El id de departamento de carrera es requerido.".getBytes());
+        }
+
+        Optional<DepartamentoCarrera> deptoCarrera = deptoCarreraService.findById(idDeptoCarrera);
+        if (!deptoCarrera.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("Departamento Carrera con id " + idDeptoCarrera + " no encontrada.").getBytes());
+        }
+        String nombreDeptoCarrera = deptoCarrera.get().getNombre();
+
+        String nombreCarrera = null;
+        if (codigoCarrera != null && !codigoCarrera.trim().isEmpty()) {
+            Optional<Carrera> carrera = carreraService.findByCodigo(codigoCarrera);
+            if (!carrera.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(("Carrera con código " + codigoCarrera + " no encontrada.").getBytes());
+            }
+            nombreCarrera = carrera.get().getNombre();
+            if (nombreCarrera == null || nombreCarrera.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(("La carrera con código " + codigoCarrera + " no tiene nombre válido.").getBytes());
+            }
+        }
+
+        byte[] pdfReport = solicitudProyectoService.generarReportePorDeptoCarreraYCarrera(
+                idDeptoCarrera,
+                nombreDeptoCarrera,
+                codigoCarrera,
+                nombreCarrera);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(("No se pudo generar el reporte para el departamento de carrera " + nombreDeptoCarrera)
+                            .getBytes());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        String fileName = "Reporte de solicitudes de proyecto por departamento " + nombreDeptoCarrera;
+        if (nombreCarrera != null) {
+            fileName += " - carrera " + nombreCarrera;
+        }
+        String safeFileName = fileName.replaceAll("[^a-zA-Z0-9\\-_]", "_") + ".pdf";
+
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename(safeFileName)
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
