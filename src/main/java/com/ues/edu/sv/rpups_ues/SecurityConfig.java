@@ -59,9 +59,8 @@ public class SecurityConfig {
                         new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
                 .addFilter(
                         new JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
-                .cors(cors -> cors.disable())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors().and()
+                .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .build();
     }
     /*

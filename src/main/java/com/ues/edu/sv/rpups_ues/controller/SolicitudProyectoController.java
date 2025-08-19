@@ -124,9 +124,12 @@ public class SolicitudProyectoController {
 
     @GetMapping("/user-creador/{idUsuario}")
     @PermitAll
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByUserCreador(@PathVariable Long idUsuario) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByUserCreador(idUsuario);
-        return ResponseEntity.ok(solicitudes);
+    public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByUserCreador(
+            @PathVariable Long idUsuario,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+        Page<SolicitudProyecto> result = solicitudProyectoService.findByUserCreador(idUsuario, PageRequest.of(page, size));
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
