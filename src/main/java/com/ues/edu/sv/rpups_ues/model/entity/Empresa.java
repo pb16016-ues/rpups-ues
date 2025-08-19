@@ -2,7 +2,6 @@ package com.ues.edu.sv.rpups_ues.model.entity;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -75,12 +74,10 @@ public class Empresa implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_departamento", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Departamento departamento;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_municipio", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Municipio municipio;
 
     @ManyToOne(optional = false)
@@ -89,7 +86,6 @@ public class Empresa implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_user_creacion", referencedColumnName = "id_usuario", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Usuario userCreador;
 
     public Empresa(Long idEmpresa) {

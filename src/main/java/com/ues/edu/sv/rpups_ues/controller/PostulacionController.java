@@ -50,6 +50,13 @@ public class PostulacionController {
         return postulacion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/estudiante/{idEstudiante}")
+    @PermitAll
+    public ResponseEntity<List<Postulacion>> getPostulacionesByEstudiante(@PathVariable Long idEstudiante) {
+        List<Postulacion> postulaciones = postulacionService.findByEstudiante(idEstudiante);
+        return ResponseEntity.ok(postulaciones);
+    }
+
     @PostMapping
     @PermitAll
     public ResponseEntity<Postulacion> createPostulacion(@RequestBody Postulacion postulacion) {

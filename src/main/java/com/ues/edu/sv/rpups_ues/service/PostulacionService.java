@@ -14,8 +14,11 @@ public interface PostulacionService {
     Optional<Postulacion> findByEstudianteAndProyecto(Long idEstudiante, Long idProyecto);
 
     List<Postulacion> findByProyecto(Long idProyecto);
-
+    
     Postulacion save(Postulacion postulacion);
-
+    
     void deleteById(Long idPostulacion);
+    
+    List<Postulacion> findByEstudiante(Long idEstudiante);
+
 }

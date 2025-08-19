@@ -136,7 +136,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/search-filters")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<Proyecto>> getProyectosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,

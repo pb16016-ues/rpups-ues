@@ -32,7 +32,7 @@ public class UsuarioController {
     }
 
     @GetMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<Usuario>> getAllUsuarios(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -48,7 +48,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/username/{username}")
-    // @Secured({ "ADMIN", "COOR", "SUP" })
+    // @Secured({ "ADMIN", "COORD", "SUP" })
     @PermitAll
     public ResponseEntity<Usuario> getUsuarioByUsername(@PathVariable String username) {
         Optional<Usuario> usuario = usuarioService.findByUsername(username);
@@ -56,28 +56,28 @@ public class UsuarioController {
     }
 
     @GetMapping("/carnet/{carnet}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Usuario> getUsuarioByCarnet(@PathVariable String carnet) {
         Optional<Usuario> usuario = usuarioService.findByCarnet(carnet);
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/correo-institucional/{correoInstitucional}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Usuario> getUsuarioByCorreoInstitucional(@PathVariable String correoInstitucional) {
         Optional<Usuario> usuario = usuarioService.findByCorreoInstitucional(correoInstitucional);
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/correo-personal/{correoPersonal}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Usuario> getUsuarioByCorreoPersonal(@PathVariable String correoPersonal) {
         Optional<Usuario> usuario = usuarioService.findByCorreoPersonal(correoPersonal);
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/search-user/{searchTerm}")
-    @Secured({ "ADMIN", "COOR", "SUP", "EMP", "EST" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "EST" })
     public ResponseEntity<Page<Usuario>> getUsuariosByNombresOrApellidos(@PathVariable String searchTerm,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -86,7 +86,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/search-filters")
-    @Secured({ "ADMIN", "COOR", "SUP", "EMP", "EST" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "EST" })
     public ResponseEntity<Page<Usuario>> getUsuariosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
             @RequestParam(name = "idDeptoCarrera", defaultValue = "", required = true) Long idDeptoCarrera,
@@ -177,7 +177,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COOR" })
+    @Secured({ "ADMIN", "COORD" })
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
         if (!usuarioService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -187,28 +187,28 @@ public class UsuarioController {
     }
 
     @GetMapping("/exists/correo/{correo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Boolean> existsByCorreoInstitucional(@PathVariable String correo) {
         boolean exists = usuarioService.existsByCorreo(correo);
         return ResponseEntity.ok(exists);
     }
 
     @GetMapping("/exists/carnet/{carnet}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Boolean> existsByCarnet(@PathVariable String carnet) {
         boolean exists = usuarioService.existsByCarnet(carnet);
         return ResponseEntity.ok(exists);
     }
 
     @GetMapping("/exists/username/{username}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Boolean> existsByUsername(@PathVariable String username) {
         boolean exists = usuarioService.existsByUsername(username);
         return ResponseEntity.ok(exists);
     }
 
     @GetMapping("/administradores")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<Usuario>> getUsuariosAdministradores(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -217,7 +217,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/administradores-by-carrera")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<Usuario>> getUsuariosAdministradoresByDepartamento(
             @RequestParam(name = "idDeptoCarrera", defaultValue = "", required = true) Long idDeptoCarrera,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,

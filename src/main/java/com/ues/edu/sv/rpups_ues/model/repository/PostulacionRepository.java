@@ -12,5 +12,7 @@ public interface PostulacionRepository extends JpaRepository<Postulacion, Long> 
 
     Optional<Postulacion> findByIdEstudianteAndIdProyecto(Long idEstudiante, Long idProyecto);
 
+    List<Postulacion> findByIdEstudiante(Long idEstudiante);
+
     List<Postulacion> findByIdProyecto(Long idProyecto);
 }

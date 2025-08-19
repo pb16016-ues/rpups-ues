@@ -65,4 +65,10 @@ public class PostulacionServiceImpl implements PostulacionService {
     public void deleteById(Long idPostulacion) {
         postulacionRepository.deleteById(idPostulacion);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Postulacion> findByEstudiante(Long idEstudiante) {
+        return postulacionRepository.findByIdEstudiante(idEstudiante);
+    }
 }

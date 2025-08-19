@@ -41,7 +41,6 @@ public class SolicitudProyecto implements Serializable {
     private String requisitos;
 
     @NotNull(message = "La fecha de inicio del proyecto propuesto no puede estar vacía")
-    @FutureOrPresent(message = "La fecha de inicio del proyecto propuesto debe ser una fecha futura o presente")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDate fechaInicio;

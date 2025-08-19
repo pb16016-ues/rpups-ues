@@ -21,21 +21,21 @@ public class RolController {
     }
 
     @GetMapping
-    @Secured({ "ADMIN", "COOR" })
+    @Secured({ "ADMIN", "COORD" })
     public ResponseEntity<List<Rol>> getAllRoles() {
         List<Rol> roles = rolService.findAll();
         return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR" })
+    @Secured({ "ADMIN", "COORD" })
     public ResponseEntity<Rol> getRolByCodigo(@PathVariable String codigo) {
         Optional<Rol> rol = rolService.findByCodigo(codigo);
         return rol.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre/{nombre}")
-    @Secured({ "ADMIN", "COOR" })
+    @Secured({ "ADMIN", "COORD" })
     public ResponseEntity<Rol> getRolByNombre(@PathVariable String nombre) {
         Optional<Rol> rol = rolService.findByNombre(nombre);
         return rol.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -73,7 +73,7 @@ public class RolController {
     }
 
     @GetMapping("/exists/{nombre}")
-    @Secured({ "ADMIN", "COOR" })
+    @Secured({ "ADMIN", "COORD" })
     public ResponseEntity<Boolean> existsByNombre(@PathVariable String nombre) {
         boolean exists = rolService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);
