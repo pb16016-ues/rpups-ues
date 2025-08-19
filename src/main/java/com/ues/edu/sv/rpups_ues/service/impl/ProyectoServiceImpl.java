@@ -192,4 +192,29 @@ public class ProyectoServiceImpl implements ProyectoService {
             throw new RuntimeException("Error al generar el reporte PDF", e);
         }
     }
+
+    @Override
+    public byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
+            String codigoCarrera, String nombreCarrera) {
+        List<Proyecto> proyectos = proyectoRepository
+                .findByIdDeptoCarreraAndCodigoCarrera(idDeptoCarrera, codigoCarrera);
+
+        Context context = new Context();
+        context.setVariable("proyectos", proyectos);
+        context.setVariable("departamentoCarrera", nombreDeptoCarrera);
+        context.setVariable("carrera", nombreCarrera);
+
+        String htmlContent = templateEngine.process("proyectos/reporte_proyectos_by_depto_carrera",
+                context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF", e);
+        }
+    }
 }

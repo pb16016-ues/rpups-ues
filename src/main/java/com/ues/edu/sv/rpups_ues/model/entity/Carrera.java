@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
 @Table(name = "carreras")
 @Getter

@@ -45,4 +45,7 @@ public interface ProyectoService {
     byte[] generarReportePorCarrera(String codigoCarrera, String nombreCarrera);
 
     byte[] generarReportePorEmpresa(Long idEmpresa, String nombreEmpresa);
+
+    byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
+            String codigoCarrera, String nombreCarrera);
 }

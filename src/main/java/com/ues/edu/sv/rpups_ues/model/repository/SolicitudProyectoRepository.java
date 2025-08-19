@@ -62,5 +62,24 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         @Param("idDeptoCarrera") Long idDeptoCarrera,
                         Pageable pageable);
 
+        @Query("SELECT s FROM SolicitudProyecto s " +
+                        "WHERE ((:idDeptoCarrera IS NULL OR s.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera) "
+                        +
+                        "AND (:codigoCarrera IS NULL OR s.codigoCarrera = :codigoCarrera) " +
+                        "AND (:codigoEstado IS NULL OR s.codigoEstado = :codigoEstado) " +
+                        "AND (:idEmpresa IS NULL OR s.idEmpresa = :idEmpresa))")
+        List<SolicitudProyecto> findByAnyField(
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
+                        @Param("codigoCarrera") String codigoCarrera,
+                        @Param("codigoEstado") String codigoEstado,
+                        @Param("idEmpresa") Long idEmpresa);
+
+        @Query("SELECT s FROM SolicitudProyecto s " +
+                        "WHERE s.carrera.departamentoCarrera.idDepartamentoCarrera = :idDeptoCarrera " +
+                        "AND (:codigoCarrera IS NULL OR s.carrera.codigo = :codigoCarrera)")
+        List<SolicitudProyecto> findByIdDeptoCarreraAndCodigoCarrera(
+                        @Param("idDeptoCarrera") Long idDeptoCarrera,
+                        @Param("codigoCarrera") String codigoCarrera);
+
         Page<SolicitudProyecto> findByCodigoEstado(String codigoEstado, Pageable pageable);
 }
