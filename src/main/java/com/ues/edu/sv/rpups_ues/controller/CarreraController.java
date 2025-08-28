@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @RestController
 @RequestMapping("/api/carreras")
 public class CarreraController {
@@ -45,7 +44,7 @@ public class CarreraController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Carrera> createCarrera(@RequestBody Carrera carrera) {
         if (carreraService.existsByNombre(carrera.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -55,7 +54,7 @@ public class CarreraController {
     }
 
     @PutMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Carrera> updateCarrera(@PathVariable String codigo, @RequestBody Carrera carrera) {
         if (!carreraService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -66,7 +65,7 @@ public class CarreraController {
     }
 
     @DeleteMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteCarrera(@PathVariable String codigo) {
         if (!carreraService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -87,5 +86,5 @@ public class CarreraController {
     public ResponseEntity<List<Carrera>> getCarrerasByDepto(@PathVariable Long idDeptoCarrera) {
         return ResponseEntity.status(HttpStatus.OK).body(carreraService.findAllByDepartamento(idDeptoCarrera));
     }
-    
+
 }

@@ -44,7 +44,7 @@ public class DepartamentoCarreraController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<DepartamentoCarrera> createDepartamentoCarrera(
             @RequestBody DepartamentoCarrera departamentoCarrera) {
         if (departamentoCarreraService.existsByNombre(departamentoCarrera.getNombre())) {
@@ -55,7 +55,7 @@ public class DepartamentoCarreraController {
     }
 
     @PutMapping("/{idDepartamentoCarrera}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<DepartamentoCarrera> updateDepartamentoCarrera(@PathVariable Long idDepartamentoCarrera,
             @RequestBody DepartamentoCarrera departamentoCarrera) {
         if (!departamentoCarreraService.findById(idDepartamentoCarrera).isPresent()) {
@@ -67,7 +67,7 @@ public class DepartamentoCarreraController {
     }
 
     @DeleteMapping("/{idDepartamentoCarrera}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteCarrera(@PathVariable Long idDepartamentoCarrera) {
         if (!departamentoCarreraService.findById(idDepartamentoCarrera).isPresent()) {
             return ResponseEntity.notFound().build();

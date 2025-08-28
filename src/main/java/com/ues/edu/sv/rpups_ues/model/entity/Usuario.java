@@ -36,8 +36,8 @@ public class Usuario implements Serializable {
     private String apellidos;
 
     // @Size(min = 7, max = 8, message = "El carnet del estudiante debe tener
-    // exactamente 8 caracteres")
-    @Column(name = "carnet", length = 8, unique = false)
+    // exactamente 7 caracteres")
+    @Column(name = "carnet", length = 7, unique = false)
     private String carnet;
 
     @NotBlank(message = "El correo institucional del usuario no puede estar vacío")

@@ -174,14 +174,14 @@ public class ProyectoController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto proyecto) {
         Proyecto savedProyecto = proyectoService.save(proyecto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProyecto);
     }
 
     @PutMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Proyecto> updateProyecto(@PathVariable Long id, @RequestBody Proyecto proyecto) {
         if (!proyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -192,7 +192,7 @@ public class ProyectoController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteProyecto(@PathVariable Long id) {
         if (!proyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -202,7 +202,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-estado")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<byte[]> proyectosByEstadosGenerarReportePDF(@RequestParam("codEstado") String codigoEstado) {
 
         if (codigoEstado == null || codigoEstado.trim().isEmpty()) {
@@ -240,7 +240,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-carrera")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<byte[]> proyectosByCarrerasGenerarReportePDF(
             @RequestParam("codCarrera") String codigoCarrera) {
 
@@ -279,7 +279,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-empresa")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<byte[]> proyectosByEmpresasGenerarReportePDF(
             @RequestParam("idEmpresa") Long idEmpresa) {
 
@@ -320,7 +320,7 @@ public class ProyectoController {
     }
 
     @GetMapping("/report-depto-carrera")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<byte[]> proyectosByDeptosCarreraGenerarReportePDF(
             @RequestParam("idDeptoCarrera") Long idDeptoCarrera,
             @RequestParam(value = "codCarrera", required = false) String codigoCarrera) {

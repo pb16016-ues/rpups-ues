@@ -43,7 +43,7 @@ public class DepartamentoController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Departamento> createDepartamento(@RequestBody Departamento departamento) {
         if (departamentoService.existsByNombre(departamento.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -53,7 +53,7 @@ public class DepartamentoController {
     }
 
     @PutMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Departamento> updateDepartamento(@PathVariable String codigo,
             @RequestBody Departamento departamento) {
         if (!departamentoService.findByCodigo(codigo).isPresent()) {
@@ -65,7 +65,7 @@ public class DepartamentoController {
     }
 
     @DeleteMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteDepartamento(@PathVariable String codigo) {
         if (!departamentoService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();

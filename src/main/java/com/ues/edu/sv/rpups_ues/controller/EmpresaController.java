@@ -84,7 +84,7 @@ public class EmpresaController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteEmpresa(@PathVariable Long id) {
         if (!empresaService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

@@ -53,7 +53,7 @@ public class RubroController {
     }
 
     @PutMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Rubro> updateRubro(@PathVariable Long id, @RequestBody Rubro rubro) {
         if (!rubroService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -64,7 +64,7 @@ public class RubroController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteRubro(@PathVariable Long id) {
         if (!rubroService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

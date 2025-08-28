@@ -22,35 +22,35 @@ public class EstadoController {
     }
 
     @GetMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Estado>> getAllEstados() {
         List<Estado> estados = estadoService.findAll();
         return ResponseEntity.ok(estados);
     }
 
     @GetMapping("/{codigoEstado}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Estado> getEstadoByCodigo(@PathVariable String codigoEstado) {
         Optional<Estado> estado = estadoService.findByCodigoEstado(codigoEstado);
         return estado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre/{nombre}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Estado> getEstadoByNombre(@PathVariable String nombre) {
         Optional<Estado> estado = estadoService.findByNombre(nombre);
         return estado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/exists/{nombre}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Boolean> existsByNombre(@PathVariable String nombre) {
         boolean exists = estadoService.existsByNombre(nombre);
         return ResponseEntity.ok(exists);
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Estado> createEstado(@RequestBody Estado estado) {
         if (estadoService.existsByNombre(estado.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -60,7 +60,7 @@ public class EstadoController {
     }
 
     @PutMapping("/{codigoEstado}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Estado> updateEstado(@PathVariable String codigoEstado, @RequestBody Estado estado) {
         if (!estadoService.findByCodigoEstado(codigoEstado).isPresent()) {
             return ResponseEntity.notFound().build();

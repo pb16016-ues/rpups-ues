@@ -69,7 +69,7 @@ public class PostulacionController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COOR", "SUP", "EST" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EST" })
     public ResponseEntity<Void> deletePostulacion(@PathVariable Long id) {
         if (!postulacionService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

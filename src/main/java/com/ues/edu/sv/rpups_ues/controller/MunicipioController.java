@@ -50,7 +50,7 @@ public class MunicipioController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Municipio> createMunicipio(@RequestBody Municipio municipio) {
         if (municipioService.existsByNombre(municipio.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -60,7 +60,7 @@ public class MunicipioController {
     }
 
     @PutMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Municipio> updateMunicipio(@PathVariable String codigo, @RequestBody Municipio municipio) {
         if (!municipioService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();
@@ -71,7 +71,7 @@ public class MunicipioController {
     }
 
     @DeleteMapping("/{codigo}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteMunicipio(@PathVariable String codigo) {
         if (!municipioService.findByCodigo(codigo).isPresent()) {
             return ResponseEntity.notFound().build();

@@ -43,7 +43,7 @@ public class ModalidadController {
     }
 
     @PostMapping
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Modalidad> createModalidad(@RequestBody Modalidad modalidad) {
         if (modalidadService.existsByNombre(modalidad.getNombre())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -53,7 +53,7 @@ public class ModalidadController {
     }
 
     @PutMapping("/{codigoModalidad}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Modalidad> updateModalidad(@PathVariable String codigoModalidad,
             @RequestBody Modalidad modalidad) {
         if (!modalidadService.findByCodigoModalidad(codigoModalidad).isPresent()) {
@@ -65,7 +65,7 @@ public class ModalidadController {
     }
 
     @DeleteMapping("/{codigoModalidad}")
-    @Secured({ "ADMIN", "COOR", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Void> deleteModalidad(@PathVariable String codigoModalidad) {
         if (!modalidadService.findByCodigoModalidad(codigoModalidad).isPresent()) {
             return ResponseEntity.notFound().build();
