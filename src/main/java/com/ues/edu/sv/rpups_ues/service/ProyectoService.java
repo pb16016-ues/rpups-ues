@@ -48,4 +48,6 @@ public interface ProyectoService {
 
     byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
             String codigoCarrera, String nombreCarrera);
+
+    boolean existsByTituloIgnoreCase(String titulo);
 }

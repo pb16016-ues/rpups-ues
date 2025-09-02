@@ -217,4 +217,9 @@ public class ProyectoServiceImpl implements ProyectoService {
             throw new RuntimeException("Error al generar el reporte PDF", e);
         }
     }
+
+    @Override
+    public boolean existsByTituloIgnoreCase(String titulo) {
+        return proyectoRepository.existsByTituloIgnoreCase(titulo);
+    }
 }

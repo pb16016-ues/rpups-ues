@@ -77,4 +77,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
         List<Proyecto> findByIdDeptoCarreraAndCodigoCarrera(
                         @Param("idDeptoCarrera") Long idDeptoCarrera,
                         @Param("codigoCarrera") String codigoCarrera);
+
+        @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Proyecto p WHERE LOWER(p.titulo) = LOWER(:titulo)")
+        boolean existsByTituloIgnoreCase(@Param("titulo") String titulo);
 }

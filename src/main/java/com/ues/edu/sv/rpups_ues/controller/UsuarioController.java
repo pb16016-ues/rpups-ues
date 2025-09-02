@@ -119,7 +119,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/administrativo")
-    @Secured({ "ADMIN" })
+    @Secured({ "COORD" })
     public ResponseEntity<Usuario> createUsuarioAdministrativo(@RequestBody Usuario usuario,
             Boolean withPasswordDefault) {
         if (usuarioService.existsByCorreo(usuario.getCorreoInstitucional()) ||

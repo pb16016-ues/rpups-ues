@@ -24,6 +24,9 @@ import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/proyectos")
@@ -172,6 +175,14 @@ public class ProyectoController {
                         PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
+
+    @GetMapping("/exists/titulo")
+    @PermitAll
+    public ResponseEntity<Boolean> existsByTituloIgnoreCase(@RequestParam String titulo) {
+        boolean exists = proyectoService.existsByTituloIgnoreCase(titulo);
+        return ResponseEntity.ok(exists);
+    }
+    
 
     @PostMapping
     @Secured({ "ADMIN", "COORD", "SUP" })

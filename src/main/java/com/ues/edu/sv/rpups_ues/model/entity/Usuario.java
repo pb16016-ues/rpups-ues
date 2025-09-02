@@ -78,12 +78,10 @@ public class Usuario implements Serializable {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_rol", referencedColumnName = "codigo", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
     private Rol rol;
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "id_depto_carrera", referencedColumnName = "id_depto_carrera", nullable = true, insertable = false, updatable = false)
-    @JsonIgnore
     private DepartamentoCarrera departamentoCarrera;
 
     public Usuario(Long idUsuario) {
