@@ -27,7 +27,7 @@ public class SolicitudProyecto implements Serializable {
     private Long idSolicitud;
 
     @NotBlank(message = "El título del proyecto propuesto no puede estar vacío")
-    @Size(max = 250, message = "El título del proyecto propuesto debe tener un máximo de 150 caracteres")
+    @Size(max = 250, message = "El título del proyecto propuesto debe tener un máximo de 250 caracteres")
     @Column(name = "titulo", nullable = false, length = 250)
     private String titulo;
 

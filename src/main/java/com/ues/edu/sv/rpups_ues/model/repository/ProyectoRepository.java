@@ -16,7 +16,11 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
         List<Proyecto> findByTituloContainingIgnoreCase(String titulo);
 
+        Page<Proyecto> findByTituloContainingIgnoreCase(String titulo, Pageable pageable);
+
         List<Proyecto> findByCodigoEstado(String codigoEstado);
+
+        Page<Proyecto> findByCodigoEstado(String codigoEstado, Pageable pageable);
 
         Page<Proyecto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
 
@@ -24,9 +28,15 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
         List<Proyecto> findByCodigoCarrera(String codigoCarrera);
 
+        Page<Proyecto> findByCodigoCarrera(String codigoCarrera, Pageable pageable);
+
         List<Proyecto> findByCodigoModalidad(String codigoModalidad);
 
+        Page<Proyecto> findByCodigoModalidad(String codigoModalidad, Pageable pageable);
+
         List<Proyecto> findByIdAdministrador(Long idUsuario);
+
+        Page<Proyecto> findByIdAdministrador(Long idUsuario, Pageable pageable);
 
         List<Proyecto> findByIdEmpresaAndCodigoEstado(Long idEmpresa, String codigoEstado);
 

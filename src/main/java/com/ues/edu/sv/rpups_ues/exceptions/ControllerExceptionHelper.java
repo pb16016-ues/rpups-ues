@@ -23,7 +23,7 @@ public class ControllerExceptionHelper {
     ResponseEntity<ErrorResponse> HandleNotFoundExceptions(Exception ex, WebRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(new ErrorResponse(new Date(), status.value(), status.name(), ex.getMessage(),
-                request.getDescription(false)), HttpStatus.BAD_REQUEST);
+                request.getDescription(false)), status);
     }
 
     @ExceptionHandler(value = { DuplicateEntityException.class })

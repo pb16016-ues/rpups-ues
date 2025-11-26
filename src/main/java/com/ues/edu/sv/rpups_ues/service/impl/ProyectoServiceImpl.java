@@ -47,8 +47,20 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Proyecto> findByTitulo(String titulo, Pageable pageable) {
+        return proyectoRepository.findByTituloContainingIgnoreCase(titulo, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Proyecto> findByEstado(String codigoEstado) {
         return proyectoRepository.findByCodigoEstado(codigoEstado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Proyecto> findByEstado(String codigoEstado, Pageable pageable) {
+        return proyectoRepository.findByCodigoEstado(codigoEstado, pageable);
     }
 
     @Override
@@ -65,14 +77,32 @@ public class ProyectoServiceImpl implements ProyectoService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Proyecto> findByCarrera(String codigoCarrera, Pageable pageable) {
+        return proyectoRepository.findByCodigoCarrera(codigoCarrera, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Proyecto> findByModalidad(String codigoModalidad) {
         return proyectoRepository.findByCodigoModalidad(codigoModalidad);
     }
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Proyecto> findByModalidad(String codigoModalidad, Pageable pageable) {
+        return proyectoRepository.findByCodigoModalidad(codigoModalidad, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Proyecto> findByAdministradorAprobador(Long idUsuario) {
         return proyectoRepository.findByIdAdministrador(idUsuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Proyecto> findByAdministradorAprobador(Long idUsuario, Pageable pageable) {
+        return proyectoRepository.findByIdAdministrador(idUsuario, pageable);
     }
 
     @Override

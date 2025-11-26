@@ -16,15 +16,25 @@ public interface ProyectoService {
 
     List<Proyecto> findByTitulo(String titulo);
 
+    Page<Proyecto> findByTitulo(String titulo, Pageable pageable);
+
     List<Proyecto> findByEstado(String codigoEstado);
+
+    Page<Proyecto> findByEstado(String codigoEstado, Pageable pageable);
 
     Page<Proyecto> findByEmpresa(Long idEmpresa, Pageable pageable);
 
     List<Proyecto> findByCarrera(String codigoCarrera);
 
+    Page<Proyecto> findByCarrera(String codigoCarrera, Pageable pageable);
+
     List<Proyecto> findByModalidad(String codigoModalidad);
 
+    Page<Proyecto> findByModalidad(String codigoModalidad, Pageable pageable);
+
     List<Proyecto> findByAdministradorAprobador(Long idUsuario);
+
+    Page<Proyecto> findByAdministradorAprobador(Long idUsuario, Pageable pageable);
 
     List<Proyecto> findByEmpresaIdEmpresaAndEstadoCodigoEstado(Long idEmpresa, String codigoEstado);
 
