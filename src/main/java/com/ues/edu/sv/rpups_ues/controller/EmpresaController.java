@@ -24,42 +24,42 @@ public class EmpresaController {
     }
 
     @GetMapping
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Empresa>> getAllEmpresas() {
         List<Empresa> empresas = empresaService.findAll();
         return ResponseEntity.ok(empresas);
     }
 
     @GetMapping("/{id}")
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Empresa> getEmpresaById(@PathVariable Long id) {
         Optional<Empresa> empresa = empresaService.findById(id);
         return empresa.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/nombre-comercial/{nombreComercial}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Empresa>> getEmpresasByNombreComercial(@PathVariable String nombreComercial) {
         List<Empresa> empresas = empresaService.findByNombreComercial(nombreComercial);
         return ResponseEntity.ok(empresas);
     }
 
     @GetMapping("/nombre-legal/{nombreLegal}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Empresa>> getEmpresasByNombreLegal(@PathVariable String nombreLegal) {
         List<Empresa> empresas = empresaService.findByNombreLegal(nombreLegal);
         return ResponseEntity.ok(empresas);
     }
 
     @GetMapping("/rubro/{idRubro}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Empresa>> getEmpresasByRubro(@PathVariable Long idRubro) {
         List<Empresa> empresas = empresaService.findByRubroIdRubro(idRubro);
         return ResponseEntity.ok(empresas);
     }
 
     @GetMapping("/user-creador/{idUsuario}")
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<Empresa>> getEmpresasByUserCreador(@PathVariable Long idUsuario) {
         List<Empresa> empresas = empresaService.findByUserCreador(idUsuario);
         return ResponseEntity.ok(empresas);
@@ -73,7 +73,7 @@ public class EmpresaController {
     }
 
     @PutMapping("/{id}")
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Empresa> updateEmpresa(@PathVariable Long id, @RequestBody Empresa empresa) {
         if (!empresaService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();

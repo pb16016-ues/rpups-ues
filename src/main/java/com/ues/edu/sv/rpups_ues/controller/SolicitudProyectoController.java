@@ -21,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.annotation.Secured;
-import jakarta.annotation.security.PermitAll;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +50,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getAllSolicitudes(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -69,28 +68,28 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/{id}")
-    @PermitAll
+    @Secured({ "ESTUD", "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<SolicitudProyecto> getSolicitudById(@PathVariable Long id) {
         Optional<SolicitudProyecto> solicitud = solicitudProyectoService.findById(id);
         return solicitud.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/titulo/{titulo}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByTitulo(@PathVariable String titulo) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByTitulo(titulo);
         return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/estado/{codigoEstado}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEstado(@PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByEstado(codigoEstado);
         return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/empresa/{idEmpresa}")
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByEmpresa(@PathVariable Long idEmpresa,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -100,21 +99,21 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/carrera/{codigoCarrera}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByCarrera(@PathVariable String codigoCarrera) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByCarrera(codigoCarrera);
         return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/modalidad/{codigoModalidad}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByModalidad(@PathVariable String codigoModalidad) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByModalidad(codigoModalidad);
         return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/admin-revisor/{idUsuario}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByAdministradorRevisorAndCodigoEstadoRevision(
             @PathVariable Long idUsuario) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService
@@ -123,7 +122,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/user-creador/{idUsuario}")
-    @PermitAll
+    @Secured({ "ESTUD", "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByUserCreador(
             @PathVariable Long idUsuario,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
@@ -134,7 +133,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
-    @PermitAll
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEmpresaAndEstado(
             @PathVariable Long idEmpresa, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService
@@ -143,7 +142,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/carrera/{codigoCarrera}/estado/{codigoEstado}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByCarreraAndEstado(
             @PathVariable String codigoCarrera, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByCarreraCodigoAndEstadoCodigoEstado(
@@ -153,7 +152,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/modalidad/{codigoModalidad}/estado/{codigoEstado}")
-    @PermitAll
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByModalidadAndEstado(
             @PathVariable String codigoModalidad, @PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService
@@ -179,7 +178,7 @@ public class SolicitudProyectoController {
     }
 
     @GetMapping("/user-search-filters")
-    @PermitAll
+    @Secured({ "ESTUD", "EMP", "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Page<SolicitudProyecto>> getSolicitudesByFiltrosWithUser(
             @RequestParam(name = "idUser", defaultValue = "", required = false) Long idUserCreador,
             @RequestParam(name = "idDepto", defaultValue = "", required = false) Long idDeptoCarrera,
@@ -197,25 +196,25 @@ public class SolicitudProyectoController {
     }
 
     @PostMapping
-    @PermitAll
+    @Secured({ "ESTUD", "EMP" })
     public ResponseEntity<SolicitudProyecto> createSolicitud(@RequestBody SolicitudProyecto solicitudProyecto) {
         SolicitudProyecto savedSolicitud = solicitudProyectoService.save(solicitudProyecto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSolicitud);
     }
 
-    @PutMapping("/admin/{id}")
-    @PermitAll
-    public ResponseEntity<?> updateSolicitudAdmin(@PathVariable Long id,
+    @PutMapping("/{idSolicitud}/revision")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<?> updateSolicitudAdmin(@PathVariable Long idSolicitud,
             @RequestBody SolicitudProyecto solicitudProyecto) {
 
         SolicitudProyecto solicitudProyectoBD = null;
         Map<String, Object> response = new HashMap<>();
 
-        if (!solicitudProyectoService.findById(id).isPresent()) {
+        if (!solicitudProyectoService.findById(idSolicitud).isPresent()) {
             response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
-            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(id);
+            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(idSolicitud);
             solicitudProyectoBD = optSolicitudProyectoBD.get();
         }
 
@@ -225,7 +224,7 @@ public class SolicitudProyectoController {
         }
 
         try {
-            solicitudProyecto.setIdSolicitud(id);
+            solicitudProyecto.setIdSolicitud(idSolicitud);
             SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateAdmin(solicitudProyectoBD,
                     solicitudProyecto);
 
@@ -271,19 +270,19 @@ public class SolicitudProyectoController {
         }
     }
 
-    @PutMapping("/externo/{id}")
-    @PermitAll
-    public ResponseEntity<?> updateSolicitudExterno(@PathVariable Long id,
+    @PutMapping("/{idSolicitud}/correccion")
+    @Secured({ "ESTUD", "EMP" })
+    public ResponseEntity<?> updateSolicitudExterno(@PathVariable Long idSolicitud,
             @RequestBody SolicitudProyecto solicitudProyecto) {
 
         SolicitudProyecto solicitudProyectoBD = null;
         Map<String, Object> response = new HashMap<>();
 
-        if (!solicitudProyectoService.findById(id).isPresent()) {
+        if (!solicitudProyectoService.findById(idSolicitud).isPresent()) {
             response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
-            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(id);
+            Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(idSolicitud);
             solicitudProyectoBD = optSolicitudProyectoBD.get();
         }
 
@@ -293,7 +292,7 @@ public class SolicitudProyectoController {
         }
 
         try {
-            solicitudProyecto.setIdSolicitud(id);
+            solicitudProyecto.setIdSolicitud(idSolicitud);
             SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateExterno(solicitudProyectoBD,
                     solicitudProyecto);
 

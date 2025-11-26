@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.ues.edu.sv.rpups_ues.auth.mixin.SimpleGrantedAuthorityMixin;
 import com.ues.edu.sv.rpups_ues.auth.models.AuthUser;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -23,8 +25,11 @@ import java.util.Date;
 @Service
 public class JWTServiceImpl implements JWTService {
 
-    public final static String SECRET_KEY = "org.springframework.boot.devtools.restart.classloader.RestartClassLoader";
-    public final static Long EXPIRATION_DATE = 1000 * 60 * 60L;
+    @Value("${jwt.secret.key}")
+    private String secretKey;
+
+    @Value("${jwt.expiration.time}")
+    private Long expirationTime;
     public final static String TOKEN_PREFIX = "Bearer ";
     public final static String HEADER_STRING = "authorization";
 
@@ -38,8 +43,8 @@ public class JWTServiceImpl implements JWTService {
         Claims claims = Jwts.claims();
         claims.put("authorities", new ObjectMapper().writeValueAsString(authorities));
         return Jwts.builder().setClaims(claims).setId(user.getId().toString())
-                .setSubject(user.getUsername()).signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
-                .setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_DATE))
+                .setSubject(user.getUsername()).signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .compact();
 
     }
@@ -58,7 +63,7 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public Claims getClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(SECRET_KEY.getBytes()).build().parseClaimsJws(resolve(token))
+        return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(resolve(token))
                 .getBody();
 
     }
@@ -70,8 +75,8 @@ public class JWTServiceImpl implements JWTService {
         Claims claims = Jwts.claims();
         claims.put("authorities", new ObjectMapper().writeValueAsString(authorities));
         return Jwts.builder().setClaims(claims).setId(authUser.getId().toString())
-                .setSubject(authUser.getUsername()).signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
-                .setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_DATE))
+                .setSubject(authUser.getUsername()).signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .compact();
     }
 
