@@ -96,6 +96,9 @@ public class Proyecto implements Serializable {
     @Column(name = "codigo_estado", nullable = false)
     private String codigoEstado;
 
+    @Column(name = "id_solicitud_origen", nullable = true)
+    private Long idSolicitudOrigen;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false, insertable = false, updatable = false)
     private Empresa empresa;
@@ -123,6 +126,10 @@ public class Proyecto implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "codigo_estado", referencedColumnName = "codigo_estado", nullable = false, insertable = false, updatable = false)
     private Estado estado;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_solicitud_origen", referencedColumnName = "id_solicitud", nullable = true, insertable = false, updatable = false)
+    private SolicitudProyecto solicitudOrigen;
 
     public Proyecto(Long idProyecto) {
         this.idProyecto = idProyecto;

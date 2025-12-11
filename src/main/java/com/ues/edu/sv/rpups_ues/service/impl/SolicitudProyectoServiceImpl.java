@@ -1,9 +1,13 @@
 package com.ues.edu.sv.rpups_ues.service.impl;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.ues.edu.sv.rpups_ues.model.DTO.AprobacionSolicitudResponse;
+import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
+import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
 import com.ues.edu.sv.rpups_ues.model.repository.SolicitudProyectoRepository;
+import com.ues.edu.sv.rpups_ues.service.NotificacionService;
 import com.ues.edu.sv.rpups_ues.service.SolicitudProyectoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +25,18 @@ import java.time.LocalDateTime;
 public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     private final SolicitudProyectoRepository solicitudProyectoRepository;
+    private final ProyectoRepository proyectoRepository;
     private final SpringTemplateEngine templateEngine;
+    private final NotificacionService notificacionService;
 
     public SolicitudProyectoServiceImpl(SolicitudProyectoRepository solicitudProyectoRepository,
-            SpringTemplateEngine templateEngine) {
+            ProyectoRepository proyectoRepository,
+            SpringTemplateEngine templateEngine,
+            NotificacionService notificacionService) {
         this.solicitudProyectoRepository = solicitudProyectoRepository;
+        this.proyectoRepository = proyectoRepository;
         this.templateEngine = templateEngine;
+        this.notificacionService = notificacionService;
     }
 
     @Override
@@ -181,7 +191,32 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
                     "La solicitud de proyecto debe contener al menos un argumento en Observaciones");
         }
 
-        return solicitudProyectoRepository.save(solicitudProyecto);
+        SolicitudProyecto solicitudGuardada = solicitudProyectoRepository.save(solicitudProyecto);
+        
+        // Notificar al creador de la solicitud si el estado cambió a RECH u OBS
+        if (solicitudProyecto.getIdUserCreador() != null) {
+            String codigoEstadoNuevo = solicitudProyecto.getCodigoEstado();
+            String codigoEstadoAnterior = solicitudProyectoBD.getCodigoEstado();
+            
+            // Solo notificar si el estado realmente cambió
+            if (!codigoEstadoNuevo.equals(codigoEstadoAnterior)) {
+                if ("RECH".equals(codigoEstadoNuevo)) {
+                    notificacionService.notificarSolicitudRechazada(
+                        solicitudProyecto.getIdUserCreador(),
+                        solicitudProyecto.getIdSolicitud(),
+                        solicitudProyecto.getObservaciones()
+                    );
+                } else if ("OBS".equals(codigoEstadoNuevo)) {
+                    notificacionService.notificarSolicitudConObservaciones(
+                        solicitudProyecto.getIdUserCreador(),
+                        solicitudProyecto.getIdSolicitud(),
+                        solicitudProyecto.getObservaciones()
+                    );
+                }
+            }
+        }
+        
+        return solicitudGuardada;
     }
 
     @Override
@@ -326,5 +361,113 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
         } catch (Exception e) {
             throw new RuntimeException("Error al generar el reporte PDF", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public AprobacionSolicitudResponse aprobarYCrearProyecto(Long idSolicitud, Long idAdmin, String observaciones, String codigoEstadoProyecto) {
+        // 1. Buscar la solicitud
+        SolicitudProyecto solicitud = solicitudProyectoRepository.findById(idSolicitud)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la solicitud con ID: " + idSolicitud));
+
+        // 2. Validar que la solicitud no esté ya aprobada
+        if ("APRO".equals(solicitud.getCodigoEstado())) {
+            throw new IllegalStateException("La solicitud ya fue aprobada anteriormente.");
+        }
+
+        // 3. Validar que no exista ya un proyecto para esta solicitud
+        if (existeProyectoParaSolicitud(idSolicitud)) {
+            throw new IllegalStateException("Ya existe un proyecto creado a partir de esta solicitud.");
+        }
+
+        // 4. Validar que no exista un proyecto con el mismo título
+        if (proyectoRepository.existsByTituloIgnoreCase(solicitud.getTitulo())) {
+            throw new IllegalStateException("Ya existe un proyecto con el título: " + solicitud.getTitulo());
+        }
+
+        // 5. Actualizar el estado de la solicitud a APROBADO
+        solicitud.setCodigoEstado("APRO");
+        solicitud.setIdAdminRevisor(idAdmin);
+        solicitud.setFechaRevision(LocalDateTime.now());
+        if (observaciones != null && !observaciones.trim().isEmpty()) {
+            solicitud.setObservaciones(observaciones);
+        }
+
+        SolicitudProyecto solicitudAprobada = solicitudProyectoRepository.save(solicitud);
+
+        // 6. Crear el proyecto automáticamente
+        Proyecto proyecto = new Proyecto();
+        proyecto.setTitulo(solicitud.getTitulo());
+        proyecto.setDescripcion(solicitud.getDescripcion());
+        proyecto.setRequisitos(solicitud.getRequisitos());
+        proyecto.setFechaInicio(solicitud.getFechaInicio());
+        proyecto.setFechaFin(solicitud.getFechaFin());
+        proyecto.setDuracion(solicitud.getDuracion());
+        proyecto.setMaxEstudiantes(solicitud.getMaxEstudiantes());
+        proyecto.setDireccionDetallada(solicitud.getDireccionDetallada());
+        proyecto.setIdEmpresa(solicitud.getIdEmpresa());
+        proyecto.setCodigoDepartamento(solicitud.getCodigoDepartamento());
+        proyecto.setCodigoMunicipio(solicitud.getCodigoMunicipio());
+        proyecto.setCodigoCarrera(solicitud.getCodigoCarrera());
+        proyecto.setCodigoModalidad(solicitud.getCodigoModalidad());
+        proyecto.setIdAdministrador(idAdmin);
+        proyecto.setCodigoEstado(codigoEstadoProyecto != null ? codigoEstadoProyecto : "DIS"); // Disponible por defecto
+        proyecto.setIdSolicitudOrigen(idSolicitud);
+        proyecto.setFechaCreacion(null); // Se auto-genera en BD
+
+        Proyecto proyectoCreado = proyectoRepository.save(proyecto);
+
+        // 7. Crear notificación para el usuario que creó la solicitud
+        if (solicitud.getIdUserCreador() != null) {
+            notificacionService.notificarSolicitudAprobada(
+                solicitud.getIdUserCreador(),
+                idSolicitud,
+                solicitud.getTitulo()
+            );
+        }
+
+        return new AprobacionSolicitudResponse(solicitudAprobada, proyectoCreado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeProyectoParaSolicitud(Long idSolicitud) {
+        return proyectoRepository.existsByIdSolicitudOrigen(idSolicitud);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByEstado(String codigoEstado) {
+        return solicitudProyectoRepository.countByCodigoEstado(codigoEstado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findUnassigned() {
+        return solicitudProyectoRepository.findUnassigned();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countUnassigned() {
+        return solicitudProyectoRepository.countUnassigned();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findBandejaEntrada(Long idAdmin) {
+        return solicitudProyectoRepository.findBandejaEntrada(idAdmin);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countBandejaEntrada(Long idAdmin) {
+        return solicitudProyectoRepository.countBandejaEntrada(idAdmin);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findByAdminRevisor(Long idAdmin) {
+        return solicitudProyectoRepository.findByIdAdminRevisor(idAdmin);
     }
 }

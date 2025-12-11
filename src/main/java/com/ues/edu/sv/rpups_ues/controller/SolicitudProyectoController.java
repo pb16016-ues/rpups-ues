@@ -5,6 +5,8 @@ import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
+import com.ues.edu.sv.rpups_ues.model.DTO.AprobacionSolicitudDTO;
+import com.ues.edu.sv.rpups_ues.model.DTO.AprobacionSolicitudResponse;
 import com.ues.edu.sv.rpups_ues.service.CarreraService;
 import com.ues.edu.sv.rpups_ues.service.DepartamentoCarreraService;
 import com.ues.edu.sv.rpups_ues.service.EmailService;
@@ -21,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,17 +78,81 @@ public class SolicitudProyectoController {
         return solicitud.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/titulo/{titulo}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByTitulo(@PathVariable String titulo) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByTitulo(titulo);
-        return ResponseEntity.ok(solicitudes);
-    }
-
     @GetMapping("/estado/{codigoEstado}")
     @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEstado(@PathVariable String codigoEstado) {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByEstado(codigoEstado);
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Endpoint optimizado para obtener solo el conteo de solicitudes por estado.
+     * Ideal para badges y notificaciones en el TabMenu.
+     */
+    @GetMapping("/count/estado/{codigoEstado}")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<Map<String, Object>> getCountByEstado(@PathVariable String codigoEstado) {
+        long count = solicitudProyectoService.countByEstado(codigoEstado);
+        Map<String, Object> response = new HashMap<>();
+        response.put("codigoEstado", codigoEstado);
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Solicitudes sin asignar (sin admin revisor).
+     * Para la pestaña "Sin Asignar".
+     */
+    @GetMapping("/sin-asignar")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesSinAsignar() {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findUnassigned();
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Conteo de solicitudes sin asignar.
+     */
+    @GetMapping("/count/sin-asignar")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<Map<String, Object>> getCountSinAsignar() {
+        long count = solicitudProyectoService.countUnassigned();
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Bandeja de entrada: solicitudes asignadas al admin que NO están cerradas (APRO o RECH).
+     * Para la pestaña "Bandeja de entrada".
+     */
+    @GetMapping("/bandeja-entrada/{idAdmin}")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<List<SolicitudProyecto>> getBandejaEntrada(@PathVariable Long idAdmin) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findBandejaEntrada(idAdmin);
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Conteo de bandeja de entrada de un admin.
+     */
+    @GetMapping("/count/bandeja-entrada/{idAdmin}")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<Map<String, Object>> getCountBandejaEntrada(@PathVariable Long idAdmin) {
+        long count = solicitudProyectoService.countBandejaEntrada(idAdmin);
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Todas las solicitudes asignadas a un admin (sin importar estado).
+     * Para la pestaña "Solicitudes".
+     */
+    @GetMapping("/mis-solicitudes/{idAdmin}")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<List<SolicitudProyecto>> getMisSolicitudes(@PathVariable Long idAdmin) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByAdminRevisor(idAdmin);
         return ResponseEntity.ok(solicitudes);
     }
 
@@ -95,20 +163,6 @@ public class SolicitudProyectoController {
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
         Page<SolicitudProyecto> solicitudes = solicitudProyectoService.findByEmpresa(idEmpresa,
                 PageRequest.of(page, size));
-        return ResponseEntity.ok(solicitudes);
-    }
-
-    @GetMapping("/carrera/{codigoCarrera}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByCarrera(@PathVariable String codigoCarrera) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByCarrera(codigoCarrera);
-        return ResponseEntity.ok(solicitudes);
-    }
-
-    @GetMapping("/modalidad/{codigoModalidad}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByModalidad(@PathVariable String codigoModalidad) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByModalidad(codigoModalidad);
         return ResponseEntity.ok(solicitudes);
     }
 
@@ -130,35 +184,6 @@ public class SolicitudProyectoController {
         Page<SolicitudProyecto> result = solicitudProyectoService.findByUserCreador(idUsuario,
                 PageRequest.of(page, size));
         return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
-    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByEmpresaAndEstado(
-            @PathVariable Long idEmpresa, @PathVariable String codigoEstado) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService
-                .findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
-        return ResponseEntity.ok(solicitudes);
-    }
-
-    @GetMapping("/carrera/{codigoCarrera}/estado/{codigoEstado}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByCarreraAndEstado(
-            @PathVariable String codigoCarrera, @PathVariable String codigoEstado) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findByCarreraCodigoAndEstadoCodigoEstado(
-                codigoCarrera,
-                codigoEstado);
-        return ResponseEntity.ok(solicitudes);
-    }
-
-    @GetMapping("/modalidad/{codigoModalidad}/estado/{codigoEstado}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesByModalidadAndEstado(
-            @PathVariable String codigoModalidad, @PathVariable String codigoEstado) {
-        List<SolicitudProyecto> solicitudes = solicitudProyectoService
-                .findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
-                        codigoEstado);
-        return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/search-filters")
@@ -327,6 +352,97 @@ public class SolicitudProyectoController {
         }
         solicitudProyectoService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Aprueba una solicitud de proyecto y crea automáticamente el proyecto correspondiente.
+     * Este endpoint realiza dos operaciones en una transacción:
+     * 1. Cambia el estado de la solicitud a APROBADO
+     * 2. Crea un nuevo proyecto con los datos de la solicitud
+     * 
+     * @param idSolicitud ID de la solicitud a aprobar
+     * @param dto DTO con observaciones opcionales y estado inicial del proyecto
+     * @return La solicitud aprobada junto con el proyecto creado
+     */
+    @PostMapping("/{idSolicitud}/aprobar")
+    @Secured({ "ADMIN", "COORD" })
+    public ResponseEntity<?> aprobarSolicitudYCrearProyecto(
+            @PathVariable Long idSolicitud,
+            @RequestBody(required = false) AprobacionSolicitudDTO dto) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Obtener el ID del usuario autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long idAdmin = Long.parseLong(authentication.getName());
+
+            String observaciones = dto != null ? dto.getObservaciones() : null;
+            String codigoEstadoProyecto = dto != null && dto.getCodigoEstadoProyecto() != null 
+                    ? dto.getCodigoEstadoProyecto() 
+                    : "DIS";
+
+            AprobacionSolicitudResponse resultado = solicitudProyectoService.aprobarYCrearProyecto(
+                    idSolicitud, idAdmin, observaciones, codigoEstadoProyecto);
+
+            // Enviar notificación por email
+            SolicitudProyecto solicitudAprobada = resultado.getSolicitud();
+            
+            // Notificar al creador de la solicitud
+            emailService.sendNotificationSolicitudProyectoEmail(
+                    solicitudAprobada.getUserCreador().getCorreoInstitucional(),
+                    "Aprobado",
+                    "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado. " +
+                    (observaciones != null ? "Observaciones: " + observaciones : ""));
+
+            // Notificar al correo personal si existe y es diferente
+            if (solicitudAprobada.getUserCreador().getCorreoPersonal() != null
+                    && !solicitudAprobada.getUserCreador().getCorreoInstitucional()
+                            .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
+                emailService.sendNotificationSolicitudProyectoEmail(
+                        solicitudAprobada.getUserCreador().getCorreoPersonal(),
+                        "Aprobado",
+                        "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
+            }
+
+            // Notificar a la empresa si el correo es diferente
+            if (solicitudAprobada.getEmpresa() != null 
+                    && solicitudAprobada.getEmpresa().getContactoEmail() != null
+                    && !solicitudAprobada.getEmpresa().getContactoEmail()
+                            .equals(solicitudAprobada.getUserCreador().getCorreoInstitucional())
+                    && !solicitudAprobada.getEmpresa().getContactoEmail()
+                            .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
+                emailService.sendNotificationSolicitudProyectoEmail(
+                        solicitudAprobada.getEmpresa().getContactoEmail(),
+                        "Aprobado",
+                        "La solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
+
+        } catch (IllegalArgumentException e) {
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (IllegalStateException e) {
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al aprobar la solicitud: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * Verifica si ya existe un proyecto creado a partir de una solicitud específica.
+     */
+    @GetMapping("/{idSolicitud}/tiene-proyecto")
+    @Secured({ "ADMIN", "COORD", "SUP" })
+    public ResponseEntity<Map<String, Object>> verificarProyectoExistente(@PathVariable Long idSolicitud) {
+        Map<String, Object> response = new HashMap<>();
+        boolean existe = solicitudProyectoService.existeProyectoParaSolicitud(idSolicitud);
+        response.put("existeProyecto", existe);
+        response.put("idSolicitud", idSolicitud);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/report-estado")

@@ -46,6 +46,18 @@ public interface ProyectoService {
 
     Page<Proyecto> findProyectoByFiltrosWithEstadoDisponible(String filter, Long idDeptoCarrera, Pageable pageable);
 
+    /**
+     * Busca proyectos disponibles para el banco público con filtros avanzados.
+     * 
+     * @param filter Texto de búsqueda (título o empresa)
+     * @param codigoCarrera Código de carrera (opcional)
+     * @param codigoModalidad Código de modalidad (opcional)
+     * @param pageable Paginación
+     * @return Página de proyectos disponibles
+     */
+    Page<Proyecto> findProyectosDisponiblesPublicos(String filter, String codigoCarrera, 
+            String codigoModalidad, Pageable pageable);
+
     Proyecto save(Proyecto proyecto);
 
     void deleteById(Long idProyecto);
@@ -58,6 +70,18 @@ public interface ProyectoService {
 
     byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
             String codigoCarrera, String nombreCarrera);
+
+    /**
+     * Genera un reporte PDF con los proyectos disponibles (estado DIS).
+     * Este método es público y no requiere autenticación.
+     * 
+     * @param codigoCarrera Código de carrera para filtrar (opcional)
+     * @param codigoModalidad Código de modalidad para filtrar (opcional)
+     * @param busqueda Texto de búsqueda (opcional)
+     * @return byte[] con el contenido del PDF
+     */
+    byte[] generarReporteProyectosDisponibles(String codigoCarrera, String nombreCarrera,
+            String codigoModalidad, String nombreModalidad, String busqueda);
 
     boolean existsByTituloIgnoreCase(String titulo);
 }

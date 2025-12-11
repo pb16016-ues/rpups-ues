@@ -88,7 +88,7 @@ Retorna objeto `Page<T>` con:
    - `PUT /api/solicitudes-proyectos/admin/{id}` - Cualquiera puede aprobar/rechazar
 
 2. **Inconsistencias en nombres de roles**:
-   - Algunos usan `"EST"`, otros `"ESTUD"`
+   - Algunos usan `"ESTUD"`, otros `"ESTUD"`
    - Debe unificarse según la tabla `roles`
 
 ### Diseño

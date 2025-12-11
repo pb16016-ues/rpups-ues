@@ -105,9 +105,17 @@ public class JWTServiceImpl implements JWTService {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(String token) throws IOException {
         Object roles = getClaims(token).get("authorities");
-        return Arrays.asList(new ObjectMapper()
+        log.info("Raw authorities from token: '{}' - Type: {}", roles, roles != null ? roles.getClass().getName() : "null");
+        String rolesString = roles.toString();
+        log.info("Authorities as string: '{}'", rolesString);
+        SimpleGrantedAuthority[] parsedAuthorities = new ObjectMapper()
                 .addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class)
-                .readValue(roles.toString().getBytes(), SimpleGrantedAuthority[].class));
+                .readValue(rolesString.getBytes(), SimpleGrantedAuthority[].class);
+        log.info("Parsed authorities count: {}", parsedAuthorities.length);
+        for (SimpleGrantedAuthority auth : parsedAuthorities) {
+            log.info("Parsed authority: '{}'", auth.getAuthority());
+        }
+        return Arrays.asList(parsedAuthorities);
     }
 
     @Override

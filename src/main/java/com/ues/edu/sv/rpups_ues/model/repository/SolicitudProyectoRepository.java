@@ -82,4 +82,44 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
                         @Param("codigoCarrera") String codigoCarrera);
 
         Page<SolicitudProyecto> findByCodigoEstado(String codigoEstado, Pageable pageable);
+
+        /**
+         * Cuenta solicitudes por código de estado.
+         */
+        long countByCodigoEstado(String codigoEstado);
+
+        /**
+         * Solicitudes sin asignar (idAdminRevisor es null)
+         */
+        @Query("SELECT s FROM SolicitudProyecto s WHERE s.idAdminRevisor IS NULL")
+        List<SolicitudProyecto> findUnassigned();
+
+        /**
+         * Cuenta solicitudes sin asignar
+         */
+        @Query("SELECT COUNT(s) FROM SolicitudProyecto s WHERE s.idAdminRevisor IS NULL")
+        long countUnassigned();
+
+        /**
+         * Bandeja de entrada: solicitudes asignadas al admin que NO están cerradas (APRO o RECH)
+         */
+        @Query("SELECT s FROM SolicitudProyecto s WHERE s.idAdminRevisor = :idAdmin AND s.codigoEstado NOT IN ('APRO', 'RECH')")
+        List<SolicitudProyecto> findBandejaEntrada(@Param("idAdmin") Long idAdmin);
+
+        /**
+         * Cuenta bandeja de entrada
+         */
+        @Query("SELECT COUNT(s) FROM SolicitudProyecto s WHERE s.idAdminRevisor = :idAdmin AND s.codigoEstado NOT IN ('APRO', 'RECH')")
+        long countBandejaEntrada(@Param("idAdmin") Long idAdmin);
+
+        /**
+         * Todas las solicitudes asignadas (tienen idAdminRevisor)
+         */
+        @Query("SELECT s FROM SolicitudProyecto s WHERE s.idAdminRevisor IS NOT NULL")
+        List<SolicitudProyecto> findAllAsignadas();
+
+        /**
+         * Todas las solicitudes asignadas a un admin específico
+         */
+        List<SolicitudProyecto> findByIdAdminRevisor(Long idAdminRevisor);
 }

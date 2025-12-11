@@ -29,24 +29,54 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
+        log.info("========================================");
+        log.info("=== JWT Authorization Filter START ===");
+        log.info("URI: {} | Method: {}", request.getRequestURI(), request.getMethod());
+        
+        // Probar ambas variantes del header (case-insensitive según HTTP spec)
         String header = request.getHeader(JWTServiceImpl.HEADER_STRING);
+        String headerCaps = request.getHeader("Authorization");
+        
+        log.info("Header 'authorization': {}", header != null ? "PRESENTE" : "NULL");
+        log.info("Header 'Authorization': {}", headerCaps != null ? "PRESENTE" : "NULL");
+        
+        // Usar el que esté disponible
+        String tokenHeader = header != null ? header : headerCaps;
+        
+        if (tokenHeader != null) {
+            log.info("Token (primeros 60 chars): {}", tokenHeader.substring(0, Math.min(60, tokenHeader.length())));
+        } else {
+            log.warn("NO HAY TOKEN EN EL REQUEST");
+        }
 
-        if (!jwtService.requiresAuthentication(header)) {
+        if (!jwtService.requiresAuthentication(tokenHeader)) {
+            log.info("Token no presente o formato incorrecto, continuando sin autenticar");
             chain.doFilter(request, response);
             return;
         }
-        log.info(request.getRequestURI() + "    " + header);
-        log.info(request.getRequestURI() + "    " + jwtService.getAuthorities(header).toString());
+        
+        log.info("Token presente con formato Bearer, validando...");
 
         UsernamePasswordAuthenticationToken authenticationToken = null;
-        if (jwtService.validate(header)) {
-            authenticationToken = new UsernamePasswordAuthenticationToken(jwtService.getId(header), null,
-                    jwtService.getAuthorities(header));
+        try {
+            if (jwtService.validate(tokenHeader)) {
+                var authorities = jwtService.getAuthorities(tokenHeader);
+                log.info("Token VÁLIDO - Authorities: {}", authorities);
+                
+                authenticationToken = new UsernamePasswordAuthenticationToken(
+                    jwtService.getId(tokenHeader), null, authorities);
+                log.info("Authentication creada - Principal: {}, Authorities: {}", 
+                    authenticationToken.getPrincipal(), authenticationToken.getAuthorities());
+            } else {
+                log.warn("Token INVÁLIDO");
+            }
+        } catch (Exception e) {
+            log.error("ERROR procesando token: {}", e.getMessage(), e);
         }
 
-        log.info(jwtService.getAuthorities(header).toString());
-
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        log.info("SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
+        log.info("=== JWT Authorization Filter END ===");
         chain.doFilter(request, response);
     }
 

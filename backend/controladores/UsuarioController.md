@@ -166,7 +166,7 @@
 | ID | Problema | Ubicación |
 |----|----------|-----------|
 | U-04 | No valida que usuario solo edite su propio perfil | `PUT /{idUsuario}` |
-| U-05 | Rol "EST" vs "ESTUD" inconsistente | Línea 83 |
+| U-05 | Rol "ESTUD" vs "ESTUD" inconsistente | Línea 83 |
 | U-06 | No hay validación @Valid en registro | `POST /register` |
 
 ### Mejoras Sugeridas
@@ -186,7 +186,7 @@
    public ResponseEntity<Usuario> createUsuario(@Valid @RequestBody Usuario usuario)
    ```
 
-4. **Unificar roles**: Cambiar "EST" a "ESTUD" en todas las anotaciones.
+4. **Unificar roles**: Cambiar "ESTUD" a "ESTUD" en todas las anotaciones.
 
 ---
 

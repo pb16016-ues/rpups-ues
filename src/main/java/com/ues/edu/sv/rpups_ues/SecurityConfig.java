@@ -47,20 +47,36 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        return httpSecurity.authorizeHttpRequests(auth -> {
-            auth.requestMatchers(
-                    "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**",
-                    "/api/proyectos/public/**", "/api/usuarios/register/**", "/api/v1/password-reset/request/**",
-                    "/api/usuarios/repres-empresa/**", "/api/deptos-carreras/deptos/**", "/api/carreras/by-depto/**")
-                    .permitAll()
-                    .anyRequest().authenticated();
-        })
+        return httpSecurity
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(
+                            "/api/v1/**", "/swagger-ui/**", "/bus/v3/api-docs/**", "/v3/api-docs/**",
+                            "/api/proyectos/public/**", "/api/usuarios/register", "/api/usuarios/register/**", 
+                            "/api/v1/password-reset/request/**", "/api/usuarios/repres-empresa", "/api/usuarios/repres-empresa/**", 
+                            "/api/deptos-carreras/deptos/**", "/api/carreras/by-depto/**",
+                            "/error")  // Permitir acceso a /error para que los errores se propaguen correctamente
+                            .permitAll()
+                            .anyRequest().authenticated();
+                })
                 .addFilter(
                         new JWTAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
                 .addFilter(
                         new JWTAuthorizationFilter(authenticationConfiguration.getAuthenticationManager(), jwtService))
-                .cors().and()
-                .csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .cors(cors -> cors.configure(httpSecurity))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        response.setStatus(401);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\": \"No autorizado\", \"message\": \"" + authException.getMessage() + "\"}");
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                        response.setStatus(403);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\": \"Acceso denegado\", \"message\": \"" + accessDeniedException.getMessage() + "\"}");
+                    })
+                )
                 .build();
     }
     /*

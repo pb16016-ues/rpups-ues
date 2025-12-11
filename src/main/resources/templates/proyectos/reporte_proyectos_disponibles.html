@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="file:src/main/resources/static/css/reportes.css"/>
+</head>
+<body>
+    <div class="header-flex only-first-page">
+        <img src="file:src/main/resources/static/img/logo_izquierdo.png" class="logo logo-left"/>
+        <h1>Banco de Proyectos Disponibles</h1>
+        <p class="subtitle">Unidad de Proyección Social - UES FMOcc</p>
+    </div>
+    
+    <div class="info-box" th:if="${filtros != null}">
+        <p><strong>Filtros aplicados:</strong></p>
+        <ul>
+            <li th:if="${filtros.carrera != null}">Carrera: [[${filtros.carrera}]]</li>
+            <li th:if="${filtros.modalidad != null}">Modalidad: [[${filtros.modalidad}]]</li>
+            <li th:if="${filtros.busqueda != null}">Búsqueda: [[${filtros.busqueda}]]</li>
+        </ul>
+    </div>
+    
+    <p class="total-count">Total de proyectos: [[${proyectos.size()}]]</p>
+    
+    <table>
+        <thead>
+        <tr>
+            <th>Título</th>
+            <th>Empresa</th>
+            <th>Carrera</th>
+            <th>Modalidad</th>
+            <th>Duración</th>
+            <th>Cupos</th>
+            <th>Fecha Inicio</th>
+            <th>Ubicación</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="proyecto : ${proyectos}">
+            <td th:text="${proyecto.titulo}"></td>
+            <td th:text="${proyecto.empresa.nombreComercial}"></td>
+            <td th:text="${proyecto.carrera.nombre}"></td>
+            <td th:text="${proyecto.modalidad.nombre}"></td>
+            <td th:text="${proyecto.duracion} + ' horas'"></td>
+            <td th:text="${proyecto.maxEstudiantes}"></td>
+            <td th:text="${proyecto.fechaInicio}"></td>
+            <td th:text="${proyecto.departamento.nombre + ', ' + proyecto.municipio.nombre}"></td>
+        </tr>
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <hr class="footer-line"/>
+        <div class="footer-content">
+            <span class="footer-text">
+                Repositorio de Proyectos de la Unidad de Proyección Social - UES FMOcc
+            </span>
+            <span class="footer-page"></span>
+        </div>
+    </div>
+</body>
+</html>

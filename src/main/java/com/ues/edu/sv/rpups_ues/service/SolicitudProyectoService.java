@@ -1,5 +1,6 @@
 package com.ues.edu.sv.rpups_ues.service;
 
+import com.ues.edu.sv.rpups_ues.model.DTO.AprobacionSolicitudResponse;
 import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 
 import java.util.List;
@@ -58,4 +59,57 @@ public interface SolicitudProyectoService {
 
         byte[] generarReportePorDeptoCarreraYCarrera(Long idDeptoCarrera, String nombreDeptoCarrera,
                         String codigoCarrera, String nombreCarrera);
+
+        /**
+         * Aprueba una solicitud de proyecto y crea automáticamente el proyecto correspondiente.
+         * @param idSolicitud ID de la solicitud a aprobar
+         * @param idAdmin ID del administrador que aprueba
+         * @param observaciones Observaciones opcionales
+         * @param codigoEstadoProyecto Código de estado inicial del proyecto (por defecto DISP)
+         * @return DTO con la solicitud aprobada y el proyecto creado
+         */
+        AprobacionSolicitudResponse aprobarYCrearProyecto(Long idSolicitud, Long idAdmin, String observaciones, String codigoEstadoProyecto);
+
+        /**
+         * Verifica si ya existe un proyecto creado a partir de una solicitud.
+         * @param idSolicitud ID de la solicitud
+         * @return true si ya existe un proyecto, false en caso contrario
+         */
+        boolean existeProyectoParaSolicitud(Long idSolicitud);
+
+        /**
+         * Cuenta las solicitudes por código de estado.
+         * Optimizado para badges/notificaciones sin cargar datos completos.
+         * @param codigoEstado Código del estado (PEND, REV, APRO, RECH, OBS)
+         * @return Número de solicitudes con ese estado
+         */
+        long countByEstado(String codigoEstado);
+
+        /**
+         * Obtiene solicitudes sin asignar (sin admin revisor).
+         * Para la pestaña "Sin Asignar".
+         */
+        List<SolicitudProyecto> findUnassigned();
+
+        /**
+         * Cuenta solicitudes sin asignar.
+         */
+        long countUnassigned();
+
+        /**
+         * Obtiene la bandeja de entrada de un admin (asignadas y no cerradas).
+         * Para la pestaña "Bandeja de entrada".
+         */
+        List<SolicitudProyecto> findBandejaEntrada(Long idAdmin);
+
+        /**
+         * Cuenta la bandeja de entrada de un admin.
+         */
+        long countBandejaEntrada(Long idAdmin);
+
+        /**
+         * Obtiene todas las solicitudes asignadas a un admin.
+         * Para la pestaña "Solicitudes".
+         */
+        List<SolicitudProyecto> findByAdminRevisor(Long idAdmin);
 }

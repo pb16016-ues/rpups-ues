@@ -26,7 +26,15 @@ public interface UsuarioService {
 
     Optional<Usuario> findByCorreoPersonal(String correoPersonal);
 
-    Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, Pageable pageable);
+    /**
+     * Busca usuarios con filtros opcionales.
+     * @param filter Texto a buscar en nombres, apellidos, carnet, correos
+     * @param idDeptoCarrera ID del departamento (opcional)
+     * @param codigoRol Código del rol para filtrar (opcional)
+     * @param pageable Paginación
+     * @return Página de usuarios que coinciden con los filtros
+     */
+    Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, String codigoRol, Pageable pageable);
 
     Usuario createUsuario(Usuario usuario);
 

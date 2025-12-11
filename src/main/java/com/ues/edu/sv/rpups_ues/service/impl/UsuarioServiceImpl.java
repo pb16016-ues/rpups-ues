@@ -77,8 +77,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, Pageable pageable) {
-        return usuarioRepository.searchByAnyField(filter, idDeptoCarrera, pageable);
+    public Page<Usuario> findUsuarioByFiltros(String filter, Long idDeptoCarrera, String codigoRol, Pageable pageable) {
+        return usuarioRepository.searchByAnyField(filter, idDeptoCarrera, codigoRol, pageable);
     }
 
     @Override

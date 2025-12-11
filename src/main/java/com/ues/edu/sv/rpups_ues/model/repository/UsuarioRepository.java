@@ -31,8 +31,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         @Query("SELECT u FROM Usuario u " +
                         "WHERE u.estadoActivo = true " +
                         "AND (:idDeptoCarrera IS NULL OR u.idDeptoCarrera = :idDeptoCarrera) " +
+                        "AND (:codigoRol IS NULL OR u.codigoRol = :codigoRol) " +
                         "AND (" +
-                        "(:filter IS NULL) " +
+                        "(:filter IS NULL OR :filter = '') " +
                         "OR LOWER(u.nombres) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(u.apellidos) LIKE LOWER(CONCAT('%', :filter, '%')) " +
                         "OR LOWER(u.carnet) LIKE LOWER(CONCAT('%', :filter, '%')) " +
@@ -42,6 +43,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         Page<Usuario> searchByAnyField(
                         @Param("filter") String filter,
                         @Param("idDeptoCarrera") Long idDeptoCarrera,
+                        @Param("codigoRol") String codigoRol,
                         Pageable pageable);
 
         boolean existsByCorreoInstitucional(String correoInstitucional);

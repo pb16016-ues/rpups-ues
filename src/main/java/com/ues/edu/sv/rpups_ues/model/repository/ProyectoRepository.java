@@ -90,4 +90,54 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
 
         @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Proyecto p WHERE LOWER(p.titulo) = LOWER(:titulo)")
         boolean existsByTituloIgnoreCase(@Param("titulo") String titulo);
+
+        /**
+         * Verifica si existe un proyecto creado a partir de una solicitud específica.
+         */
+        boolean existsByIdSolicitudOrigen(Long idSolicitudOrigen);
+
+        /**
+         * Busca un proyecto por su solicitud de origen.
+         */
+        Proyecto findByIdSolicitudOrigen(Long idSolicitudOrigen);
+
+        /**
+         * Cuenta proyectos por código de estado.
+         */
+        long countByCodigoEstado(String codigoEstado);
+
+        /**
+         * Busca proyectos disponibles (estado DIS) con filtros opcionales.
+         * Este método es usado para el reporte público de proyectos disponibles.
+         */
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE p.estado.codigoEstado = 'DIS' " +
+                        "AND (:codigoCarrera IS NULL OR p.carrera.codigo = :codigoCarrera) " +
+                        "AND (:codigoModalidad IS NULL OR p.modalidad.codigoModalidad = :codigoModalidad) " +
+                        "AND (:busqueda IS NULL OR :busqueda = '' " +
+                        "     OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :busqueda, '%')) " +
+                        "     OR LOWER(p.empresa.nombreComercial) LIKE LOWER(CONCAT('%', :busqueda, '%'))) " +
+                        "ORDER BY p.fechaInicio DESC")
+        List<Proyecto> findProyectosDisponiblesConFiltros(
+                        @Param("codigoCarrera") String codigoCarrera,
+                        @Param("codigoModalidad") String codigoModalidad,
+                        @Param("busqueda") String busqueda);
+
+        /**
+         * Busca proyectos disponibles (estado DIS) para el banco público con paginación.
+         * Usado por el endpoint /public/search
+         */
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE p.estado.codigoEstado = 'DIS' " +
+                        "AND (:codigoCarrera IS NULL OR :codigoCarrera = '' OR p.carrera.codigo = :codigoCarrera) " +
+                        "AND (:codigoModalidad IS NULL OR :codigoModalidad = '' OR p.modalidad.codigoModalidad = :codigoModalidad) " +
+                        "AND (:filter IS NULL OR :filter = '' " +
+                        "     OR LOWER(p.titulo) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+                        "     OR LOWER(p.empresa.nombreComercial) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+                        "ORDER BY p.fechaInicio DESC")
+        Page<Proyecto> searchProyectosDisponiblesPublicos(
+                        @Param("filter") String filter,
+                        @Param("codigoCarrera") String codigoCarrera,
+                        @Param("codigoModalidad") String codigoModalidad,
+                        Pageable pageable);
 }

@@ -55,29 +55,8 @@ public class UsuarioController {
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/carnet/{carnet}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Usuario> getUsuarioByCarnet(@PathVariable String carnet) {
-        Optional<Usuario> usuario = usuarioService.findByCarnet(carnet);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/correo-institucional/{correoInstitucional}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Usuario> getUsuarioByCorreoInstitucional(@PathVariable String correoInstitucional) {
-        Optional<Usuario> usuario = usuarioService.findByCorreoInstitucional(correoInstitucional);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/correo-personal/{correoPersonal}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Usuario> getUsuarioByCorreoPersonal(@PathVariable String correoPersonal) {
-        Optional<Usuario> usuario = usuarioService.findByCorreoPersonal(correoPersonal);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/search-user/{searchTerm}")
-    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "EST" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "ESTUD" })
     public ResponseEntity<Page<Usuario>> getUsuariosByNombresOrApellidos(@PathVariable String searchTerm,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
@@ -86,10 +65,11 @@ public class UsuarioController {
     }
 
     @GetMapping("/search-filters")
-    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "EST" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "ESTUD" })
     public ResponseEntity<Page<Usuario>> getUsuariosByFiltros(
             @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
-            @RequestParam(name = "idDeptoCarrera", defaultValue = "", required = true) Long idDeptoCarrera,
+            @RequestParam(name = "idDeptoCarrera", required = false) Long idDeptoCarrera,
+            @RequestParam(name = "codigoRol", required = false) String codigoRol,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
 
@@ -98,7 +78,7 @@ public class UsuarioController {
         }
 
         return new ResponseEntity<>(
-                usuarioService.findUsuarioByFiltros(filter, idDeptoCarrera, PageRequest.of(page, size)),
+                usuarioService.findUsuarioByFiltros(filter, idDeptoCarrera, codigoRol, PageRequest.of(page, size)),
                 HttpStatus.OK);
     }
 

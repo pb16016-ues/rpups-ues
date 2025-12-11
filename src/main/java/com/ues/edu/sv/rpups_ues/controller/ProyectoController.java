@@ -5,9 +5,11 @@ import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
 import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
+import com.ues.edu.sv.rpups_ues.model.entity.Modalidad;
 import com.ues.edu.sv.rpups_ues.service.CarreraService;
 import com.ues.edu.sv.rpups_ues.service.DepartamentoCarreraService;
 import com.ues.edu.sv.rpups_ues.service.EstadoService;
+import com.ues.edu.sv.rpups_ues.service.ModalidadService;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
 import com.ues.edu.sv.rpups_ues.service.EmpresaService;
 
@@ -20,12 +22,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ContentDisposition;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import jakarta.annotation.security.PermitAll;
 
-import java.util.List;
 import java.util.Optional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -37,15 +38,17 @@ public class ProyectoController {
     private final CarreraService carreraService;
     private final DepartamentoCarreraService deptoCarreraService;
     private final EmpresaService empresaService;
+    private final ModalidadService modalidadService;
 
     public ProyectoController(ProyectoService proyectoService, EstadoService estadoService,
             CarreraService carreraService, DepartamentoCarreraService deptoCarreraService,
-            EmpresaService empresaService) {
+            EmpresaService empresaService, ModalidadService modalidadService) {
         this.proyectoService = proyectoService;
         this.estadoService = estadoService;
         this.carreraService = carreraService;
         this.deptoCarreraService = deptoCarreraService;
         this.empresaService = empresaService;
+        this.modalidadService = modalidadService;
     }
 
     @GetMapping
@@ -73,73 +76,12 @@ public class ProyectoController {
         return proyecto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/titulo/{titulo}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByTitulo(@PathVariable String titulo) {
-        List<Proyecto> proyectos = proyectoService.findByTitulo(titulo);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByEstado(@PathVariable String codigoEstado) {
-        List<Proyecto> proyectos = proyectoService.findByEstado(codigoEstado);
-        return ResponseEntity.ok(proyectos);
-    }
-
     @GetMapping("/empresa/{idEmpresa}")
     @PermitAll
     public ResponseEntity<Page<Proyecto>> getProyectosByEmpresa(@PathVariable Long idEmpresa,
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
         Page<Proyecto> proyectos = proyectoService.findByEmpresa(idEmpresa, PageRequest.of(page, size));
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/carrera/{codigoCarrera}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByCarrera(@PathVariable String codigoCarrera) {
-        List<Proyecto> proyectos = proyectoService.findByCarrera(codigoCarrera);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/modalidad/{codigoModalidad}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByModalidad(@PathVariable String codigoModalidad) {
-        List<Proyecto> proyectos = proyectoService.findByModalidad(codigoModalidad);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/admin-aprobador/{idUsuario}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByAdministradorAprobador(@PathVariable Long idUsuario) {
-        List<Proyecto> proyectos = proyectoService.findByAdministradorAprobador(idUsuario);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/empresa/{idEmpresa}/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByEmpresaAndEstado(
-            @PathVariable Long idEmpresa, @PathVariable String codigoEstado) {
-        List<Proyecto> proyectos = proyectoService.findByEmpresaIdEmpresaAndEstadoCodigoEstado(idEmpresa, codigoEstado);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/carrera/{codigoCarrera}/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByCarreraAndEstado(
-            @PathVariable String codigoCarrera, @PathVariable String codigoEstado) {
-        List<Proyecto> proyectos = proyectoService.findByCarreraCodigoAndEstadoCodigoEstado(codigoCarrera,
-                codigoEstado);
-        return ResponseEntity.ok(proyectos);
-    }
-
-    @GetMapping("/modalidad/{codigoModalidad}/estado/{codigoEstado}")
-    @PermitAll
-    public ResponseEntity<List<Proyecto>> getProyectosByModalidadAndEstado(
-            @PathVariable String codigoModalidad, @PathVariable String codigoEstado) {
-        List<Proyecto> proyectos = proyectoService.findByModalidadCodigoModalidadAndEstadoCodigoEstado(codigoModalidad,
-                codigoEstado);
         return ResponseEntity.ok(proyectos);
     }
 
@@ -176,6 +118,29 @@ public class ProyectoController {
                 HttpStatus.OK);
     }
 
+    /**
+     * Endpoint público para buscar proyectos disponibles con filtros avanzados.
+     * No requiere autenticación. Usado por el Banco de Proyectos Público.
+     */
+    @GetMapping("/public/search")
+    @PermitAll
+    public ResponseEntity<Page<Proyecto>> getProyectosPublicosConFiltros(
+            @RequestParam(name = "filter", defaultValue = "", required = false) String filter,
+            @RequestParam(name = "codCarrera", required = false) String codigoCarrera,
+            @RequestParam(name = "codModalidad", required = false) String codigoModalidad,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
+
+        if (filter != null && filter.trim().matches("^[\\W_]+$")) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(page, size)));
+        }
+
+        Page<Proyecto> proyectos = proyectoService.findProyectosDisponiblesPublicos(
+                filter, codigoCarrera, codigoModalidad, PageRequest.of(page, size));
+
+        return ResponseEntity.ok(proyectos);
+    }
+
     @GetMapping("/exists/titulo")
     @PermitAll
     public ResponseEntity<Boolean> existsByTituloIgnoreCase(@RequestParam String titulo) {
@@ -185,19 +150,36 @@ public class ProyectoController {
     
 
     @PostMapping
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto proyecto) {
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COORD', 'SUP')")
+    public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto proyecto, Authentication authentication) {
+        // Obtener el ID del usuario autenticado (admin/coord/sup que crea el proyecto)
+        Long idUsuarioAutenticado = Long.parseLong(authentication.getPrincipal().toString());
+        
+        // Asignar el ID del usuario autenticado como administrador que aprueba/crea el proyecto
+        proyecto.setIdAdministrador(idUsuarioAutenticado);
+        
         Proyecto savedProyecto = proyectoService.save(proyecto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProyecto);
     }
 
     @PutMapping("/{id}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Proyecto> updateProyecto(@PathVariable Long id, @RequestBody Proyecto proyecto) {
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COORD', 'SUP')")
+    public ResponseEntity<Proyecto> updateProyecto(@PathVariable Long id, @RequestBody Proyecto proyecto, Authentication authentication) {
         if (!proyectoService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
         proyecto.setIdProyecto(id);
+        
+        // Mantener el administrador original o actualizar si no existe
+        Optional<Proyecto> existingProyecto = proyectoService.findById(id);
+        if (existingProyecto.isPresent() && existingProyecto.get().getIdAdministrador() != null) {
+            proyecto.setIdAdministrador(existingProyecto.get().getIdAdministrador());
+        } else {
+            // Si no tenía admin, asignar el usuario actual
+            Long idUsuarioAutenticado = Long.parseLong(authentication.getPrincipal().toString());
+            proyecto.setIdAdministrador(idUsuarioAutenticado);
+        }
+        
         Proyecto updatedProyecto = proyectoService.save(proyecto);
         return ResponseEntity.ok(updatedProyecto);
     }
@@ -386,6 +368,55 @@ public class ProyectoController {
         headers.setContentDisposition(ContentDisposition
                 .builder("attachment")
                 .filename(safeFileName)
+                .build());
+
+        return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint público para exportar PDF de proyectos disponibles.
+     * No requiere autenticación.
+     */
+    @GetMapping("/public/report-disponibles")
+    @PermitAll
+    public ResponseEntity<byte[]> proyectosDisponiblesGenerarReportePDF(
+            @RequestParam(value = "codCarrera", required = false) String codigoCarrera,
+            @RequestParam(value = "codModalidad", required = false) String codigoModalidad,
+            @RequestParam(value = "busqueda", required = false) String busqueda) {
+
+        // Obtener nombres para mostrar en el reporte
+        String nombreCarrera = null;
+        String nombreModalidad = null;
+
+        if (codigoCarrera != null && !codigoCarrera.trim().isEmpty()) {
+            Optional<Carrera> carrera = carreraService.findByCodigo(codigoCarrera);
+            if (carrera.isPresent()) {
+                nombreCarrera = carrera.get().getNombre();
+            }
+        }
+
+        if (codigoModalidad != null && !codigoModalidad.trim().isEmpty()) {
+            Optional<Modalidad> modalidad = modalidadService.findByCodigoModalidad(codigoModalidad);
+            if (modalidad.isPresent()) {
+                nombreModalidad = modalidad.get().getNombre();
+            }
+        }
+
+        byte[] pdfReport = proyectoService.generarReporteProyectosDisponibles(
+                codigoCarrera, nombreCarrera,
+                codigoModalidad, nombreModalidad,
+                busqueda);
+
+        if (pdfReport == null || pdfReport.length == 0) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body("No se pudo generar el reporte de proyectos disponibles".getBytes());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename("Banco_Proyectos_Disponibles.pdf")
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);

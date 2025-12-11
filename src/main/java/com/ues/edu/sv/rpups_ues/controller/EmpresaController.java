@@ -5,6 +5,8 @@ import com.ues.edu.sv.rpups_ues.service.EmpresaService;
 
 import jakarta.annotation.security.PermitAll;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -24,9 +26,29 @@ public class EmpresaController {
     }
 
     @GetMapping
-    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP","ESTUD" })
     public ResponseEntity<List<Empresa>> getAllEmpresas() {
         List<Empresa> empresas = empresaService.findAll();
+        return ResponseEntity.ok(empresas);
+    }
+
+    @GetMapping("/paginated")
+    @Secured({ "ADMIN", "COORD", "SUP","ESTUD" })
+    public ResponseEntity<Page<Empresa>> getEmpresasPaginated(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "filter", defaultValue = "") String filter) {
+        Page<Empresa> empresas = empresaService.findByFilter(filter, PageRequest.of(page, size));
+        return ResponseEntity.ok(empresas);
+    }
+
+    @GetMapping("/paginated/activas")
+    @Secured({ "ADMIN", "COORD", "SUP","ESTUD" })
+    public ResponseEntity<Page<Empresa>> getEmpresasActivasPaginated(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "filter", defaultValue = "") String filter) {
+        Page<Empresa> empresas = empresaService.findByFilterAndEstadoActivo(filter, true, PageRequest.of(page, size));
         return ResponseEntity.ok(empresas);
     }
 
@@ -37,29 +59,8 @@ public class EmpresaController {
         return empresa.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/nombre-comercial/{nombreComercial}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<Empresa>> getEmpresasByNombreComercial(@PathVariable String nombreComercial) {
-        List<Empresa> empresas = empresaService.findByNombreComercial(nombreComercial);
-        return ResponseEntity.ok(empresas);
-    }
-
-    @GetMapping("/nombre-legal/{nombreLegal}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<Empresa>> getEmpresasByNombreLegal(@PathVariable String nombreLegal) {
-        List<Empresa> empresas = empresaService.findByNombreLegal(nombreLegal);
-        return ResponseEntity.ok(empresas);
-    }
-
-    @GetMapping("/rubro/{idRubro}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<List<Empresa>> getEmpresasByRubro(@PathVariable Long idRubro) {
-        List<Empresa> empresas = empresaService.findByRubroIdRubro(idRubro);
-        return ResponseEntity.ok(empresas);
-    }
-
     @GetMapping("/user-creador/{idUsuario}")
-    @Secured({ "EMP", "ADMIN", "COORD", "SUP" })
+    @Secured({ "EMP", "ADMIN", "COORD", "SUP","ESTUD" })
     public ResponseEntity<List<Empresa>> getEmpresasByUserCreador(@PathVariable Long idUsuario) {
         List<Empresa> empresas = empresaService.findByUserCreador(idUsuario);
         return ResponseEntity.ok(empresas);

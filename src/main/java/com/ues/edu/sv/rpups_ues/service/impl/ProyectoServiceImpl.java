@@ -138,6 +138,14 @@ public class ProyectoServiceImpl implements ProyectoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<Proyecto> findProyectosDisponiblesPublicos(String filter, String codigoCarrera,
+            String codigoModalidad, Pageable pageable) {
+        return proyectoRepository.searchProyectosDisponiblesPublicos(
+                filter, codigoCarrera, codigoModalidad, pageable);
+    }
+
+    @Override
     @Transactional
     public Proyecto save(Proyecto proyecto) {
         return proyectoRepository.save(proyecto);
@@ -251,5 +259,43 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     public boolean existsByTituloIgnoreCase(String titulo) {
         return proyectoRepository.existsByTituloIgnoreCase(titulo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generarReporteProyectosDisponibles(String codigoCarrera, String nombreCarrera,
+            String codigoModalidad, String nombreModalidad, String busqueda) {
+        
+        // Obtener proyectos disponibles con filtros opcionales
+        List<Proyecto> proyectos = proyectoRepository.findProyectosDisponiblesConFiltros(
+                codigoCarrera, codigoModalidad, busqueda);
+
+        Context context = new Context();
+        context.setVariable("proyectos", proyectos);
+        
+        // Crear objeto de filtros para mostrar en el reporte
+        java.util.Map<String, String> filtros = new java.util.HashMap<>();
+        if (nombreCarrera != null && !nombreCarrera.isEmpty()) {
+            filtros.put("carrera", nombreCarrera);
+        }
+        if (nombreModalidad != null && !nombreModalidad.isEmpty()) {
+            filtros.put("modalidad", nombreModalidad);
+        }
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            filtros.put("busqueda", busqueda);
+        }
+        context.setVariable("filtros", filtros.isEmpty() ? null : filtros);
+
+        String htmlContent = templateEngine.process("proyectos/reporte_proyectos_disponibles", context);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent, null);
+            builder.toStream(outputStream);
+            builder.run();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el reporte PDF de proyectos disponibles", e);
+        }
     }
 }

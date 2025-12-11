@@ -3,6 +3,9 @@ package com.ues.edu.sv.rpups_ues.service.impl;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
 import com.ues.edu.sv.rpups_ues.model.repository.EmpresaRepository;
 import com.ues.edu.sv.rpups_ues.service.EmpresaService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,30 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Transactional(readOnly = true)
     public List<Empresa> findAll() {
         return empresaRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Empresa> findAll(Pageable pageable) {
+        return empresaRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Empresa> findByFilter(String filter, Pageable pageable) {
+        if (filter == null || filter.trim().isEmpty()) {
+            return empresaRepository.findAll(pageable);
+        }
+        return empresaRepository.findByFilter(filter, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Empresa> findByFilterAndEstadoActivo(String filter, Boolean activo, Pageable pageable) {
+        if (filter == null || filter.trim().isEmpty()) {
+            return empresaRepository.findByEstadoActivo(activo, pageable);
+        }
+        return empresaRepository.findByFilterAndEstadoActivo(filter, activo, pageable);
     }
 
     @Override
