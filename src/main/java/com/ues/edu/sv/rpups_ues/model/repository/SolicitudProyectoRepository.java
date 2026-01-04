@@ -101,6 +101,25 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
         long countUnassigned();
 
         /**
+         * Solicitudes sin asignar para COORD: filtra por departamento de carrera.
+         * Solo solicitudes cuya carrera pertenece al departamento del COORD.
+         */
+        @Query("SELECT s FROM SolicitudProyecto s " +
+               "JOIN s.carrera c " +
+               "WHERE s.idAdminRevisor IS NULL " +
+               "AND c.idDepartamentoCarrera = :idDeptoCarrera")
+        List<SolicitudProyecto> findUnassignedCoord(@Param("idDeptoCarrera") Long idDeptoCarrera);
+
+        /**
+         * Cuenta solicitudes sin asignar para COORD
+         */
+        @Query("SELECT COUNT(s) FROM SolicitudProyecto s " +
+               "JOIN s.carrera c " +
+               "WHERE s.idAdminRevisor IS NULL " +
+               "AND c.idDepartamentoCarrera = :idDeptoCarrera")
+        long countUnassignedCoord(@Param("idDeptoCarrera") Long idDeptoCarrera);
+
+        /**
          * Bandeja de entrada: solicitudes asignadas al admin que NO están cerradas (APRO o RECH)
          */
         @Query("SELECT s FROM SolicitudProyecto s WHERE s.idAdminRevisor = :idAdmin AND s.codigoEstado NOT IN ('APRO', 'RECH')")
@@ -111,6 +130,43 @@ public interface SolicitudProyectoRepository extends JpaRepository<SolicitudProy
          */
         @Query("SELECT COUNT(s) FROM SolicitudProyecto s WHERE s.idAdminRevisor = :idAdmin AND s.codigoEstado NOT IN ('APRO', 'RECH')")
         long countBandejaEntrada(@Param("idAdmin") Long idAdmin);
+
+        /**
+         * Bandeja de entrada para COORD: solicitudes asignadas al COORD o a SUP del mismo departamento de carrera
+         * que NO están cerradas (APRO o RECH).
+         * Filtra por solicitudes cuya carrera pertenece al mismo departamento de carrera del COORD.
+         */
+        @Query("SELECT DISTINCT s FROM SolicitudProyecto s " +
+               "JOIN s.carrera c " +
+               "JOIN Usuario u ON s.idAdminRevisor = u.idUsuario " +
+               "WHERE u.idDeptoCarrera = :idDeptoCarrera " +
+               "AND c.idDepartamentoCarrera = :idDeptoCarrera " +
+               "AND s.codigoEstado NOT IN ('APRO', 'RECH')")
+        List<SolicitudProyecto> findBandejaEntradaCoord(@Param("idDeptoCarrera") Long idDeptoCarrera);
+
+        /**
+         * Cuenta bandeja de entrada para COORD
+         */
+        @Query("SELECT COUNT(DISTINCT s) FROM SolicitudProyecto s " +
+               "JOIN s.carrera c " +
+               "JOIN Usuario u ON s.idAdminRevisor = u.idUsuario " +
+               "WHERE u.idDeptoCarrera = :idDeptoCarrera " +
+               "AND c.idDepartamentoCarrera = :idDeptoCarrera " +
+               "AND s.codigoEstado NOT IN ('APRO', 'RECH')")
+        long countBandejaEntradaCoord(@Param("idDeptoCarrera") Long idDeptoCarrera);
+
+        /**
+         * Bandeja de entrada para ADMIN: TODAS las solicitudes que NO están cerradas (APRO o RECH).
+         * Para modo lectura del ADMIN.
+         */
+        @Query("SELECT s FROM SolicitudProyecto s WHERE s.codigoEstado NOT IN ('APRO', 'RECH')")
+        List<SolicitudProyecto> findBandejaEntradaAdmin();
+
+        /**
+         * Cuenta bandeja de entrada para ADMIN
+         */
+        @Query("SELECT COUNT(s) FROM SolicitudProyecto s WHERE s.codigoEstado NOT IN ('APRO', 'RECH')")
+        long countBandejaEntradaAdmin();
 
         /**
          * Todas las solicitudes asignadas (tienen idAdminRevisor)

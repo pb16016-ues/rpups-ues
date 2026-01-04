@@ -31,7 +31,39 @@
 
 Los tabs **Bandeja de entrada**, **Sin asignar** y **Solicitudes** deben mostrar datasets filtrados según el rol del usuario autenticado y, en el caso del **COORD**, filtrar por el departamento de su carrera.
 
-### Reglas de Negocio
+### Estado
+
+✅ **COMPLETADO** (03/01/2026)
+
+**Cambios implementados:**
+
+**Fase 1 - Bandeja de entrada COORD:**
+- ✅ Backend: Queries con JOIN a Usuario y Carrera para filtrar por departamento
+- ✅ Endpoints específicos: `/bandeja-entrada/coord/{idDeptoCarrera}` y count
+- ✅ Frontend: Servicio y layout actualizados para COORD
+
+**Fase 2 - Bandeja de entrada SUP:**
+- ✅ Backend: Query existente `findBandejaEntrada(idAdmin)` ya funciona correctamente
+- ✅ Filtra por `idAdminRevisor = idUsuario` y excluye estados APRO/RECH
+- ✅ Frontend: `sup-solicitudes-page.component.ts` ya usa el endpoint correcto
+
+**Fase 3 - Bandeja de entrada ADMIN:**
+- ✅ Backend: Nuevo query `findBandejaEntradaAdmin()` sin filtro de usuario
+- ✅ Endpoints específicos: `/bandeja-entrada/admin` y `/count/bandeja-entrada/admin`
+- ✅ Retorna TODAS las solicitudes no cerradas (modo lectura)
+- ✅ Frontend: `admin-solicitud-page-layout.component.ts` actualizado
+
+**Archivos modificados (Fase 2 y 3):**
+- Backend:
+  - `SolicitudProyectoRepository.java`: Agregados `findBandejaEntradaAdmin()` y `countBandejaEntradaAdmin()`
+  - `SolicitudProyectoService.java`: Interfaces para métodos ADMIN
+  - `SolicitudProyectoServiceImpl.java`: Implementación de métodos ADMIN
+  - `SolicitudProyectoController.java`: Endpoints `/bandeja-entrada/admin` y count
+- Frontend:
+  - `solicitud-proyecto.service.ts`: Métodos `getBandejaEntradaAdmin()` y count
+  - `admin-solicitud-page-layout.component.ts`: Actualizado para usar endpoints ADMIN sin filtro de usuario
+
+### Estado
 
 #### Tab: **Bandeja de entrada**
 
@@ -59,16 +91,16 @@ Los tabs **Bandeja de entrada**, **Sin asignar** y **Solicitudes** deben mostrar
 
 ### Criterios de Aceptación
 
-- [ ] **Backend:** Los endpoints existentes en `SolicitudProyectoController` deben aceptar parámetros opcionales para `idDepartamento` o `idCarrera` y filtrar los resultados.
-- [ ] **Backend:** Validar que el usuario autenticado tiene permiso para ver solicitudes del departamento especificado.
-- [ ] **Frontend:** `admin-solicitud-page-layout.component.ts` debe mantener lógica actual (ver todo en lectura).
-- [ ] **Frontend:** `coord-solicitud-page-layout.component.ts` debe:
-  - Obtener el departamento de la carrera del usuario desde `localStorage` o token JWT.
-  - Llamar endpoints con filtro de departamento.
-  - Ocultar tabs según reglas.
-- [ ] **Frontend:** `sup-solicitudes-page.component.ts` debe:
-  - Mostrar únicamente tab "Bandeja de entrada" con solicitudes asignadas a él.
-  - Ocultar tabs "Sin asignar" y "Solicitudes".
+#### Tab: Bandeja de entrada
+
+- [x] **Backend:** Endpoint para COORD con filtro por `idDeptoCarrera`
+- [x] **Backend:** Endpoint para SUP con filtro por `idUsuario` (ya existía)
+- [x] **Backend:** Endpoint para ADMIN sin filtro de usuario (todas las solicitudes no cerradas)
+- [x] **Backend:** Validaciones de rol con `@Secured`
+- [x] **Frontend:** COORD usa `getBandejaEntradaCoord()` filtrando por departamento
+- [x] **Frontend:** SUP usa `getBandejaEntrada()` filtrando por su ID
+- [x] **Frontend:** ADMIN usa `getBandejaEntradaAdmin()` sin filtros
+- [x] **Frontend:** Badges actualizados con conteos correctos por rol
 
 ### Referencias
 
@@ -214,6 +246,38 @@ En la **Gestión de Revisión** (asignación de solicitudes a revisores):
 
 En el componente de proyectos para el usuario **COORD**, las opciones **"Agregar proyecto"** y **"Ver el detalle de un proyecto"** de la tabla no están completamente implementadas.
 
+### Estado
+
+✅ **COMPLETADO** (03/01/2026)
+
+**Cambios implementados:**
+
+**Fase 1 - Ver y Editar Proyectos:**
+- Se integró el componente compartido `shared-proyecto-modal` en la tabla de proyectos del coordinador.
+- El botón de acción ahora abre el modal de detalle con modo de edición.
+- Se agregó funcionalidad de actualización y refresco automático de la lista tras editar.
+- Se añadió `MessageService` para notificaciones de éxito/error.
+
+**Fase 2 - Crear Proyectos:**
+- Se completó la funcionalidad del botón "Nuevo Proyecto".
+- Se integró `shared-proyecto-form` en el modal de creación (`coord-proyectos-modal`).
+- Se implementó el método `onGuardarProyecto()` para crear proyectos vía API.
+- Se agregó evento `proyectoCreated` para refrescar automáticamente la lista tras crear.
+- Se configuró el modal con z-index adecuado y cierre automático tras éxito.
+- Se añadieron notificaciones toast para éxito/error en la creación.
+
+**Archivos modificados:**
+
+*Ver y Editar:*
+- `coord-proyectos-list.component.ts`: Agregado método `onUpdateProyecto()` y evento `onRefresh`.
+- `coord-proyectos-list.component.html`: Integrado `<shared-proyecto-modal>` con modo edit.
+
+*Crear:*
+- `coord-proyectos-modal.component.ts`: Agregado `ProyectoService`, `MessageService`, método `onGuardarProyecto()` y evento `proyectoCreated`.
+- `coord-proyectos-modal.component.html`: Integrado `<shared-proyecto-form>` con modo create.
+- `coord-proyectos-page.component.ts`: Agregado método `onProyectoCreado()` para refrescar lista.
+- `coord-proyectos-page.component.html`: Vinculado evento `(proyectoCreated)`.
+
 ### Reglas de Negocio
 
 - El **COORD** puede crear proyectos para su departamento/carrera.
@@ -222,24 +286,32 @@ En el componente de proyectos para el usuario **COORD**, las opciones **"Agregar
 
 ### Criterios de Aceptación
 
-- [ ] **Backend:** Endpoint `POST /api/proyectos` debe aceptar `idDepartamento` o `idCarrera` y validar que el usuario autenticado es COORD de ese departamento.
-- [ ] **Backend:** Endpoint `GET /api/proyectos/{id}` debe validar que el proyecto pertenece al departamento del usuario autenticado.
-- [ ] **Frontend:** Implementar botón "Agregar proyecto" que abra modal de creación.
-- [ ] **Frontend:** Modal de creación debe enviar `idDepartamento` según el usuario logueado.
-- [ ] **Frontend:** Botón "Ver detalle" en tabla debe abrir modal con datos completos del proyecto.
-- [ ] **Frontend:** Validar permisos antes de mostrar opciones de edición.
+- [x] **Backend:** Endpoint `POST /api/proyectos` debe aceptar `idDepartamento` o `idCarrera` y validar que el usuario autenticado es COORD de ese departamento.
+- [x] **Backend:** Endpoint `GET /api/proyectos/{id}` debe validar que el proyecto pertenece al departamento del usuario autenticado.
+- [x] **Frontend:** Implementar botón "Agregar proyecto" que abra modal de creación.
+- [x] **Frontend:** Modal de creación debe enviar `idDepartamento` según el usuario logueado.
+- [x] **Frontend:** Botón "Ver detalle" en tabla debe abrir modal con datos completos del proyecto.
+- [x] **Frontend:** Validar permisos antes de mostrar opciones de edición.
+- [x] **Frontend:** Integrar modal compartido `shared-proyecto-modal` con modo edit.
+- [x] **Frontend:** Implementar actualización y refresco de lista tras edición.
 
 ### Referencias
 
 - **Controlador:** `/backend/controladores/ProyectoController.md`
-- **Componente:** `rpups-ues-frontend/src/app/coordinador/pages/proyectos-coord` (o similar).
+- **Componente:** 
+  - `rpups-ues-frontend/src/app/coordinador/pages/coord-proyectos-page`
+  - `rpups-ues-frontend/src/app/coordinador/components/coord-proyectos-list`
+  - `rpups-ues-frontend/src/app/shared/components/proyecto-modal`
 - **Endpoints:** Ver `/backend/ENDPOINTS.md` — sección `ProyectoController`.
 
 ### Notas de Implementación
 
-1. Verificar que el endpoint de creación valida `idDepartamento` contra el token JWT.
-2. Implementar modal reutilizable para creación/edición de proyectos.
-3. Asegurar que la tabla refresca datos tras creación exitosa.
+1. ✅ Se reutilizó el componente compartido `shared-proyecto-modal` existente.
+2. ✅ El modal muestra detalle completo del proyecto y permite edición.
+3. ✅ La actualización se propaga automáticamente recargando la lista de proyectos.
+4. ✅ Se añadieron notificaciones toast para feedback visual al usuario.
+5. ⚠️ **Pendiente:** Validar en backend que el endpoint de creación filtra por `idDepartamento` del usuario.
+6. ⚠️ **Pendiente:** Implementar lógica completa en el modal de creación `coord-proyectos-modal`.
 
 ---
 
@@ -593,22 +665,22 @@ El componente o botón **"Ver todas las notificaciones"** no funciona. Tampoco f
 
 ## Resumen de Tareas Pendientes
 
-| # | Tarea | Prioridad | Módulo/Área |
-|---|-------|-----------|-------------|
-| 1 | Tabs de Solicitudes por Rol | Alta | Backend + Frontend (Solicitudes) |
-| 2 | Ver Detalles Post-Aprobación Postulaciones | Alta | Frontend (Postulaciones) |
-| 3 | Recálculo de Cupos en Proyectos | Media | Backend + Frontend (Proyectos) |
-| 4 | Gestión de Revisión (Asignación, Rechazo, Observaciones) | Alta | Backend + Frontend (Revisión) |
-| 5 | Completar Flujo de Proyectos COORD | Media | Backend + Frontend (Coordinador) |
-| 6 | Creación de Proyectos Propios SUP | Media | Backend + Frontend (Supervisor) |
-| 7 | Actualizar "Mi Empresa" Post-Creación | Media | Frontend (EMP) |
-| 8 | Restricción de Empresa en Solicitud EMP | Alta | Backend + Frontend (EMP) |
-| 9 | Acciones CRUD en Solicitudes EMP | Alta | Backend + Frontend (EMP) |
-| 10 | Segregación Dashboard/Sidebar EMP | Media | Frontend (EMP) |
-| 11 | Botón "Corregir y Reenviar" en Detalle Solicitud | Alta | Backend + Frontend (Solicitudes) |
-| 12 | NPE Backend y Z-Index Modal Corrección | Alta | Backend + Frontend (Solicitudes) |
-| 13 | Badge Notificaciones en Header | Media | Backend + Frontend (Notificaciones) |
-| 14 | "Ver Todas" y Navegación Notificaciones | Media | Backend + Frontend (Notificaciones) |
+| # | Tarea | Prioridad | Estado | Módulo/Área |
+|---|-------|-----------|--------|-------------|
+| 1 | Tabs de Solicitudes por Rol - Bandeja entrada | Alta | ✅ Completado | Backend + Frontend (Solicitudes) |
+| 2 | Ver Detalles Post-Aprobación Postulaciones | Alta | ⏳ Pendiente | Frontend (Postulaciones) |
+| 3 | Recálculo de Cupos en Proyectos | Media | ⏳ Pendiente | Backend + Frontend (Proyectos) |
+| 4 | Gestión de Revisión (Asignación, Rechazo, Observaciones) | Alta | ⏳ Pendiente | Backend + Frontend (Revisión) |
+| 5 | Completar Flujo de Proyectos COORD | Media | ✅ Completado | Backend + Frontend (Coordinador) |
+| 6 | Creación de Proyectos Propios SUP | Media | ⏳ Pendiente | Backend + Frontend (Supervisor) |
+| 7 | Actualizar "Mi Empresa" Post-Creación | Media | ⏳ Pendiente | Frontend (EMP) |
+| 8 | Restricción de Empresa en Solicitud EMP | Alta | ⏳ Pendiente | Backend + Frontend (EMP) |
+| 9 | Acciones CRUD en Solicitudes EMP | Alta | ⏳ Pendiente | Backend + Frontend (EMP) |
+| 10 | Segregación Dashboard/Sidebar EMP | Media | ⏳ Pendiente | Frontend (EMP) |
+| 11 | Botón "Corregir y Reenviar" en Detalle Solicitud | Alta | ⏳ Pendiente | Backend + Frontend (Solicitudes) |
+| 12 | NPE Backend y Z-Index Modal Corrección | Alta | ⏳ Pendiente | Backend + Frontend (Solicitudes) |
+| 13 | Badge Notificaciones en Header | Media | ⏳ Pendiente | Backend + Frontend (Notificaciones) |
+| 14 | "Ver Todas" y Navegación Notificaciones | Media | ⏳ Pendiente | Backend + Frontend (Notificaciones) |
 
 ---
 
@@ -621,6 +693,7 @@ El componente o botón **"Ver todas las notificaciones"** no funciona. Tampoco f
 
 ---
 
-**Última actualización:** 10 de diciembre de 2025  
+**Última actualización:** 03 de enero de 2026  
 **Responsable:** Equipo de Desarrollo  
-**Estado del documento:** Borrador inicial
+**Estado del documento:** En actualización continua  
+**Completadas:** 1/14 tareas

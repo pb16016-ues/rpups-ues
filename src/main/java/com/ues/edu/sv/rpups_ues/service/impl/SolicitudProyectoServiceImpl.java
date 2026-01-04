@@ -455,6 +455,18 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findUnassignedCoord(Long idDeptoCarrera) {
+        return solicitudProyectoRepository.findUnassignedCoord(idDeptoCarrera);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countUnassignedCoord(Long idDeptoCarrera) {
+        return solicitudProyectoRepository.countUnassignedCoord(idDeptoCarrera);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<SolicitudProyecto> findBandejaEntrada(Long idAdmin) {
         return solicitudProyectoRepository.findBandejaEntrada(idAdmin);
     }
@@ -463,6 +475,30 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     @Transactional(readOnly = true)
     public long countBandejaEntrada(Long idAdmin) {
         return solicitudProyectoRepository.countBandejaEntrada(idAdmin);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findBandejaEntradaCoord(Long idDeptoCarrera) {
+        return solicitudProyectoRepository.findBandejaEntradaCoord(idDeptoCarrera);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countBandejaEntradaCoord(Long idDeptoCarrera) {
+        return solicitudProyectoRepository.countBandejaEntradaCoord(idDeptoCarrera);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SolicitudProyecto> findBandejaEntradaAdmin() {
+        return solicitudProyectoRepository.findBandejaEntradaAdmin();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countBandejaEntradaAdmin() {
+        return solicitudProyectoRepository.countBandejaEntradaAdmin();
     }
 
     @Override

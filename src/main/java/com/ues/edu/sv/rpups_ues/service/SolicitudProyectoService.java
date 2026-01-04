@@ -97,6 +97,17 @@ public interface SolicitudProyectoService {
         long countUnassigned();
 
         /**
+         * Obtiene solicitudes sin asignar para COORD (filtradas por departamento de carrera).
+         * Para la pestaña "Sin Asignar" del COORD.
+         */
+        List<SolicitudProyecto> findUnassignedCoord(Long idDeptoCarrera);
+
+        /**
+         * Cuenta solicitudes sin asignar para COORD.
+         */
+        long countUnassignedCoord(Long idDeptoCarrera);
+
+        /**
          * Obtiene la bandeja de entrada de un admin (asignadas y no cerradas).
          * Para la pestaña "Bandeja de entrada".
          */
@@ -106,6 +117,28 @@ public interface SolicitudProyectoService {
          * Cuenta la bandeja de entrada de un admin.
          */
         long countBandejaEntrada(Long idAdmin);
+
+        /**
+         * Obtiene la bandeja de entrada para COORD (asignadas al COORD o SUP del mismo depto carrera).
+         * Para la pestaña "Bandeja de entrada" del COORD.
+         */
+        List<SolicitudProyecto> findBandejaEntradaCoord(Long idDeptoCarrera);
+
+        /**
+         * Cuenta la bandeja de entrada para COORD.
+         */
+        long countBandejaEntradaCoord(Long idDeptoCarrera);
+
+        /**
+         * Obtiene la bandeja de entrada para ADMIN (todas las solicitudes no cerradas).
+         * Para modo lectura del ADMIN.
+         */
+        List<SolicitudProyecto> findBandejaEntradaAdmin();
+
+        /**
+         * Cuenta la bandeja de entrada para ADMIN.
+         */
+        long countBandejaEntradaAdmin();
 
         /**
          * Obtiene todas las solicitudes asignadas a un admin.

@@ -104,7 +104,7 @@ public class SolicitudProyectoController {
      * Para la pestaña "Sin Asignar".
      */
     @GetMapping("/sin-asignar")
-    @Secured({ "ADMIN", "COORD", "SUP" })
+    @Secured({ "ADMIN" })
     public ResponseEntity<List<SolicitudProyecto>> getSolicitudesSinAsignar() {
         List<SolicitudProyecto> solicitudes = solicitudProyectoService.findUnassigned();
         return ResponseEntity.ok(solicitudes);
@@ -114,9 +114,31 @@ public class SolicitudProyectoController {
      * Conteo de solicitudes sin asignar.
      */
     @GetMapping("/count/sin-asignar")
-    @Secured({ "ADMIN", "COORD", "SUP" })
+    @Secured({ "ADMIN" })
     public ResponseEntity<Map<String, Object>> getCountSinAsignar() {
         long count = solicitudProyectoService.countUnassigned();
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Solicitudes sin asignar filtradas por departamento de carrera (COORD).
+     */
+    @GetMapping("/sin-asignar/coord/{idDeptoCarrera}")
+    @Secured({ "COORD" })
+    public ResponseEntity<List<SolicitudProyecto>> getSolicitudesSinAsignarCoord(@PathVariable Long idDeptoCarrera) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findUnassignedCoord(idDeptoCarrera);
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Conteo de solicitudes sin asignar filtradas por departamento de carrera (COORD).
+     */
+    @GetMapping("/count/sin-asignar/coord/{idDeptoCarrera}")
+    @Secured({ "COORD" })
+    public ResponseEntity<Map<String, Object>> getCountSinAsignarCoord(@PathVariable Long idDeptoCarrera) {
+        long count = solicitudProyectoService.countUnassignedCoord(idDeptoCarrera);
         Map<String, Object> response = new HashMap<>();
         response.put("count", count);
         return ResponseEntity.ok(response);
@@ -140,6 +162,51 @@ public class SolicitudProyectoController {
     @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<Map<String, Object>> getCountBandejaEntrada(@PathVariable Long idAdmin) {
         long count = solicitudProyectoService.countBandejaEntrada(idAdmin);
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Bandeja de entrada para COORD: solicitudes asignadas al COORD o a SUP del mismo departamento de carrera.
+     * Filtra por departamento de carrera.
+     */
+    @GetMapping("/bandeja-entrada/coord/{idDeptoCarrera}")
+    @Secured({ "COORD" })
+    public ResponseEntity<List<SolicitudProyecto>> getBandejaEntradaCoord(@PathVariable Long idDeptoCarrera) {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findBandejaEntradaCoord(idDeptoCarrera);
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Conteo de bandeja de entrada para COORD por departamento de carrera.
+     */
+    @GetMapping("/count/bandeja-entrada/coord/{idDeptoCarrera}")
+    @Secured({ "COORD" })
+    public ResponseEntity<Map<String, Object>> getCountBandejaEntradaCoord(@PathVariable Long idDeptoCarrera) {
+        long count = solicitudProyectoService.countBandejaEntradaCoord(idDeptoCarrera);
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Bandeja de entrada para ADMIN: TODAS las solicitudes no cerradas (modo lectura).
+     */
+    @GetMapping("/bandeja-entrada/admin")
+    @Secured({ "ADMIN" })
+    public ResponseEntity<List<SolicitudProyecto>> getBandejaEntradaAdmin() {
+        List<SolicitudProyecto> solicitudes = solicitudProyectoService.findBandejaEntradaAdmin();
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Conteo de bandeja de entrada para ADMIN.
+     */
+    @GetMapping("/count/bandeja-entrada/admin")
+    @Secured({ "ADMIN" })
+    public ResponseEntity<Map<String, Object>> getCountBandejaEntradaAdmin() {
+        long count = solicitudProyectoService.countBandejaEntradaAdmin();
         Map<String, Object> response = new HashMap<>();
         response.put("count", count);
         return ResponseEntity.ok(response);
