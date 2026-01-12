@@ -295,7 +295,7 @@ public class SolicitudProyectoController {
     }
 
     @PutMapping("/{idSolicitud}/revision")
-    @Secured({ "ADMIN", "COORD", "SUP" })
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP" })
     public ResponseEntity<?> updateSolicitudAdmin(@PathVariable Long idSolicitud,
             @RequestBody SolicitudProyecto solicitudProyecto) {
 
@@ -436,12 +436,30 @@ public class SolicitudProyectoController {
         }
     }
 
+    /**
+     * Elimina una solicitud de proyecto.
+     * Solo se permite eliminar solicitudes en estado PENDIENTE (PEND) u OBSERVACIÓN (OBS).
+     * 
+     * @param id ID de la solicitud a eliminar
+     * @return ResponseEntity vacío si se eliminó correctamente
+     */
     @DeleteMapping("/{id}")
-    @Secured({ "ADMIN", "COORD", "SUP" })
-    public ResponseEntity<Void> deleteSolicitud(@PathVariable Long id) {
-        if (!solicitudProyectoService.findById(id).isPresent()) {
+    @Secured({ "ADMIN", "COORD", "SUP", "EMP", "ESTUD" })
+    public ResponseEntity<?> deleteSolicitud(@PathVariable Long id) {
+        var solicitudOpt = solicitudProyectoService.findById(id);
+        if (!solicitudOpt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+        
+        SolicitudProyecto solicitud = solicitudOpt.get();
+        String codigoEstado = solicitud.getCodigoEstado();
+        
+        // Solo permitir eliminar en estado PEND u OBS
+        if (codigoEstado == null || (!codigoEstado.equals("PEND") && !codigoEstado.equals("OBS"))) {
+            return ResponseEntity.badRequest()
+                .body(java.util.Map.of("message", "Solo se pueden eliminar solicitudes en estado Pendiente u Observación"));
+        }
+        
         solicitudProyectoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

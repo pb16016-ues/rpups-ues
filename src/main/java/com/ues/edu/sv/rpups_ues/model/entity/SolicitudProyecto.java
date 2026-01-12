@@ -141,4 +141,14 @@ public class SolicitudProyecto implements Serializable {
     public SolicitudProyecto(Long idSolicitud) {
         this.idSolicitud = idSolicitud;
     }
+
+    /**
+     * Establece automáticamente la fecha de creación antes de persistir la entidad.
+     */
+    @PrePersist
+    public void prePersist() {
+        if (this.fechaCreacion == null) {
+            this.fechaCreacion = LocalDateTime.now();
+        }
+    }
 }
