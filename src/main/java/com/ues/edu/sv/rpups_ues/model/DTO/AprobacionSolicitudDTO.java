@@ -19,7 +19,7 @@ public class AprobacionSolicitudDTO {
     private String observaciones;
 
     /**
-     * Estado inicial del proyecto creado (por defecto DISP - Disponible)
+     * Estado inicial del proyecto creado (por defecto DIS - Disponible)
      */
-    private String codigoEstadoProyecto = "DISP";
+    private String codigoEstadoProyecto = "DIS";
 }

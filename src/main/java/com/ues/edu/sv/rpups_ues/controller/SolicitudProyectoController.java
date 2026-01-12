@@ -303,7 +303,7 @@ public class SolicitudProyectoController {
         Map<String, Object> response = new HashMap<>();
 
         if (!solicitudProyectoService.findById(idSolicitud).isPresent()) {
-            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            response.put("mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
             Optional<SolicitudProyecto> optSolicitudProyectoBD = solicitudProyectoService.findById(idSolicitud);
@@ -311,7 +311,7 @@ public class SolicitudProyectoController {
         }
 
         if (solicitudProyectoBD == null) {
-            response.put("Mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
+            response.put("mensaje", "No fue posible encontrar la entidad con el ID proporcionado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
@@ -320,38 +320,44 @@ public class SolicitudProyectoController {
             SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateAdmin(solicitudProyectoBD,
                     solicitudProyecto);
 
-            if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Aprobado")
-                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Rechazado")
-                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Observación")) {
+            // Intentar enviar notificación por email (no bloquear si falla)
+            try {
+                if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Aprobado")
+                        || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Rechazado")
+                        || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Observación")) {
 
-                // Enviar el correo institucional
-                emailService.sendNotificationSolicitudProyectoEmail(
-                        updatedSolicitud.getUserCreador().getCorreoInstitucional(),
-                        updatedSolicitud.getEstado().getNombre(),
-                        updatedSolicitud.getObservaciones());
+                    // Enviar el correo institucional
+                    emailService.sendNotificationSolicitudProyectoEmail(
+                            updatedSolicitud.getUserCreador().getCorreoInstitucional(),
+                            updatedSolicitud.getEstado().getNombre(),
+                            updatedSolicitud.getObservaciones());
 
-                // Enviar el correo personal
-                if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
+                    // Enviar el correo personal
+                    if (updatedSolicitud.getUserCreador().getCorreoPersonal() != null) {
 
-                    if (!updatedSolicitud.getUserCreador().getCorreoInstitucional()
-                            .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
+                        if (!updatedSolicitud.getUserCreador().getCorreoInstitucional()
+                                .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
+                            emailService.sendNotificationSolicitudProyectoEmail(
+                                    updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                                    updatedSolicitud.getEstado().getNombre(),
+                                    updatedSolicitud.getObservaciones());
+                        }
+                    }
+
+                    if (!updatedSolicitud.getEmpresa().getContactoEmail()
+                            .equals(updatedSolicitud.getUserCreador().getCorreoInstitucional())
+                            && !updatedSolicitud.getEmpresa().getContactoEmail()
+                                    .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
+                        // Enviar el correo a la empresa
                         emailService.sendNotificationSolicitudProyectoEmail(
-                                updatedSolicitud.getUserCreador().getCorreoPersonal(),
+                                updatedSolicitud.getEmpresa().getContactoEmail(),
                                 updatedSolicitud.getEstado().getNombre(),
                                 updatedSolicitud.getObservaciones());
                     }
                 }
-
-                if (!updatedSolicitud.getEmpresa().getContactoEmail()
-                        .equals(updatedSolicitud.getUserCreador().getCorreoInstitucional())
-                        && !updatedSolicitud.getEmpresa().getContactoEmail()
-                                .equals(updatedSolicitud.getUserCreador().getCorreoPersonal())) {
-                    // Enviar el correo a la empresa
-                    emailService.sendNotificationSolicitudProyectoEmail(
-                            updatedSolicitud.getEmpresa().getContactoEmail(),
-                            updatedSolicitud.getEstado().getNombre(),
-                            updatedSolicitud.getObservaciones());
-                }
+            } catch (Exception emailException) {
+                // Loggear el error pero no fallar la operación principal
+                System.err.println("Error al enviar notificación por email: " + emailException.getMessage());
             }
 
             return ResponseEntity.ok(updatedSolicitud);
@@ -388,19 +394,38 @@ public class SolicitudProyectoController {
             SolicitudProyecto updatedSolicitud = solicitudProyectoService.updateExterno(solicitudProyectoBD,
                     solicitudProyecto);
 
-            if (updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("En Revisión")
-                    || updatedSolicitud.getEstado().getNombre().equalsIgnoreCase("Pendiente")) {
+            // Verificar que el estado existe antes de intentar acceder a sus propiedades
+            String nombreEstado = null;
+            if (updatedSolicitud.getEstado() != null) {
+                nombreEstado = updatedSolicitud.getEstado().getNombre();
+            } else if (updatedSolicitud.getCodigoEstado() != null) {
+                // Si el estado no está cargado, obtenerlo por código
+                Estado estado = estadoService.findByCodigoEstado(updatedSolicitud.getCodigoEstado()).orElse(null);
+                if (estado != null) {
+                    nombreEstado = estado.getNombre();
+                    updatedSolicitud.setEstado(estado);
+                }
+            }
+
+            if (nombreEstado != null && 
+                (nombreEstado.equalsIgnoreCase("En Revisión") || nombreEstado.equalsIgnoreCase("Pendiente"))) {
 
                 String datos = updatedSolicitud.getTitulo() + "|" + updatedSolicitud.getUserCreador().getNombres() + " "
                         + updatedSolicitud.getUserCreador().getApellidos() + "|"
                         + updatedSolicitud.getUserCreador().getCorreoInstitucional() + "|"
                         + updatedSolicitud.getObservaciones();
 
-                // Enviar el correo institucional
-                emailService.sendNotificationSolicitudProyectoEmail(
-                        updatedSolicitud.getAdminRevisor().getCorreoInstitucional(),
-                        updatedSolicitud.getEstado().getNombre(),
-                        datos);
+                // Enviar el correo institucional (envuelto en try-catch para no bloquear)
+                try {
+                    if (updatedSolicitud.getAdminRevisor() != null) {
+                        emailService.sendNotificationSolicitudProyectoEmail(
+                                updatedSolicitud.getAdminRevisor().getCorreoInstitucional(),
+                                nombreEstado,
+                                datos);
+                    }
+                } catch (Exception emailEx) {
+                    System.err.println("Error al enviar correo de notificación: " + emailEx.getMessage());
+                }
             }
 
             return ResponseEntity.ok(updatedSolicitud);
@@ -452,37 +477,42 @@ public class SolicitudProyectoController {
             AprobacionSolicitudResponse resultado = solicitudProyectoService.aprobarYCrearProyecto(
                     idSolicitud, idAdmin, observaciones, codigoEstadoProyecto);
 
-            // Enviar notificación por email
-            SolicitudProyecto solicitudAprobada = resultado.getSolicitud();
-            
-            // Notificar al creador de la solicitud
-            emailService.sendNotificationSolicitudProyectoEmail(
-                    solicitudAprobada.getUserCreador().getCorreoInstitucional(),
-                    "Aprobado",
-                    "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado. " +
-                    (observaciones != null ? "Observaciones: " + observaciones : ""));
-
-            // Notificar al correo personal si existe y es diferente
-            if (solicitudAprobada.getUserCreador().getCorreoPersonal() != null
-                    && !solicitudAprobada.getUserCreador().getCorreoInstitucional()
-                            .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
+            // Intentar enviar notificación por email (no bloquear si falla)
+            try {
+                SolicitudProyecto solicitudAprobada = resultado.getSolicitud();
+                
+                // Notificar al creador de la solicitud
                 emailService.sendNotificationSolicitudProyectoEmail(
-                        solicitudAprobada.getUserCreador().getCorreoPersonal(),
+                        solicitudAprobada.getUserCreador().getCorreoInstitucional(),
                         "Aprobado",
-                        "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
-            }
+                        "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado. " +
+                        (observaciones != null ? "Observaciones: " + observaciones : ""));
 
-            // Notificar a la empresa si el correo es diferente
-            if (solicitudAprobada.getEmpresa() != null 
-                    && solicitudAprobada.getEmpresa().getContactoEmail() != null
-                    && !solicitudAprobada.getEmpresa().getContactoEmail()
-                            .equals(solicitudAprobada.getUserCreador().getCorreoInstitucional())
-                    && !solicitudAprobada.getEmpresa().getContactoEmail()
-                            .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
-                emailService.sendNotificationSolicitudProyectoEmail(
-                        solicitudAprobada.getEmpresa().getContactoEmail(),
-                        "Aprobado",
-                        "La solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
+                // Notificar al correo personal si existe y es diferente
+                if (solicitudAprobada.getUserCreador().getCorreoPersonal() != null
+                        && !solicitudAprobada.getUserCreador().getCorreoInstitucional()
+                                .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
+                    emailService.sendNotificationSolicitudProyectoEmail(
+                            solicitudAprobada.getUserCreador().getCorreoPersonal(),
+                            "Aprobado",
+                            "Su solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
+                }
+
+                // Notificar a la empresa si el correo es diferente
+                if (solicitudAprobada.getEmpresa() != null 
+                        && solicitudAprobada.getEmpresa().getContactoEmail() != null
+                        && !solicitudAprobada.getEmpresa().getContactoEmail()
+                                .equals(solicitudAprobada.getUserCreador().getCorreoInstitucional())
+                        && !solicitudAprobada.getEmpresa().getContactoEmail()
+                                .equals(solicitudAprobada.getUserCreador().getCorreoPersonal())) {
+                    emailService.sendNotificationSolicitudProyectoEmail(
+                            solicitudAprobada.getEmpresa().getContactoEmail(),
+                            "Aprobado",
+                            "La solicitud de proyecto ha sido aprobada y el proyecto ha sido creado.");
+                }
+            } catch (Exception emailException) {
+                // Loggear el error pero no fallar la operación principal
+                System.err.println("Error al enviar notificación por email: " + emailException.getMessage());
             }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
@@ -493,6 +523,25 @@ public class SolicitudProyectoController {
         } catch (IllegalStateException e) {
             response.put("mensaje", e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (jakarta.validation.ConstraintViolationException e) {
+            String errorMessage = e.getConstraintViolations().stream()
+                    .map(violation -> violation.getMessage())
+                    .collect(java.util.stream.Collectors.joining(". "));
+            response.put("mensaje", errorMessage);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (jakarta.persistence.RollbackException e) {
+            // Extraer el mensaje de validación de la causa si existe
+            Throwable cause = e.getCause();
+            if (cause instanceof jakarta.validation.ConstraintViolationException) {
+                jakarta.validation.ConstraintViolationException cve = (jakarta.validation.ConstraintViolationException) cause;
+                String errorMessage = cve.getConstraintViolations().stream()
+                        .map(violation -> violation.getMessage())
+                        .collect(java.util.stream.Collectors.joining(". "));
+                response.put("mensaje", errorMessage);
+            } else {
+                response.put("mensaje", "Error de validación al crear el proyecto");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             response.put("mensaje", "Error al aprobar la solicitud: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

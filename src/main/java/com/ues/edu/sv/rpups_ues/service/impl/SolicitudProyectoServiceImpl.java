@@ -7,6 +7,7 @@ import com.ues.edu.sv.rpups_ues.model.entity.SolicitudProyecto;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
 import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
 import com.ues.edu.sv.rpups_ues.model.repository.SolicitudProyectoRepository;
+import com.ues.edu.sv.rpups_ues.model.repository.EstadoRepository;
 import com.ues.edu.sv.rpups_ues.service.NotificacionService;
 import com.ues.edu.sv.rpups_ues.service.SolicitudProyectoService;
 import org.springframework.stereotype.Service;
@@ -28,15 +29,18 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
     private final ProyectoRepository proyectoRepository;
     private final SpringTemplateEngine templateEngine;
     private final NotificacionService notificacionService;
+    private final EstadoRepository estadoRepository;
 
     public SolicitudProyectoServiceImpl(SolicitudProyectoRepository solicitudProyectoRepository,
             ProyectoRepository proyectoRepository,
             SpringTemplateEngine templateEngine,
-            NotificacionService notificacionService) {
+            NotificacionService notificacionService,
+            EstadoRepository estadoRepository) {
         this.solicitudProyectoRepository = solicitudProyectoRepository;
         this.proyectoRepository = proyectoRepository;
         this.templateEngine = templateEngine;
         this.notificacionService = notificacionService;
+        this.estadoRepository = estadoRepository;
     }
 
     @Override
@@ -395,7 +399,12 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
 
         SolicitudProyecto solicitudAprobada = solicitudProyectoRepository.save(solicitud);
 
-        // 6. Crear el proyecto automáticamente
+        // 6. Buscar el estado para el proyecto
+        String codigoEstadoFinal = codigoEstadoProyecto != null ? codigoEstadoProyecto : "DIS";
+        Estado estadoProyecto = estadoRepository.findById(codigoEstadoFinal)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el estado con código: " + codigoEstadoFinal));
+
+        // 7. Crear el proyecto automáticamente
         Proyecto proyecto = new Proyecto();
         proyecto.setTitulo(solicitud.getTitulo());
         proyecto.setDescripcion(solicitud.getDescripcion());
@@ -411,13 +420,14 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
         proyecto.setCodigoCarrera(solicitud.getCodigoCarrera());
         proyecto.setCodigoModalidad(solicitud.getCodigoModalidad());
         proyecto.setIdAdministrador(idAdmin);
-        proyecto.setCodigoEstado(codigoEstadoProyecto != null ? codigoEstadoProyecto : "DIS"); // Disponible por defecto
+        proyecto.setCodigoEstado(codigoEstadoFinal); // Set del código
+        proyecto.setEstado(estadoProyecto); // Set del objeto Estado completo
         proyecto.setIdSolicitudOrigen(idSolicitud);
         proyecto.setFechaCreacion(null); // Se auto-genera en BD
 
         Proyecto proyectoCreado = proyectoRepository.save(proyecto);
 
-        // 7. Crear notificación para el usuario que creó la solicitud
+        // 8. Crear notificación para el usuario que creó la solicitud
         if (solicitud.getIdUserCreador() != null) {
             notificacionService.notificarSolicitudAprobada(
                 solicitud.getIdUserCreador(),

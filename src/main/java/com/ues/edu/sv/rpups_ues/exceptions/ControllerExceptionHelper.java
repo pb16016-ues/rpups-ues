@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.persistence.RollbackException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ControllerExceptionHelper {
@@ -44,6 +48,55 @@ public class ControllerExceptionHelper {
         }
         return new ResponseEntity<>(new ErrorResponse(new Date(), status.value(), status.name(), ex.getMessage(),
                 request.getDescription(false), validations), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        Map<String, String> validations = new HashMap<>();
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            String propertyPath = violation.getPropertyPath().toString();
+            String message = violation.getMessage();
+            validations.put(propertyPath, message);
+        }
+        
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+        
+        return new ResponseEntity<>(new ErrorResponse(new Date(), status.value(), status.name(), errorMessage,
+                request.getDescription(false), validations), status);
+    }
+
+    @ExceptionHandler(value = RollbackException.class)
+    ResponseEntity<ErrorResponse> handleRollbackException(RollbackException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        Map<String, String> validations = new HashMap<>();
+        
+        // Extraer ConstraintViolationException si existe en la causa
+        Throwable cause = ex.getCause();
+        if (cause instanceof ConstraintViolationException) {
+            ConstraintViolationException cve = (ConstraintViolationException) cause;
+            
+            for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
+                String propertyPath = violation.getPropertyPath().toString();
+                String message = violation.getMessage();
+                validations.put(propertyPath, message);
+            }
+            
+            String errorMessage = cve.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(". "));
+            
+            return new ResponseEntity<>(new ErrorResponse(new Date(), status.value(), status.name(), errorMessage,
+                    request.getDescription(false), validations), status);
+        }
+        
+        // Si no es una ConstraintViolationException, retornar mensaje genérico
+        return new ResponseEntity<>(new ErrorResponse(new Date(), status.value(), status.name(), 
+                "Error de validación al persistir datos",
+                request.getDescription(false)), status);
     }
 
 }
