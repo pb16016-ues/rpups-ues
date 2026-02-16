@@ -84,4 +84,14 @@ public interface ProyectoService {
             String codigoModalidad, String nombreModalidad, String busqueda);
 
     boolean existsByTituloIgnoreCase(String titulo);
+
+    /**
+     * Clona un proyecto existente asignando nuevos estudiantes
+     * @param idProyectoOriginal ID del proyecto a clonar
+     * @param idsEstudiantes Lista de IDs de estudiantes a asignar al proyecto clonado
+     * @param idAdministrador ID del usuario que realiza la clonación
+     * @return Proyecto clonado con los estudiantes asignados
+     * @throws IllegalArgumentException si el proyecto no existe o los estudiantes no son válidos
+     */
+    Proyecto clonarProyecto(Long idProyectoOriginal, List<Long> idsEstudiantes, Long idAdministrador);
 }

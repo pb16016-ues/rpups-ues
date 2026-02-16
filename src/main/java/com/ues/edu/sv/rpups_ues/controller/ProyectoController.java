@@ -2,6 +2,7 @@ package com.ues.edu.sv.rpups_ues.controller;
 
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
 import com.ues.edu.sv.rpups_ues.model.entity.Estado;
+import com.ues.edu.sv.rpups_ues.model.DTO.CloneProyectoRequest;
 import com.ues.edu.sv.rpups_ues.model.entity.Carrera;
 import com.ues.edu.sv.rpups_ues.model.entity.DepartamentoCarrera;
 import com.ues.edu.sv.rpups_ues.model.entity.Empresa;
@@ -420,5 +421,35 @@ public class ProyectoController {
                 .build());
 
         return new ResponseEntity<>(pdfReport, headers, HttpStatus.OK);
+    }
+
+    /**
+     * Clona un proyecto existente con nuevos estudiantes asignados
+     * @param id ID del proyecto original a clonar
+     * @param request Objeto con la lista de IDs de estudiantes a asignar
+     * @param authentication Usuario autenticado que realiza la clonación
+     * @return Proyecto clonado con los nuevos estudiantes asignados
+     */
+    @PostMapping("/{id}/clonar")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COORD', 'SUP')")
+    public ResponseEntity<?> clonarProyecto(
+            @PathVariable Long id, 
+            @RequestBody CloneProyectoRequest request,
+            Authentication authentication) {
+        
+        try {
+            // Obtener el usuario autenticado
+            Long idUsuarioAutenticado = Long.parseLong(authentication.getPrincipal().toString());
+            
+            // Llamar al servicio para clonar el proyecto
+            Proyecto proyectoClonado = proyectoService.clonarProyecto(id, request.getIdsEstudiantes(), idUsuarioAutenticado);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(proyectoClonado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("message", "Error al clonar el proyecto: " + e.getMessage()));
+        }
     }
 }

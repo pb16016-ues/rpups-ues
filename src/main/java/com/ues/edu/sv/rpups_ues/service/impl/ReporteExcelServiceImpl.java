@@ -189,19 +189,19 @@ public class ReporteExcelServiceImpl implements ReporteExcelService {
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue(titulo);
             titleCell.setCellStyle(titleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
 
             // Fecha de generación
             Row dateRow = sheet.createRow(rowNum++);
             Cell dateCell = dateRow.createCell(0);
             dateCell.setCellValue("Generado: " + LocalDateTime.now().format(DATETIME_FORMATTER));
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 10));
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 9));
 
             rowNum++;
 
             // Encabezados
             String[] headers = {"ID", "Título", "Empresa", "Carrera", "Estado", "Fecha Creación", 
-                               "Fecha Revisión", "Revisor", "Max. Estudiantes", "Duración", "Observaciones"};
+                               "Fecha Revisión", "Revisor", "Max. Estudiantes (1-5)", "Observaciones"};
             Row headerRow = sheet.createRow(rowNum++);
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -223,8 +223,7 @@ public class ReporteExcelServiceImpl implements ReporteExcelService {
                 crearCelda(row, 7, solicitud.getAdminRevisor() != null ? 
                            solicitud.getAdminRevisor().getNombres() + " " + solicitud.getAdminRevisor().getApellidos() : "Sin asignar", dataStyle);
                 crearCelda(row, 8, solicitud.getMaxEstudiantes(), dataStyle);
-                crearCelda(row, 9, solicitud.getDuracion() != null ? solicitud.getDuracion() + " horas" : "N/A", dataStyle);
-                crearCelda(row, 10, solicitud.getObservaciones() != null ? solicitud.getObservaciones() : "", dataStyle);
+                crearCelda(row, 9, solicitud.getObservaciones() != null ? solicitud.getObservaciones() : "", dataStyle);
             }
 
             // Total

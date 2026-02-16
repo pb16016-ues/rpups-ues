@@ -3,6 +3,7 @@ package com.ues.edu.sv.rpups_ues.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import com.ues.edu.sv.rpups_ues.validation.FechaPasadoRecienteOFuturo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ public class SolicitudProyecto implements Serializable {
     private String requisitos;
 
     @NotNull(message = "La fecha de inicio del proyecto propuesto no puede estar vacía")
+    @FechaPasadoRecienteOFuturo(diasAntes = 15, message = "La fecha de inicio debe ser desde 15 días antes de hoy en adelante")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDate fechaInicio;
@@ -51,12 +53,13 @@ public class SolicitudProyecto implements Serializable {
     private LocalDate fechaFin;
 
     @NotNull(message = "La duración del proyecto propuesto no puede estar vacía")
-    @Min(value = 1, message = "La duración del proyecto propuesto debe ser mayor a 0")
+    @Min(value = 1, message = "La duración del proyecto debe ser mayor a 0")
     @Column(name = "duracion", nullable = false)
     private Integer duracion;
 
     @NotNull(message = "El número máximo de estudiantes para el proyecto no puede estar vacío")
     @Min(value = 1, message = "El número de estudiantes para el proyecto debe ser mayor a 0")
+    @Max(value = 5, message = "El número de estudiantes para el proyecto no puede ser mayor a 5")
     @Column(name = "max_estudiantes", nullable = false)
     private Integer maxEstudiantes;
 

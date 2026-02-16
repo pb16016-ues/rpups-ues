@@ -2,7 +2,11 @@ package com.ues.edu.sv.rpups_ues.service.impl;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.ues.edu.sv.rpups_ues.model.entity.Proyecto;
+import com.ues.edu.sv.rpups_ues.model.entity.Postulacion;
+import com.ues.edu.sv.rpups_ues.model.entity.Usuario;
 import com.ues.edu.sv.rpups_ues.model.repository.ProyectoRepository;
+import com.ues.edu.sv.rpups_ues.model.repository.PostulacionRepository;
+import com.ues.edu.sv.rpups_ues.model.repository.UsuarioRepository;
 import com.ues.edu.sv.rpups_ues.service.ProyectoService;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.io.ByteArrayOutputStream;
@@ -20,10 +26,17 @@ import java.io.ByteArrayOutputStream;
 public class ProyectoServiceImpl implements ProyectoService {
 
     private final ProyectoRepository proyectoRepository;
+    private final PostulacionRepository postulacionRepository;
+    private final UsuarioRepository usuarioRepository;
     private final SpringTemplateEngine templateEngine;
 
-    public ProyectoServiceImpl(ProyectoRepository proyectoRepository, SpringTemplateEngine templateEngine) {
+    public ProyectoServiceImpl(ProyectoRepository proyectoRepository, 
+                              PostulacionRepository postulacionRepository,
+                              UsuarioRepository usuarioRepository,
+                              SpringTemplateEngine templateEngine) {
         this.proyectoRepository = proyectoRepository;
+        this.postulacionRepository = postulacionRepository;
+        this.usuarioRepository = usuarioRepository;
         this.templateEngine = templateEngine;
     }
 
@@ -297,5 +310,89 @@ public class ProyectoServiceImpl implements ProyectoService {
         } catch (Exception e) {
             throw new RuntimeException("Error al generar el reporte PDF de proyectos disponibles", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public Proyecto clonarProyecto(Long idProyectoOriginal, List<Long> idsEstudiantes, Long idAdministrador) {
+        // Validar que el proyecto original existe
+        Proyecto proyectoOriginal = proyectoRepository.findById(idProyectoOriginal)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Proyecto con ID " + idProyectoOriginal + " no encontrado"));
+
+        // Validar número de estudiantes
+        if (idsEstudiantes == null || idsEstudiantes.isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar al menos un estudiante");
+        }
+
+        if (idsEstudiantes.size() > proyectoOriginal.getMaxEstudiantes()) {
+            throw new IllegalArgumentException(
+                "El número de estudiantes seleccionados (" + idsEstudiantes.size() + 
+                ") excede el máximo permitido (" + proyectoOriginal.getMaxEstudiantes() + ")");
+        }
+
+        // Validar que todos los estudiantes existen y pertenecen al mismo departamento
+        List<Usuario> estudiantes = new ArrayList<>();
+        for (Long idEstudiante : idsEstudiantes) {
+            Usuario estudiante = usuarioRepository.findById(idEstudiante)
+                .orElseThrow(() -> new IllegalArgumentException(
+                    "Estudiante con ID " + idEstudiante + " no encontrado"));
+
+            // Verificar que es estudiante
+            if (!"ESTUD".equals(estudiante.getCodigoRol())) {
+                throw new IllegalArgumentException(
+                    "El usuario con ID " + idEstudiante + " no es un estudiante");
+            }
+
+            estudiantes.add(estudiante);
+        }
+
+        // Crear el proyecto clonado
+        Proyecto proyectoClonado = new Proyecto();
+        proyectoClonado.setTitulo(proyectoOriginal.getTitulo() + " (Copia)");
+        proyectoClonado.setDescripcion(proyectoOriginal.getDescripcion());
+        proyectoClonado.setRequisitos(proyectoOriginal.getRequisitos());
+        proyectoClonado.setFechaInicio(proyectoOriginal.getFechaInicio());
+        proyectoClonado.setFechaFin(proyectoOriginal.getFechaFin());
+        proyectoClonado.setDuracion(proyectoOriginal.getDuracion());
+        proyectoClonado.setMaxEstudiantes(proyectoOriginal.getMaxEstudiantes());
+        proyectoClonado.setDireccionDetallada(proyectoOriginal.getDireccionDetallada());
+        proyectoClonado.setFechaCreacion(LocalDateTime.now());
+        
+        // Copiar relaciones
+        proyectoClonado.setIdEmpresa(proyectoOriginal.getIdEmpresa());
+        proyectoClonado.setCodigoDepartamento(proyectoOriginal.getCodigoDepartamento());
+        proyectoClonado.setCodigoMunicipio(proyectoOriginal.getCodigoMunicipio());
+        proyectoClonado.setCodigoCarrera(proyectoOriginal.getCodigoCarrera());
+        proyectoClonado.setCodigoModalidad(proyectoOriginal.getCodigoModalidad());
+        proyectoClonado.setIdAdministrador(idAdministrador);
+        
+        // Establecer estado según número de estudiantes asignados
+        if (idsEstudiantes.size() >= proyectoOriginal.getMaxEstudiantes()) {
+            proyectoClonado.setCodigoEstado("CERR"); // Cerrado (lleno)
+        } else {
+            proyectoClonado.setCodigoEstado("DIS"); // Disponible (aún acepta estudiantes)
+        }
+        
+        proyectoClonado.setIdSolicitudOrigen(proyectoOriginal.getIdSolicitudOrigen());
+
+        // Guardar el proyecto clonado
+        Proyecto proyectoGuardado = proyectoRepository.save(proyectoClonado);
+
+        // Crear postulaciones aceptadas para cada estudiante
+        for (Usuario estudiante : estudiantes) {
+            Postulacion postulacion = new Postulacion();
+            postulacion.setIdEstudiante(estudiante.getIdUsuario());
+            postulacion.setIdProyecto(proyectoGuardado.getIdProyecto());
+            postulacion.setCodigoEstado("APRO"); // Aprobado
+            postulacion.setFechaPostulacion(LocalDateTime.now());
+            postulacion.setFechaCambioEstado(LocalDateTime.now());
+            postulacion.setIdAdminCambioEstado(idAdministrador);
+            postulacion.setObservaciones("Asignado automáticamente al clonar proyecto");
+            
+            postulacionRepository.save(postulacion);
+        }
+
+        return proyectoGuardado;
     }
 }

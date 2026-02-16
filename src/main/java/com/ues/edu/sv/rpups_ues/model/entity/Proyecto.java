@@ -3,6 +3,7 @@ package com.ues.edu.sv.rpups_ues.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import com.ues.edu.sv.rpups_ues.validation.FechaPasadoRecienteOFuturo;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class Proyecto implements Serializable {
     private String requisitos;
 
     @NotNull(message = "La fecha de inicio del proyecto propuesto no puede estar vacía")
-    @FutureOrPresent(message = "La fecha de inicio del proyecto propuesto debe ser una fecha futura o presente")
+    @FechaPasadoRecienteOFuturo(diasAntes = 15, message = "La fecha de inicio debe ser desde 15 días antes de hoy en adelante")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "fecha_inicio", nullable = true)
     private LocalDate fechaInicio;

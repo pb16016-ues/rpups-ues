@@ -475,7 +475,7 @@ public class SolicitudProyectoController {
      * @return La solicitud aprobada junto con el proyecto creado
      */
     @PostMapping("/{idSolicitud}/aprobar")
-    @Secured({ "ADMIN", "COORD" })
+    @Secured({ "ADMIN", "COORD", "SUP" })
     public ResponseEntity<?> aprobarSolicitudYCrearProyecto(
             @PathVariable Long idSolicitud,
             @RequestBody(required = false) AprobacionSolicitudDTO dto) {
