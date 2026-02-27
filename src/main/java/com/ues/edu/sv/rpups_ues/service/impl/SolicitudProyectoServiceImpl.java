@@ -423,7 +423,7 @@ public class SolicitudProyectoServiceImpl implements SolicitudProyectoService {
         proyecto.setCodigoEstado(codigoEstadoFinal); // Set del código
         proyecto.setEstado(estadoProyecto); // Set del objeto Estado completo
         proyecto.setIdSolicitudOrigen(idSolicitud);
-        proyecto.setFechaCreacion(null); // Se auto-genera en BD
+        proyecto.setFechaCreacion(java.time.LocalDateTime.now()); // Asignar fecha actual
 
         Proyecto proyectoCreado = proyectoRepository.save(proyecto);
 

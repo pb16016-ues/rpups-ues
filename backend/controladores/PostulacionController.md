@@ -208,7 +208,7 @@ public ResponseEntity<Void> deletePostulacion(@PathVariable Long id) {
                     ▼                    ▼                    ▼
              ┌───────────┐        ┌───────────┐        ┌───────────┐
              │   APRB    │        │   RCHZ    │        │   RETIR   │
-             │ Aprobada  │        │ Rechazada │        │ Retirada  │
+             │ Aprobada  │        │ Rechazada │        │ Cancelada  │
              └─────┬─────┘        └───────────┘        └───────────┘
                    │
                    │ Asignar a proyecto
@@ -228,7 +228,7 @@ public ResponseEntity<Void> deletePostulacion(@PathVariable Long id) {
 | PEND | Pendiente | Esperando revisión | Aprobar/Rechazar |
 | APRB | Aprobada | Estudiante aceptado | Asignar al proyecto |
 | RCHZ | Rechazada | Estudiante no aceptado | Fin |
-| RETIR | Retirada | Estudiante se retiró | Fin |
+| RETIR | Cancelada | Estudiante se retiró | Fin |
 
 **Nota**: Estos estados deberían existir en la tabla `estados` pero actualmente no hay endpoint para gestionarlos en postulaciones.
 

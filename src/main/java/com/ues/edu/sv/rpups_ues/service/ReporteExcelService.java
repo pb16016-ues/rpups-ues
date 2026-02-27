@@ -38,6 +38,20 @@ public interface ReporteExcelService {
      */
     byte[] generarExcelProyectos(List<Proyecto> proyectos, String titulo);
 
+    /**
+     * Genera reporte Excel de proyectos creados por un tutor/administrador en un rango de fechas.
+     * Solo incluye proyectos aprobados (estado APRO).
+     * 
+     * @param idAdministrador ID del tutor/administrador
+     * @param nombreTutor Nombre del tutor para incluir en el título
+     * @param fechaInicio Fecha inicio del periodo (opcional, puede ser null)
+     * @param fechaFin Fecha fin del periodo (opcional, puede ser null)
+     * @return Archivo Excel con el reporte
+     */
+    byte[] generarExcelProyectosPorTutor(Long idAdministrador, String nombreTutor, 
+                                          java.time.LocalDate fechaInicio, 
+                                          java.time.LocalDate fechaFin);
+
     // ========== REPORTES DE SOLICITUDES ==========
 
     /**

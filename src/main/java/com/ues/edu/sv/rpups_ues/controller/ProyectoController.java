@@ -159,6 +159,11 @@ public class ProyectoController {
         // Asignar el ID del usuario autenticado como administrador que aprueba/crea el proyecto
         proyecto.setIdAdministrador(idUsuarioAutenticado);
         
+        // Asignar fecha de creación si no viene del cliente
+        if (proyecto.getFechaCreacion() == null) {
+            proyecto.setFechaCreacion(java.time.LocalDateTime.now());
+        }
+        
         Proyecto savedProyecto = proyectoService.save(proyecto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProyecto);
     }
@@ -173,12 +178,23 @@ public class ProyectoController {
         
         // Mantener el administrador original o actualizar si no existe
         Optional<Proyecto> existingProyecto = proyectoService.findById(id);
-        if (existingProyecto.isPresent() && existingProyecto.get().getIdAdministrador() != null) {
-            proyecto.setIdAdministrador(existingProyecto.get().getIdAdministrador());
-        } else {
-            // Si no tenía admin, asignar el usuario actual
-            Long idUsuarioAutenticado = Long.parseLong(authentication.getPrincipal().toString());
-            proyecto.setIdAdministrador(idUsuarioAutenticado);
+        if (existingProyecto.isPresent()) {
+            // Mantener idAdministrador original
+            if (existingProyecto.get().getIdAdministrador() != null) {
+                proyecto.setIdAdministrador(existingProyecto.get().getIdAdministrador());
+            } else {
+                // Si no tenía admin, asignar el usuario actual
+                Long idUsuarioAutenticado = Long.parseLong(authentication.getPrincipal().toString());
+                proyecto.setIdAdministrador(idUsuarioAutenticado);
+            }
+            
+            // IMPORTANTE: Mantener la fecha de creación original
+            if (existingProyecto.get().getFechaCreacion() != null) {
+                proyecto.setFechaCreacion(existingProyecto.get().getFechaCreacion());
+            } else {
+                // Si no tenía fecha, asignar ahora
+                proyecto.setFechaCreacion(java.time.LocalDateTime.now());
+            }
         }
         
         Proyecto updatedProyecto = proyectoService.save(proyecto);

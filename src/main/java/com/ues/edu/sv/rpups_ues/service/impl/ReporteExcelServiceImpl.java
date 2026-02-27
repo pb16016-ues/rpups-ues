@@ -68,6 +68,40 @@ public class ReporteExcelServiceImpl implements ReporteExcelService {
     }
 
     @Override
+    public byte[] generarExcelProyectosPorTutor(Long idAdministrador, String nombreTutor, 
+                                                 java.time.LocalDate fechaInicio, 
+                                                 java.time.LocalDate fechaFin) {
+        // Convertir fechas LocalDate a LocalDateTime para la consulta
+        LocalDateTime fechaInicioTime = fechaInicio != null ? fechaInicio.atStartOfDay() : null;
+        LocalDateTime fechaFinTime = fechaFin != null ? fechaFin.atTime(23, 59, 59) : null;
+        
+        // Obtener proyectos del tutor en el rango de fechas
+        List<Proyecto> proyectos = proyectoRepository.findProyectosPorTutorYFechas(
+            idAdministrador, fechaInicioTime, fechaFinTime);
+        
+        // Construir título del reporte
+        StringBuilder titulo = new StringBuilder("Proyectos del Tutor: ");
+        titulo.append(nombreTutor);
+        
+        if (fechaInicio != null || fechaFin != null) {
+            titulo.append(" | Periodo: ");
+            if (fechaInicio != null) {
+                titulo.append(fechaInicio.format(DATE_FORMATTER));
+            } else {
+                titulo.append("Inicio");
+            }
+            titulo.append(" - ");
+            if (fechaFin != null) {
+                titulo.append(fechaFin.format(DATE_FORMATTER));
+            } else {
+                titulo.append("Presente");
+            }
+        }
+        
+        return generarExcelProyectos(proyectos, titulo.toString());
+    }
+
+    @Override
     public byte[] generarExcelProyectos(List<Proyecto> proyectos, String titulo) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Proyectos");

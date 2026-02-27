@@ -107,6 +107,25 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
         long countByCodigoEstado(String codigoEstado);
 
         /**
+         * Busca proyectos creados por un tutor/administrador en un rango de fechas.
+         * Usado para reportes de actividad por tutor.
+         * 
+         * @param idAdministrador ID del tutor/administrador
+         * @param fechaInicio Fecha inicio del rango (opcional)
+         * @param fechaFin Fecha fin del rango (opcional)
+         * @return Lista de proyectos del tutor en el rango de fechas
+         */
+        @Query("SELECT p FROM Proyecto p " +
+                        "WHERE p.idAdministrador = :idAdministrador " +
+                        "AND (:fechaInicio IS NULL OR p.fechaCreacion >= :fechaInicio) " +
+                        "AND (:fechaFin IS NULL OR p.fechaCreacion <= :fechaFin) " +
+                        "ORDER BY p.fechaCreacion DESC")
+        List<Proyecto> findProyectosPorTutorYFechas(
+                        @Param("idAdministrador") Long idAdministrador,
+                        @Param("fechaInicio") java.time.LocalDateTime fechaInicio,
+                        @Param("fechaFin") java.time.LocalDateTime fechaFin);
+
+        /**
          * Busca proyectos disponibles (estado DIS) con filtros opcionales.
          * Este método es usado para el reporte público de proyectos disponibles.
          */
